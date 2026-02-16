@@ -63,11 +63,7 @@ export const isAuthed = async ({ ctx, next }: { ctx: Context; next: any }) => {
     });
   }
 
-  // Suppress type errors due to SQLite/PostgreSQL mismatch in development
-  // In production with PostgreSQL, types will match correctly
-  // @ts-ignore - SQLite/PostgreSQL type mismatch in development
   const userResult = await db
-    // @ts-ignore - SQLite/PostgreSQL type mismatch in development
     .select({
       id: users.id,
       email: users.email,
@@ -78,7 +74,7 @@ export const isAuthed = async ({ ctx, next }: { ctx: Context; next: any }) => {
     .from(users)
     .leftJoin(userRoles, eq(users.id, userRoles.userId))
     .leftJoin(roles, eq(userRoles.roleId, roles.id))
-    .where(eq(users.id, Number(payload.sub))) as any[];
+    .where(eq(users.id, Number(payload.sub)));
 
   // Collect all unique roles for the user
   const userRolesList = userResult

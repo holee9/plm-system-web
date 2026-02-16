@@ -189,9 +189,18 @@ const mockActivities: ActivityItem[] = [
 export default function ProjectDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const [activeTab, setActiveTab] = React.useState("overview");
+  const [resolvedParams, setResolvedParams] = React.useState<{ id: string } | null>(null);
+
+  React.useEffect(() => {
+    params.then(setResolvedParams);
+  }, [params]);
+
+  if (!resolvedParams) {
+    return null;
+  }
 
   const handleTaskClick = (task: GanttTask) => {
     console.log("Task clicked:", task);

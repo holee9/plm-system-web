@@ -177,10 +177,7 @@ export const userRouter = router({
   sessions: protectedProcedure.query(async ({ ctx }) => {
     const { user, db } = ctx as AuthenticatedContext;
 
-    // Suppress type errors due to SQLite/PostgreSQL mismatch in development
-    // @ts-ignore - SQLite/PostgreSQL type mismatch in development
     const userSessions = await db
-      // @ts-ignore - SQLite/PostgreSQL type mismatch in development
       .select({
         id: sessions.id,
         userAgent: sessions.userAgent,
@@ -191,7 +188,7 @@ export const userRouter = router({
       })
       .from(sessions)
       .where(eq(sessions.userId, user.id))
-      .orderBy(desc(sessions.createdAt)) as any[];
+      .orderBy(desc(sessions.createdAt));
 
     // Get current session token to identify it
     const currentRefreshToken = (ctx as any).req?.cookies?.get("refresh_token")?.value;

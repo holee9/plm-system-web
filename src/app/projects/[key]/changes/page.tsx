@@ -2,13 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type ProjectChangesPageProps = {
-  params: { key: string };
+  params: Promise<{ key: string }>;
 };
 
-export default function ProjectChangesPage({
+export default async function ProjectChangesPage({
   params,
 }: ProjectChangesPageProps) {
-  const { key } = params;
+  const { key } = await params;
 
   return (
     <div className="space-y-6 p-2 sm:p-4">

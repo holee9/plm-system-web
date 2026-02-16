@@ -2,11 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type ProjectDetailPageProps = {
-  params: { key: string };
+  params: Promise<{ key: string }>;
 };
 
-export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
-  const { key } = params;
+export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+  const { key } = await params;
 
   return (
     <div className="space-y-6 p-2 sm:p-4">

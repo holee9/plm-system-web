@@ -2,11 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type ProjectIssuesPageProps = {
-  params: { key: string };
+  params: Promise<{ key: string }>;
 };
 
-export default function ProjectIssuesPage({ params }: ProjectIssuesPageProps) {
-  const { key } = params;
+export default async function ProjectIssuesPage({ params }: ProjectIssuesPageProps) {
+  const { key } = await params;
 
   return (
     <div className="space-y-6 p-2 sm:p-4">

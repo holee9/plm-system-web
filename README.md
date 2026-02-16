@@ -396,12 +396,12 @@ cp C:\Users\user\.mcp.json C:\Users\user\.mcp.json.backup
 - **Language**: TypeScript 5.7 (strict mode)
 - **API**: tRPC v11 (Type-safe APIs)
 - **Database**: PostgreSQL 16 with Drizzle ORM
-- **Styling**: Tailwind CSS 4
+- **Styling**: Tailwind CSS 3.4 + shadcn/ui components
 - **State Management**: Zustand
 - **Validation**: Zod
 - **Testing**: Vitest (unit), Playwright (E2E)
 - **Linting**: Biome
-- **Containerization**: Docker Compose
+- **Containerization**: Docker Compose (PostgreSQL + pgAdmin)
 
 ## Project Structure
 
@@ -442,37 +442,59 @@ plm-system-web/
 ### Prerequisites
 
 - Node.js 20+
-- pnpm (recommended) or npm
-- Docker (for PostgreSQL)
+- npm (or pnpm)
+- Docker Desktop (for PostgreSQL 16)
 
-### Installation
+### Quick Start
 
-1. Install dependencies:
+1. **Clone and install dependencies:**
 ```bash
-pnpm install
+git clone <repository-url>
+cd plm-system-web
+npm install
 ```
 
-2. Start PostgreSQL database:
+2. **Start PostgreSQL database:**
 ```bash
-docker compose -f docker/docker-compose.yml up -d
+npm run docker:up
 ```
 
-3. Copy environment variables:
+3. **Copy environment variables:**
 ```bash
 cp .env.example .env
 ```
 
-4. Run database migrations (when implemented):
+4. **Run database migrations:**
 ```bash
-pnpm db:push
+npm run db:generate
+npm run db:push
 ```
 
-5. Start development server:
+5. **Start development server:**
 ```bash
-pnpm dev
+npm run dev
 ```
 
 6. Open [http://localhost:3000](http://localhost:3000)
+
+### Docker Commands
+
+```bash
+npm run docker:up    # Start PostgreSQL + pgAdmin
+npm run docker:down  # Stop containers
+npm run docker:logs  # View logs
+```
+
+### Database Setup
+
+The project uses PostgreSQL 16 running in Docker. Default connection:
+```
+postgresql://postgres:postgres@localhost:5432/plm_system
+```
+
+To access pgAdmin: http://localhost:5050
+- Email: hnabyz2023@gmail.com
+- Password: admin
 
 ## Available Scripts
 
