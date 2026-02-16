@@ -1,90 +1,50 @@
 {
   "name": "plm-system-design-tokens",
-  "version": "1.0.0",
-  "description": "Design tokens for PLM System Web - compatible with shadcn/ui and Tailwind CSS",
+  "version": "2.0.0",
+  "description": "Design tokens for PLM System Web - shadcn/ui compatible with HSL color values",
   "tokens": {
     "colors": {
       "light": {
-        "background": {
-          "primary": "#ffffff",
-          "secondary": "#f4f4f5",
-          "muted": "#f4f4f5",
-          "card": "#ffffff",
-          "popover": "#ffffff",
-          "border": "#e4e4e7",
-          "input": "#e4e4e7"
-        },
-        "foreground": {
-          "primary": "#09090b",
-          "secondary": "#71717a",
-          "muted": "#71717a",
-          "accent": "#18181b"
-        },
-        "primary": {
-          "DEFAULT": "#18181b",
-          "foreground": "#fafafa"
-        },
-        "secondary": {
-          "DEFAULT": "#f4f4f5",
-          "foreground": "#18181b"
-        },
-        "destructive": {
-          "DEFAULT": "#ef4444",
-          "foreground": "#fafafa"
-        },
-        "success": {
-          "DEFAULT": "#22c55e",
-          "foreground": "#fafafa"
-        },
-        "warning": {
-          "DEFAULT": "#f59e0b",
-          "foreground": "#fafafa"
-        },
-        "info": {
-          "DEFAULT": "#3b82f6",
-          "foreground": "#fafafa"
-        }
+        "background": { "hsl": "0 0% 100%", "hex": "#ffffff" },
+        "foreground": { "hsl": "222.2 84% 4.9%", "hex": "#09090b" },
+        "card": { "hsl": "0 0% 100%", "hex": "#ffffff" },
+        "cardForeground": { "hsl": "222.2 84% 4.9%", "hex": "#09090b" },
+        "popover": { "hsl": "0 0% 100%", "hex": "#ffffff" },
+        "popoverForeground": { "hsl": "222.2 84% 4.9%", "hex": "#09090b" },
+        "primary": { "hsl": "221.2 83.2% 53.3%", "hex": "#3b82f6" },
+        "primaryForeground": { "hsl": "210 40% 98%", "hex": "#fafafa" },
+        "secondary": { "hsl": "210 40% 96.1%", "hex": "#f4f4f5" },
+        "secondaryForeground": { "hsl": "222.2 47.4% 11.2%", "hex": "#18181b" },
+        "muted": { "hsl": "210 40% 96.1%", "hex": "#f4f4f5" },
+        "mutedForeground": { "hsl": "215.4 16.3% 46.9%", "hex": "#71717a" },
+        "accent": { "hsl": "210 40% 96.1%", "hex": "#f4f4f5" },
+        "accentForeground": { "hsl": "222.2 47.4% 11.2%", "hex": "#18181b" },
+        "destructive": { "hsl": "0 84.2% 60.2%", "hex": "#ef4444" },
+        "destructiveForeground": { "hsl": "210 40% 98%", "hex": "#fafafa" },
+        "border": { "hsl": "214.3 31.8% 91.4%", "hex": "#e4e4e7" },
+        "input": { "hsl": "214.3 31.8% 91.4%", "hex": "#e4e4e7" },
+        "ring": { "hsl": "221.2 83.2% 53.3%", "hex": "#3b82f6" }
       },
       "dark": {
-        "background": {
-          "primary": "#09090b",
-          "secondary": "#27272a",
-          "muted": "#27272a",
-          "card": "#09090b",
-          "popover": "#09090b",
-          "border": "#27272a",
-          "input": "#27272a"
-        },
-        "foreground": {
-          "primary": "#fafafa",
-          "secondary": "#a1a1aa",
-          "muted": "#a1a1aa",
-          "accent": "#fafafa"
-        },
-        "primary": {
-          "DEFAULT": "#fafafa",
-          "foreground": "#18181b"
-        },
-        "secondary": {
-          "DEFAULT": "#27272a",
-          "foreground": "#fafafa"
-        },
-        "destructive": {
-          "DEFAULT": "#7f1d1d",
-          "foreground": "#fafafa"
-        },
-        "success": {
-          "DEFAULT": "#15803d",
-          "foreground": "#fafafa"
-        },
-        "warning": {
-          "DEFAULT": "#b45309",
-          "foreground": "#fafafa"
-        },
-        "info": {
-          "DEFAULT": "#1e40af",
-          "foreground": "#fafafa"
-        }
+        "background": { "hsl": "222.2 84% 4.9%", "hex": "#09090b" },
+        "foreground": { "hsl": "210 40% 98%", "hex": "#fafafa" },
+        "card": { "hsl": "217.2 32.6% 17.5%", "hex": "#1c1c21" },
+        "cardForeground": { "hsl": "210 40% 98%", "hex": "#fafafa" },
+        "popover": { "hsl": "217.2 32.6% 17.5%", "hex": "#1c1c21" },
+        "popoverForeground": { "hsl": "210 40% 98%", "hex": "#fafafa" },
+        "primary": { "hsl": "217.2 91.2% 59.8%", "hex": "#60a5fa" },
+        "primaryForeground": { "hsl": "222.2 47.4% 11.2%", "hex": "#18181b" },
+        "secondary": { "hsl": "217.2 32.6% 17.5%", "hex": "#27272a" },
+        "secondaryForeground": { "hsl": "210 40% 98%", "hex": "#fafafa" },
+        "muted": { "hsl": "217.2 32.6% 17.5%", "hex": "#27272a" },
+        "mutedForeground": { "hsl": "215 20.2% 65.1%", "hex": "#a1a1aa" },
+        "accent": { "hsl": "217.2 32.6% 17.5%", "hex": "#27272a" },
+        "accentForeground": { "hsl": "210 40% 98%", "hex": "#fafafa" },
+        "destructive": { "hsl": "0 62.8% 30.6%", "hex": "#7f1d1d" },
+        "destructiveForeground": { "hsl": "210 40% 98%", "hex": "#fafafa" },
+        "border": { "hsl": "217.2 32.6% 17.5%", "hex": "#27272a" },
+        "input": { "hsl": "217.2 32.6% 17.5%", "hex": "#27272a" },
+        "ring": { "hsl": "224.3 76.3% 48%", "hex": "#3b82f6" }
       }
     },
     "typography": {
@@ -135,17 +95,48 @@
     },
     "issue": {
       "status": {
-        "todo": { "color": "#71717a", "label": "To Do" },
-        "inProgress": { "color": "#3b82f6", "label": "In Progress" },
-        "inReview": { "color": "#f59e0b", "label": "In Review" },
-        "done": { "color": "#22c55e", "label": "Done" },
-        "blocked": { "color": "#ef4444", "label": "Blocked" }
+        "todo": { "hsl": "210 10% 45%", "hex": "#71717a", "label": "To Do" },
+        "inProgress": { "hsl": "217 91% 60%", "hex": "#3b82f6", "label": "In Progress" },
+        "inReview": { "hsl": "38 92% 50%", "hex": "#f59e0b", "label": "In Review" },
+        "done": { "hsl": "142 76% 36%", "hex": "#22c55e", "label": "Done" },
+        "blocked": { "hsl": "0 72% 51%", "hex": "#ef4444", "label": "Blocked" }
       },
       "priority": {
-        "critical": { "color": "#ef4444", "label": "Critical" },
-        "high": { "color": "#f97316", "label": "High" },
-        "medium": { "color": "#f59e0b", "label": "Medium" },
-        "low": { "color": "#22c55e", "label": "Low" }
+        "critical": { "hsl": "0 72% 51%", "hex": "#ef4444", "label": "Critical" },
+        "high": { "hsl": "24 95% 53%", "hex": "#f97316", "label": "High" },
+        "medium": { "hsl": "38 92% 50%", "hex": "#f59e0b", "label": "Medium" },
+        "low": { "hsl": "142 76% 36%", "hex": "#22c55e", "label": "Low" }
+      }
+    },
+    "plm": {
+      "partStatus": {
+        "draft": { "hsl": "210 10% 45%", "hex": "#71717a", "label": "Draft" },
+        "pending": { "hsl": "38 92% 50%", "hex": "#f59e0b", "label": "Pending Approval" },
+        "approved": { "hsl": "142 76% 36%", "hex": "#22c55e", "label": "Approved" },
+        "released": { "hsl": "217 91% 60%", "hex": "#3b82f6", "label": "Released" },
+        "obsolete": { "hsl": "0 0% 40%", "hex": "#666666", "label": "Obsolete" }
+      },
+      "ecrStatus": {
+        "draft": { "hsl": "210 10% 45%", "hex": "#71717a", "label": "Draft" },
+        "submitted": { "hsl": "217 91% 60%", "hex": "#3b82f6", "label": "Submitted" },
+        "underReview": { "hsl": "38 92% 50%", "hex": "#f59e0b", "label": "Under Review" },
+        "approved": { "hsl": "142 76% 36%", "hex": "#22c55e", "label": "Approved" },
+        "rejected": { "hsl": "0 72% 51%", "hex": "#ef4444", "label": "Rejected" },
+        "implemented": { "hsl": "217 91% 60%", "hex": "#3b82f6", "label": "Implemented" }
+      },
+      "bomStatus": {
+        "draft": { "hsl": "210 10% 45%", "hex": "#71717a", "label": "Draft" },
+        "underReview": { "hsl": "38 92% 50%", "hex": "#f59e0b", "label": "Under Review" },
+        "approved": { "hsl": "142 76% 36%", "hex": "#22c55e", "label": "Approved" },
+        "released": { "hsl": "217 91% 60%", "hex": "#3b82f6", "label": "Released" },
+        "superseded": { "hsl": "271 81% 56%", "hex": "#a855f7", "label": "Superseded" }
+      },
+      "revisionColor": {
+        "a": { "hsl": "142 76% 36%", "hex": "#22c55e", "label": "Revision A" },
+        "b": { "hsl": "217 91% 60%", "hex": "#3b82f6", "label": "Revision B" },
+        "c": { "hsl": "38 92% 50%", "hex": "#f59e0b", "label": "Revision C" },
+        "d": { "hsl": "271 81% 56%", "hex": "#a855f7", "label": "Revision D" },
+        "e": { "hsl": "0 72% 51%", "hex": "#ef4444", "label": "Revision E" }
       }
     }
   }

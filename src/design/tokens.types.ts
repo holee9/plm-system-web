@@ -1,7 +1,9 @@
 /**
  * PLM Design System - TypeScript Types
- * Auto-generated from .design/tokens/*.json
- * DO NOT EDIT MANUALLY
+ *
+ * Type definitions for design tokens.
+ * Auto-generated from src/design/design-tokens.json
+ * Version: 2.0.0
  */
 
 // ============================================================================
@@ -29,7 +31,7 @@ export type SpacingToken =
 // Border radius tokens
 export const RADIUS_NONE: "0" = "0" as const;
 export const RADIUS_SM: "0.25rem" = "0.25rem" as const;
-export const RADIUS: "0.375rem" = "0.375rem" as const;
+export const RADIUS: "0.5rem" = "0.5rem" as const;
 export const RADIUS_MD: "0.5rem" = "0.5rem" as const;
 export const RADIUS_LG: "0.75rem" = "0.75rem" as const;
 export const RADIUS_XL: "1rem" = "1rem" as const;
@@ -38,6 +40,7 @@ export const RADIUS_FULL: "9999px" = "9999px" as const;
 export type BorderRadiusToken =
   | typeof RADIUS_NONE
   | typeof RADIUS_SM
+  | typeof RADIUS
   | typeof RADIUS_MD
   | typeof RADIUS_LG
   | typeof RADIUS_XL
@@ -130,18 +133,33 @@ export type EasingToken =
   | typeof EASE_OUT
   | typeof EASE_BOUNCE;
 
-// Color tokens
-export type ColorToken =
-  | "background-primary"
-  | "background-secondary"
-  | "foreground-primary"
-  | "foreground-secondary"
-  | "primary-default"
-  | "destructive-default"
-  | "success-default"
-  | "warning-default"
-  | "info-default"
-  | string; // Allow custom colors
+// ============================================================================
+// PLM DOMAIN TOKEN TYPES
+// ============================================================================
+
+// Issue status tokens
+export type IssueStatus = "todo" | "inProgress" | "inReview" | "done" | "blocked";
+export type IssueStatusKey = `issue-${IssueStatus}`;
+
+// Issue priority tokens
+export type IssuePriority = "critical" | "high" | "medium" | "low";
+export type IssuePriorityKey = `priority-${IssuePriority}`;
+
+// PLM Part status tokens
+export type PartStatus = "draft" | "pending" | "approved" | "released" | "obsolete";
+export type PartStatusKey = `part-status-${PartStatus}`;
+
+// PLM ECR status tokens
+export type EcrStatus = "draft" | "submitted" | "underReview" | "approved" | "rejected" | "implemented";
+export type EcrStatusKey = `ecr-status-${EcrStatus}`;
+
+// PLM BOM status tokens
+export type BomStatus = "draft" | "underReview" | "approved" | "released" | "superseded";
+export type BomStatusKey = `bom-status-${BomStatus}`;
+
+// Revision coding tokens
+export type RevisionCode = "a" | "b" | "c" | "d" | "e";
+export type RevisionKey = `revision-${RevisionCode}`;
 
 // ============================================================================
 // TOKEN CATEGORY INTERFACES
@@ -210,6 +228,58 @@ export interface AnimationTokens {
 }
 
 // ============================================================================
+// PLM DOMAIN TOKEN INTERFACES
+// ============================================================================
+
+export interface IssueStatusTokens {
+  todo: string;
+  inProgress: string;
+  inReview: string;
+  done: string;
+  blocked: string;
+}
+
+export interface IssuePriorityTokens {
+  critical: string;
+  high: string;
+  medium: string;
+  low: string;
+}
+
+export interface PartStatusTokens {
+  draft: string;
+  pending: string;
+  approved: string;
+  released: string;
+  obsolete: string;
+}
+
+export interface EcrStatusTokens {
+  draft: string;
+  submitted: string;
+  underReview: string;
+  approved: string;
+  rejected: string;
+  implemented: string;
+}
+
+export interface BomStatusTokens {
+  draft: string;
+  underReview: string;
+  approved: string;
+  released: string;
+  superseded: string;
+}
+
+export interface RevisionTokens {
+  a: string;
+  b: string;
+  c: string;
+  d: string;
+  e: string;
+}
+
+// ============================================================================
 // TOKENS EXPORT
 // ============================================================================
 
@@ -250,3 +320,90 @@ export const tokens = {
     tooltip: Z_TOOLTIP,
   },
 } as const;
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Get CSS variable reference for a design token
+ * @param token - The CSS variable name (e.g., "spacing-md")
+ * @returns CSS var() function string
+ */
+export function cssVar(token: string): string {
+  return `var(--${token})`;
+}
+
+/**
+ * Get HSL color value for use in CSS-in-JS
+ * @param hsl - HSL value string (e.g., "221.2 83.2% 53.3%")
+ * @returns CSS hsl() function string
+ */
+export function hsl(hsl: string): string {
+  return `hsl(${hsl})`;
+}
+
+/**
+ * Get issue status CSS variable name
+ * @param status - Issue status key
+ * @returns CSS variable name
+ */
+export function issueStatusVar(status: IssueStatus): string {
+  const statusMap: Record<IssueStatus, string> = {
+    todo: "todo",
+    inProgress: "in-progress",
+    inReview: "in-review",
+    done: "done",
+    blocked: "blocked",
+  };
+  return `issue-${statusMap[status]}`;
+}
+
+/**
+ * Get PLM part status CSS variable name
+ * @param status - Part status key
+ * @returns CSS variable name
+ */
+export function partStatusVar(status: PartStatus): string {
+  const statusMap: Record<PartStatus, string> = {
+    draft: "draft",
+    pending: "pending",
+    approved: "approved",
+    released: "released",
+    obsolete: "obsolete",
+  };
+  return `part-status-${statusMap[status]}`;
+}
+
+/**
+ * Get ECR status CSS variable name
+ * @param status - ECR status key
+ * @returns CSS variable name
+ */
+export function ecrStatusVar(status: EcrStatus): string {
+  const statusMap: Record<EcrStatus, string> = {
+    draft: "draft",
+    submitted: "submitted",
+    underReview: "under-review",
+    approved: "approved",
+    rejected: "rejected",
+    implemented: "implemented",
+  };
+  return `ecr-status-${statusMap[status]}`;
+}
+
+/**
+ * Get BOM status CSS variable name
+ * @param status - BOM status key
+ * @returns CSS variable name
+ */
+export function bomStatusVar(status: BomStatus): string {
+  const statusMap: Record<BomStatus, string> = {
+    draft: "draft",
+    underReview: "under-review",
+    approved: "approved",
+    released: "released",
+    superseded: "superseded",
+  };
+  return `bom-status-${statusMap[status]}`;
+}

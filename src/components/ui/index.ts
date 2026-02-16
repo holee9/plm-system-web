@@ -11,6 +11,7 @@ export * from "./loading-skeleton";
 export * from "./page-transition";
 export * from "./select";
 export * from "./skip-link";
+export * from "./status-badge";
 export * from "./table";
 export * from "./tabs";
 export * from "./textarea";
