@@ -51,7 +51,7 @@ function getInitials(name: string): string {
 export default function TeamDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const teamId = Number(params.id);
+  const teamId = params.id as string;
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -59,7 +59,7 @@ export default function TeamDetailPage() {
   const { data: currentUser } = trpc.user.me.useQuery();
   const { data: teamDetails, isLoading: isLoadingTeam, refetch: refetchTeam } = trpc.team.getById.useQuery(
     { teamId },
-    { enabled: !isNaN(teamId) }
+    { enabled: !!teamId }
   );
 
   const updateTeamMutation = trpc.team.update.useMutation({
@@ -233,7 +233,7 @@ export default function TeamDetailPage() {
                 teamId={teamId}
                 members={teamDetails.members as TeamMember[]}
                 yourRole={teamDetails.yourRole}
-                currentUserId={currentUser?.id || 0}
+                currentUserId={currentUser?.id || ""}
                 onMemberRemoved={() => refetchTeam()}
                 onRoleUpdated={() => refetchTeam()}
               />

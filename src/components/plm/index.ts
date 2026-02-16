@@ -1,3 +1,14 @@
+// PLM Components - Parts and BOM Management
+export { PartList } from "./PartList";
+export { PartDetail } from "./PartDetail";
+export { PartStatusBadge } from "./PartStatusBadge";
+export { BomTree } from "./BomTree";
+export { BomFlatTable } from "./BomFlatTable";
+export { RevisionTimeline } from "./RevisionTimeline";
+export { WhereUsedTable } from "./WhereUsedTable";
+export { BomAddItemDialog } from "./BomAddItemDialog";
+
+// Legacy components (to be refactored)
 export { StatusBadge, type StatusBadgeProps } from "./status-badge";
 export { BOMFilters, type BOMFilter } from "./bom-filters";
 export { BOMTable, type BOMPart } from "./bom-table";

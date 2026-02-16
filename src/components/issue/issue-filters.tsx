@@ -12,20 +12,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { X, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export type IssuePriority = "critical" | "high" | "medium" | "low" | undefined;
-export type IssueStatus = "todo" | "inProgress" | "inReview" | "done" | undefined;
-export type IssueType = "bug" | "story" | "task" | "epic" | undefined;
+import type { IssuePriority, IssueStatus, IssueType } from "~/modules/issue/types";
 
 interface IssueFiltersProps {
   onlyMyIssues: boolean;
   onOnlyMyIssuesChange: (value: boolean) => void;
-  priority?: IssuePriority;
-  onPriorityChange: (value: IssuePriority) => void;
-  status?: IssueStatus;
-  onStatusChange: (value: IssueStatus) => void;
-  type?: IssueType;
-  onTypeChange: (value: IssueType) => void;
+  priority?: IssuePriority | undefined;
+  onPriorityChange: (value: IssuePriority | undefined) => void;
+  status?: IssueStatus | undefined;
+  onStatusChange: (value: IssueStatus | undefined) => void;
+  type?: IssueType | undefined;
+  onTypeChange: (value: IssueType | undefined) => void;
   projectId?: string;
   onProjectIdChange: (value: string | undefined) => void;
   projects?: Array<{ id: string; name: string }>;
@@ -64,7 +61,7 @@ export function IssueFilters({
           htmlFor="only-my-issues"
           className="text-sm font-normal cursor-pointer"
         >
-          Only My Issues
+          내 이슈만
         </Label>
       </div>
 
@@ -79,14 +76,15 @@ export function IssueFilters({
       >
         <SelectTrigger className="w-[140px]">
           <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-          <SelectValue placeholder="Priority" />
+          <SelectValue placeholder="우선순위" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Priorities</SelectItem>
-          <SelectItem value="critical">Critical</SelectItem>
-          <SelectItem value="high">High</SelectItem>
-          <SelectItem value="medium">Medium</SelectItem>
-          <SelectItem value="low">Low</SelectItem>
+          <SelectItem value="all">모든 우선순위</SelectItem>
+          <SelectItem value="urgent">긴급</SelectItem>
+          <SelectItem value="high">높음</SelectItem>
+          <SelectItem value="medium">보통</SelectItem>
+          <SelectItem value="low">낮음</SelectItem>
+          <SelectItem value="none">없음</SelectItem>
         </SelectContent>
       </Select>
 
@@ -98,14 +96,15 @@ export function IssueFilters({
         }
       >
         <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder="상태" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Statuses</SelectItem>
-          <SelectItem value="todo">To Do</SelectItem>
-          <SelectItem value="inProgress">In Progress</SelectItem>
-          <SelectItem value="inReview">In Review</SelectItem>
-          <SelectItem value="done">Done</SelectItem>
+          <SelectItem value="all">모든 상태</SelectItem>
+          <SelectItem value="open">열림</SelectItem>
+          <SelectItem value="in_progress">진행 중</SelectItem>
+          <SelectItem value="review">검토 중</SelectItem>
+          <SelectItem value="done">완료</SelectItem>
+          <SelectItem value="closed">닫힘</SelectItem>
         </SelectContent>
       </Select>
 
@@ -117,14 +116,14 @@ export function IssueFilters({
         }
       >
         <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="Type" />
+          <SelectValue placeholder="유형" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Types</SelectItem>
-          <SelectItem value="bug">Bug</SelectItem>
-          <SelectItem value="story">Story</SelectItem>
-          <SelectItem value="task">Task</SelectItem>
-          <SelectItem value="epic">Epic</SelectItem>
+          <SelectItem value="all">모든 유형</SelectItem>
+          <SelectItem value="task">작업</SelectItem>
+          <SelectItem value="bug">버그</SelectItem>
+          <SelectItem value="feature">기능</SelectItem>
+          <SelectItem value="improvement">개선</SelectItem>
         </SelectContent>
       </Select>
 
@@ -137,10 +136,10 @@ export function IssueFilters({
           }
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Project" />
+            <SelectValue placeholder="프로젝트" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Projects</SelectItem>
+            <SelectItem value="all">모든 프로젝트</SelectItem>
             {projects.map((project) => (
               <SelectItem key={project.id} value={project.id}>
                 {project.name}
@@ -159,7 +158,7 @@ export function IssueFilters({
           className="gap-1"
         >
           <X className="h-4 w-4" />
-          Clear
+          초기화
         </Button>
       )}
     </div>

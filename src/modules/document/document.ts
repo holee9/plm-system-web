@@ -13,14 +13,3 @@ export interface Document {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export interface DocumentVersion {
-  id: string;
-  documentId: string;
-  version: string;
-  filePath: string;
-  fileSize: number;
-  uploaderId: string;
-  changelog: string | null;
-  createdAt: Date;
-}

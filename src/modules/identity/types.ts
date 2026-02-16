@@ -12,7 +12,7 @@ export type TeamRole = "owner" | "admin" | "member";
  * Team information
  */
 export interface Team {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   description: string | null;
@@ -32,8 +32,8 @@ export interface TeamWithRole extends Team {
  * Team member with user details
  */
 export interface TeamMember {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   userName: string;
   userEmail: string;
   userImage: string | null;

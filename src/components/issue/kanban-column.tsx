@@ -3,35 +3,39 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { IssueCard, type Issue } from "./issue-card";
 import { SortableItem } from "./sortable-item";
 import { cn } from "@/lib/utils";
+import type { IssueStatus } from "~/modules/issue/types";
 
-// Status colors from design tokens
-const STATUS_CONFIG = {
-  todo: {
-    label: "To Do",
+// Status colors from design tokens - matching backend status values
+const STATUS_CONFIG: Record<IssueStatus, { label: string; color: string; bgColor: string }> = {
+  open: {
+    label: "열림",
     color: "#71717a",
-    bgColor: "#e4e4e7",
+    bgColor: "#f3f4f6",
   },
-  inProgress: {
-    label: "In Progress",
+  in_progress: {
+    label: "진행 중",
     color: "#3b82f6",
     bgColor: "#dbeafe",
   },
-  inReview: {
-    label: "In Review",
+  review: {
+    label: "검토 중",
     color: "#f59e0b",
     bgColor: "#fef3c7",
   },
   done: {
-    label: "Done",
+    label: "완료",
     color: "#22c55e",
     bgColor: "#dcfce7",
   },
-} as const;
-
-export type IssueStatus = keyof typeof STATUS_CONFIG;
+  closed: {
+    label: "닫힘",
+    color: "#9ca3af",
+    bgColor: "#f3f4f6",
+  },
+};
 
 interface KanbanColumnProps {
-  id: IssueStatus;
+  id: IssueStatus; // Use IssueStatus type
   issues: Issue[];
   onIssueClick?: (issue: Issue) => void;
 }

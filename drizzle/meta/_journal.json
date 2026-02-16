@@ -8,6 +8,20 @@
       "when": 1771234116733,
       "tag": "0000_young_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771245386625,
+      "tag": "0001_cheerful_turbo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771247764195,
+      "tag": "0002_quick_ken_ellis",
+      "breakpoints": true
     }
   ]
 }

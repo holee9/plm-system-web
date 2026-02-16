@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { skipToken } from "@tanstack/react-query";
 
 import { KanbanBoard } from "./kanban-board";
 import { IssueCreateDialog } from "./issue-create-dialog";
 import { IssueDetailDialog } from "./issue-detail-dialog";
 import { IssueFilters } from "./issue-filters";
 import type { Issue } from "./issue-card";
-import type { IssueStatus } from "./kanban-column";
+import type { IssueStatus } from "~/modules/issue/types";
 import { trpc } from "@/lib/trpc";
 
 interface IssueBoardProps {
@@ -23,38 +24,43 @@ export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
 
   // Filters
   const [onlyMyIssues, setOnlyMyIssues] = useState(false);
-  const [priorityFilter, setPriorityFilter] = useState<"critical" | "high" | "medium" | "low" | undefined>();
-  const [statusFilter, setStatusFilter] = useState<"todo" | "inProgress" | "inReview" | "done" | undefined>();
-  const [typeFilter, setTypeFilter] = useState<"bug" | "story" | "task" | "epic" | undefined>();
+  const [priorityFilter, setPriorityFilter] = useState<"urgent" | "high" | "medium" | "low" | "none" | undefined>();
+  const [statusFilter, setStatusFilter] = useState<"open" | "in_progress" | "review" | "done" | "closed" | undefined>();
+  const [typeFilter, setTypeFilter] = useState<"task" | "bug" | "feature" | "improvement" | undefined>();
 
   // Fetch issues
-  const { data: issues = [], isLoading } = trpc.issue.list.useQuery({
-    projectId,
-    assigneeId: onlyMyIssues ? currentUserId : undefined,
-    priority: priorityFilter,
-    status: statusFilter,
-    type: typeFilter,
-    onlyMyIssues,
-    currentUserId,
-  });
+  const { data: issuesData, isLoading } = trpc.issue.list.useQuery(
+    projectId ? {
+      projectId: projectId,
+      filters: {
+        assigneeId: onlyMyIssues ? currentUserId : undefined,
+        priority: priorityFilter,
+        status: statusFilter,
+        type: typeFilter,
+      },
+    } : skipToken,
+    { enabled: !!projectId }
+  );
+
+  const issues = issuesData?.items ?? [];
 
   // Update issue mutation
   const utils = trpc.useUtils();
-  const updateIssue = trpc.issue.update.useMutation({
+  const updateIssueStatus = trpc.issue.updateStatus.useMutation({
     onSuccess: () => {
-      toast.success("Issue updated");
+      toast.success("Issue status updated");
       utils.issue.list.invalidate();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || "Failed to update issue");
     },
   });
 
   // Handle issue move
   const handleIssueMove = (issueId: string, newStatus: IssueStatus) => {
-    updateIssue.mutate({
+    updateIssueStatus.mutate({
       id: issueId,
-      status: newStatus,
+      data: { status: newStatus },
     });
   };
 
@@ -73,13 +79,13 @@ export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
   };
 
   // Convert database issues to component format
-  const formattedIssues: Issue[] = issues.map((issue) => ({
+  const formattedIssues: Issue[] = issues.map((issue: any) => ({
     id: issue.id,
     key: issue.key,
     title: issue.title,
     type: issue.type as Issue["type"],
     priority: issue.priority as Issue["priority"],
-    status: issue.status as Issue["status"],
+    status: issue.status, // Already matches backend IssueStatus type
     assignee: issue.assigneeId
       ? {
           name: "Assigned User", // TODO: Fetch from users table

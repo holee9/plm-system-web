@@ -45,7 +45,7 @@ const inviteMemberSchema = z.object({
 type InviteMemberFormValues = z.infer<typeof inviteMemberSchema>;
 
 interface InviteMemberDialogProps {
-  teamId: number;
+  teamId: string;
   onInviteSuccess?: () => void;
 }
 

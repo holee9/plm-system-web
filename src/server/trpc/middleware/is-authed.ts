@@ -11,7 +11,7 @@ import { verifyAccessToken } from "../../utils/jwt";
  * Authenticated user context
  */
 export interface AuthenticatedUser {
-  id: number;
+  id: string;
   email: string;
   name: string;
   roles: string[];
@@ -74,7 +74,7 @@ export const isAuthed = async ({ ctx, next }: { ctx: Context; next: any }) => {
     .from(users)
     .leftJoin(userRoles, eq(users.id, userRoles.userId))
     .leftJoin(roles, eq(userRoles.roleId, roles.id))
-    .where(eq(users.id, Number(payload.sub)));
+    .where(eq(users.id, payload.sub));
 
   // Collect all unique roles for the user
   const userRolesList = userResult

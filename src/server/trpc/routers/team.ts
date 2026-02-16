@@ -11,8 +11,8 @@ import type { AuthenticatedContext } from "../middleware";
 // Helper function to check if user has required role in team
 async function checkTeamRole(
   db: AuthenticatedContext["db"],
-  userId: number,
-  teamId: number,
+  userId: string,
+  teamId: string,
   allowedRoles: string[]
 ): Promise<boolean> {
   const membership = await db
@@ -31,8 +31,8 @@ async function checkTeamRole(
 // Helper function to check if user is team owner
 async function isTeamOwner(
   db: AuthenticatedContext["db"],
-  userId: number,
-  teamId: number
+  userId: string,
+  teamId: string
 ): Promise<boolean> {
   return checkTeamRole(db, userId, teamId, ["owner"]);
 }
@@ -40,8 +40,8 @@ async function isTeamOwner(
 // Helper function to check if user is team owner or admin
 async function isTeamOwnerOrAdmin(
   db: AuthenticatedContext["db"],
-  userId: number,
-  teamId: number
+  userId: string,
+  teamId: string
 ): Promise<boolean> {
   return checkTeamRole(db, userId, teamId, ["owner", "admin"]);
 }
@@ -186,7 +186,7 @@ export const teamRouter = router({
   getById: protectedProcedure
     .input(
       z.object({
-        teamId: z.number(),
+        teamId: z.string().uuid(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -262,7 +262,7 @@ export const teamRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        teamId: z.number(),
+        teamId: z.string().uuid(),
         name: z.string().min(2).max(100).optional(),
         description: z.string().optional(),
       })
@@ -312,7 +312,7 @@ export const teamRouter = router({
   addMember: protectedProcedure
     .input(
       z.object({
-        teamId: z.number(),
+        teamId: z.string().uuid(),
         email: z.string().email("올바른 이메일 주소를 입력해주세요"),
         role: z.enum(["admin", "member"]).default("member"),
       })
@@ -382,8 +382,8 @@ export const teamRouter = router({
   removeMember: protectedProcedure
     .input(
       z.object({
-        teamId: z.number(),
-        userId: z.number(),
+        teamId: z.string().uuid(),
+        userId: z.string().uuid(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -446,8 +446,8 @@ export const teamRouter = router({
   updateMemberRole: protectedProcedure
     .input(
       z.object({
-        teamId: z.number(),
-        userId: z.number(),
+        teamId: z.string().uuid(),
+        userId: z.string().uuid(),
         role: z.enum(["admin", "member"]),
       })
     )

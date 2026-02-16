@@ -16,8 +16,8 @@ const mockIssues: Issue[] = [
     key: "PLM-144",
     title: "Fix battery thermal management",
     type: "bug",
-    priority: "critical",
-    status: "todo",
+    priority: "urgent",
+    status: "open",
     assignee: {
       name: "John Doe",
       initials: "JD",
@@ -30,9 +30,9 @@ const mockIssues: Issue[] = [
     id: "2",
     key: "PLM-145",
     title: "Implement BOM versioning",
-    type: "story",
+    type: "feature",
     priority: "high",
-    status: "todo",
+    status: "open",
     assignee: {
       name: "Jane Smith",
       initials: "JS",
@@ -47,7 +47,7 @@ const mockIssues: Issue[] = [
     title: "Update part number validation",
     type: "task",
     priority: "low",
-    status: "todo",
+    status: "open",
     assignee: {
       name: "Bob Johnson",
       initials: "BJ",
@@ -59,9 +59,9 @@ const mockIssues: Issue[] = [
     id: "4",
     key: "PLM-140",
     title: "Implement BOM versioning",
-    type: "story",
+    type: "feature",
     priority: "high",
-    status: "inProgress",
+    status: "in_progress",
     assignee: {
       name: "Alice Brown",
       initials: "AB",
@@ -74,9 +74,9 @@ const mockIssues: Issue[] = [
     id: "5",
     key: "PLM-141",
     title: "Add ECN workflow",
-    type: "epic",
+    type: "improvement",
     priority: "medium",
-    status: "inProgress",
+    status: "in_progress",
     assignee: {
       name: "Charlie Wilson",
       initials: "CW",
@@ -90,7 +90,7 @@ const mockIssues: Issue[] = [
     title: "Fix part search performance",
     type: "bug",
     priority: "low",
-    status: "inReview",
+    status: "review",
     assignee: {
       name: "Diana Lee",
       initials: "DL",
@@ -103,7 +103,7 @@ const mockIssues: Issue[] = [
     id: "7",
     key: "PLM-137",
     title: "Implement user permissions",
-    type: "story",
+    type: "feature",
     priority: "low",
     status: "done",
     assignee: {
@@ -202,8 +202,8 @@ export default function IssuePage() {
                 <div>
                   <Label className="text-xs text-muted-foreground">Status</Label>
                   <p className="text-sm font-medium capitalize mt-1">
-                    {selectedIssue.status === "inProgress" ? "In Progress" :
-                     selectedIssue.status === "inReview" ? "In Review" :
+                    {selectedIssue.status === "in_progress" ? "In Progress" :
+                     selectedIssue.status === "review" ? "Review" :
                      selectedIssue.status.charAt(0).toUpperCase() + selectedIssue.status.slice(1)}
                   </p>
                 </div>
@@ -268,9 +268,9 @@ export default function IssuePage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="bug">Bug</SelectItem>
-                    <SelectItem value="story">Story</SelectItem>
+                    <SelectItem value="feature">Feature</SelectItem>
                     <SelectItem value="task">Task</SelectItem>
-                    <SelectItem value="epic">Epic</SelectItem>
+                    <SelectItem value="improvement">Improvement</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -281,10 +281,11 @@ export default function IssuePage() {
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="critical">Critical</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
                     <SelectItem value="high">High</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

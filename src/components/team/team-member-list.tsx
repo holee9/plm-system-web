@@ -38,10 +38,10 @@ import type { TeamMember, TeamRole } from "@/modules/identity/types";
 import { trpc } from "@/lib/trpc";
 
 interface TeamMemberListProps {
-  teamId: number;
+  teamId: string;
   members: TeamMember[];
   yourRole: TeamRole;
-  currentUserId: number;
+  currentUserId: string;
   onMemberRemoved?: () => void;
   onRoleUpdated?: () => void;
 }

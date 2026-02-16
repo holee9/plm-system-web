@@ -8,42 +8,42 @@ import { issues, issueComments, issueActivities } from "../../db";
 const createIssueSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   description: z.string().optional(),
-  type: z.enum(["bug", "story", "task", "epic"]).default("task"),
-  priority: z.enum(["critical", "high", "medium", "low"]).default("medium"),
-  status: z.enum(["todo", "inProgress", "inReview", "done"]).default("todo"),
-  assigneeId: z.number().optional(),
-  reporterId: z.number().optional(),
-  projectId: z.number().optional(),
+  type: z.enum(["task", "bug", "feature", "improvement"]).default("task"),
+  priority: z.enum(["urgent", "high", "medium", "low", "none"]).default("none"),
+  status: z.enum(["open", "in_progress", "review", "done", "closed"]).default("open"),
+  assigneeId: z.string().optional(),
+  reporterId: z.string().optional(),
+  projectId: z.string().optional(),
   labels: z.array(z.string()).optional(),
 });
 
 const updateIssueSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   title: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
-  type: z.enum(["bug", "story", "task", "epic"]).optional(),
-  priority: z.enum(["critical", "high", "medium", "low"]).optional(),
-  status: z.enum(["todo", "inProgress", "inReview", "done"]).optional(),
-  assigneeId: z.number().optional(),
-  reporterId: z.number().optional(),
-  projectId: z.number().optional(),
+  type: z.enum(["task", "bug", "feature", "improvement"]).optional(),
+  priority: z.enum(["urgent", "high", "medium", "low", "none"]).optional(),
+  status: z.enum(["open", "in_progress", "review", "done", "closed"]).optional(),
+  assigneeId: z.string().optional(),
+  reporterId: z.string().optional(),
+  projectId: z.string().optional(),
   labels: z.array(z.string()).optional(),
 });
 
 const listIssuesSchema = z.object({
-  projectId: z.number().optional(),
-  assigneeId: z.number().optional(),
-  status: z.enum(["todo", "inProgress", "inReview", "done"]).optional(),
-  priority: z.enum(["critical", "high", "medium", "low"]).optional(),
-  type: z.enum(["bug", "story", "task", "epic"]).optional(),
+  projectId: z.string().optional(),
+  assigneeId: z.string().optional(),
+  status: z.enum(["open", "in_progress", "review", "done", "closed"]).optional(),
+  priority: z.enum(["urgent", "high", "medium", "low", "none"]).optional(),
+  type: z.enum(["task", "bug", "feature", "improvement"]).optional(),
   onlyMyIssues: z.boolean().default(false),
-  currentUserId: z.number().optional(),
+  currentUserId: z.string().optional(),
 });
 
 const createCommentSchema = z.object({
-  issueId: z.number(),
+  issueId: z.string(),
   content: z.string().min(1, "Comment is required"),
-  authorId: z.number(),
+  authorId: z.string(),
 });
 
 export const issueRouter = router({
@@ -85,7 +85,7 @@ export const issueRouter = router({
 
   // Get single issue by id
   getById: publicProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const result = await ctx.db
         .select()
@@ -96,9 +96,27 @@ export const issueRouter = router({
       return result[0] || null;
     }),
 
+  // Get issue by project key and number (e.g., PLM-1)
+  getByProjectKeyNumber: publicProcedure
+    .input(z.object({
+      projectKey: z.string(),
+      number: z.number(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const key = `${input.projectKey}-${input.number}`;
+
+      const result = await ctx.db
+        .select()
+        .from(issues)
+        .where(eq(issues.key, key))
+        .limit(1);
+
+      return result[0] || null;
+    }),
+
   // Get issue with comments and activities
   getDetail: publicProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const issueResult = await ctx.db
         .select()
@@ -185,7 +203,7 @@ export const issueRouter = router({
 
   // Delete issue
   delete: publicProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db.delete(issues).where(eq(issues.id, input.id));
       return { success: true };
@@ -205,7 +223,7 @@ export const issueRouter = router({
 
   // Get comments for issue
   getComments: publicProcedure
-    .input(z.object({ issueId: z.number() }))
+    .input(z.object({ issueId: z.string() }))
     .query(async ({ ctx, input }) => {
       const result = await ctx.db
         .select()
@@ -218,7 +236,7 @@ export const issueRouter = router({
 
   // Get activities for issue
   getActivities: publicProcedure
-    .input(z.object({ issueId: z.number() }))
+    .input(z.object({ issueId: z.string() }))
     .query(async ({ ctx, input }) => {
       const result = await ctx.db
         .select()

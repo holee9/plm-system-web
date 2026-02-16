@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { eq, or, and, lt, desc, gt } from "drizzle-orm";
+import { eq, or, and, lt, desc, asc, gt } from "drizzle-orm";
 import { publicProcedure, router } from "../index";
 import {
   users,
@@ -256,7 +256,7 @@ export const authRouter = router({
         .select()
         .from(sessions)
         .where(eq(sessions.userId, user.id))
-        .orderBy(desc(sessions.createdAt));
+        .orderBy(asc(sessions.createdAt));
 
       if (userSessions.length > 5) {
         // Revoke oldest session

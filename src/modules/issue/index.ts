@@ -1,4 +1,6 @@
 // Issue module barrel export
-export * from "./issue";
-export * from "./issue-comment";
-export * from "./issue-label";
+export * from "./types";
+export * from "./status-machine";
+export * from "./schemas";
+export * from "./service";
+export { issueRouter } from "./router";

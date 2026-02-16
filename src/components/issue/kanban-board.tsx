@@ -14,7 +14,8 @@ import {
 } from "@dnd-kit/core";
 import { Button } from "@/components/ui/button";
 import { Plus, LayoutGrid, List, Clock } from "lucide-react";
-import { KanbanColumn, type IssueStatus } from "./kanban-column";
+import type { IssueStatus } from "~/modules/issue/types";
+import { KanbanColumn } from "./kanban-column";
 import { IssueCard, type Issue } from "./issue-card";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -30,13 +31,14 @@ interface KanbanBoardProps {
   currentView?: ViewMode;
 }
 
-// Group issues by status
-function groupIssuesByStatus(issues: Issue[]): Record<IssueStatus, Issue[]> {
+// Group issues by status - map backend status to component columns
+function groupIssuesByStatus(issues: Issue[]): Record<string, Issue[]> {
   return {
-    todo: issues.filter((issue) => issue.status === "todo"),
-    inProgress: issues.filter((issue) => issue.status === "inProgress"),
-    inReview: issues.filter((issue) => issue.status === "inReview"),
+    open: issues.filter((issue) => issue.status === "open"),
+    in_progress: issues.filter((issue) => issue.status === "in_progress"),
+    review: issues.filter((issue) => issue.status === "review"),
     done: issues.filter((issue) => issue.status === "done"),
+    closed: issues.filter((issue) => issue.status === "closed"),
   };
 }
 
@@ -101,7 +103,7 @@ export function KanbanBoard({
     }
   };
 
-  const columns: IssueStatus[] = ["todo", "inProgress", "inReview", "done"];
+  const columns: IssueStatus[] = ["open", "in_progress", "review", "done", "closed"];
 
   return (
     <div className="flex flex-col h-full">

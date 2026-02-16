@@ -1,10 +1,10 @@
-import { pgTable, text, serial, timestamp, boolean, pgEnum, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, timestamp, boolean, pgEnum, integer } from "drizzle-orm/pg-core";
 
 // User status enum
 export const userStatusEnum = pgEnum("user_status", ["PENDING", "ACTIVE", "LOCKED", "DEACTIVATED"]);
 
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   // Auth fields

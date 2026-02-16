@@ -17,6 +17,36 @@ async function hashToken(token: string): Promise<string> {
 
 export const userRouter = router({
   /**
+   * List all users (for member selection)
+   * Requires authentication
+   */
+  list: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { user, db } = ctx as AuthenticatedContext;
+
+      const userList = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          image: users.image,
+          status: users.status,
+        })
+        .from(users)
+        .where(eq(users.status, "active"))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      return userList;
+    }),
+
+  /**
    * Get current user information
    * Requires authentication
    */
@@ -224,7 +254,7 @@ export const userRouter = router({
   revokeSession: protectedProcedure
     .input(
       z.object({
-        sessionId: z.number(),
+        sessionId: z.string().uuid(),
       })
     )
     .mutation(async ({ input, ctx }) => {

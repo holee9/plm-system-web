@@ -37,8 +37,8 @@ import { trpc } from "@/lib/trpc";
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   description: z.string().optional(),
-  type: z.enum(["bug", "story", "task", "epic"]).default("task"),
-  priority: z.enum(["critical", "high", "medium", "low"]).default("medium"),
+  type: z.enum(["task", "bug", "feature", "improvement"]),
+  priority: z.enum(["urgent", "high", "medium", "low", "none"]),
   assigneeId: z.string().optional(),
 });
 
@@ -82,12 +82,17 @@ export function IssueCreateDialog({
       title: "",
       description: "",
       type: "task",
-      priority: "medium",
+      priority: "none",
       assigneeId: undefined,
     },
   });
 
   const onSubmit = async (values: FormValues) => {
+    if (!projectId) {
+      toast.error("Project ID is required");
+      return;
+    }
+
     setIsSubmitting(true);
     createIssue.mutate({
       ...values,
@@ -145,8 +150,8 @@ export function IssueCreateDialog({
                       <SelectContent>
                         <SelectItem value="task">Task</SelectItem>
                         <SelectItem value="bug">Bug</SelectItem>
-                        <SelectItem value="story">Story</SelectItem>
-                        <SelectItem value="epic">Epic</SelectItem>
+                        <SelectItem value="feature">Feature</SelectItem>
+                        <SelectItem value="improvement">Improvement</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -169,10 +174,11 @@ export function IssueCreateDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
                         <SelectItem value="low">Low</SelectItem>
                         <SelectItem value="medium">Medium</SelectItem>
                         <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="critical">Critical</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>

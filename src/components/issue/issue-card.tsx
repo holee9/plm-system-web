@@ -3,38 +3,40 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { IssueStatus, IssuePriority, IssueType } from "~/modules/issue/types";
 
 // Priority colors from design tokens
-const PRIORITY_COLORS = {
-  critical: "#ef4444",
+const PRIORITY_COLORS: Record<IssuePriority, string> = {
+  urgent: "#ef4444",
   high: "#f97316",
   medium: "#f59e0b",
   low: "#22c55e",
+  none: "#9ca3af",
 } as const;
 
 // Issue type badge colors
-const ISSUE_TYPE_COLORS = {
+const ISSUE_TYPE_COLORS: Record<IssueType, string> = {
   bug: "#ef4444",
-  story: "#3b82f6",
+  feature: "#a855f7",
   task: "#22c55e",
-  epic: "#a855f7",
+  improvement: "#3b82f6",
 } as const;
 
 export interface Issue {
   id: string;
   key: string;
   title: string;
-  type: "bug" | "story" | "task" | "epic";
-  priority: "critical" | "high" | "medium" | "low";
-  status: "todo" | "inProgress" | "inReview" | "done";
+  type: IssueType;
+  priority: IssuePriority;
+  status: IssueStatus;
   assignee?: {
     name: string;
     avatar?: string;
     initials: string;
   };
   labels?: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 interface IssueCardProps {

@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, serial, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, uuid, timestamp } from "drizzle-orm/pg-core";
 import { teams } from "./teams";
 import { users } from "./users";
 
@@ -7,11 +7,11 @@ export const teamRoleEnum = pgEnum("team_role", ["owner", "admin", "member"]);
 
 // Team members table - junction table for users and teams
 export const teamMembers = pgTable("team_members", {
-  id: serial("id").primaryKey(),
-  teamId: serial("team_id")
+  id: uuid("id").defaultRandom().primaryKey(),
+  teamId: uuid("team_id")
     .notNull()
     .references(() => teams.id, { onDelete: "cascade" }),
-  userId: serial("user_id")
+  userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   // Role determines permission level within the team

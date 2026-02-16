@@ -51,7 +51,7 @@ export default function TeamsPage() {
 
   const teams = teamsData?.teams || [];
 
-  const handleTeamClick = (teamId: number) => {
+  const handleTeamClick = (teamId: string) => {
     router.push(`/settings/teams/${teamId}`);
   };
 

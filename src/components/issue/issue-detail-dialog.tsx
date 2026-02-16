@@ -51,7 +51,7 @@ import { cn } from "@/lib/utils";
 import type { Issue } from "./issue-card";
 
 // Helper function to format date relative to now
-function formatDistanceToNow(date: Date): string {
+function formatDistanceToNow(date: Date, options?: { addSuffix?: boolean }): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffSecs = Math.floor(diffMs / 1000);
@@ -59,10 +59,12 @@ function formatDistanceToNow(date: Date): string {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffSecs < 60) return "just now";
-  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  const suffix = options?.addSuffix ? " ago" : "";
+
+  if (diffSecs < 60) return `just now${suffix ? " " + suffix : ""}`;
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""}${suffix}`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""}${suffix}`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""}${suffix}`;
 
   return date.toLocaleDateString();
 }
@@ -70,33 +72,35 @@ function formatDistanceToNow(date: Date): string {
 const formSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().optional(),
-  type: z.enum(["bug", "story", "task", "epic"]),
-  priority: z.enum(["critical", "high", "medium", "low"]),
-  status: z.enum(["todo", "inProgress", "inReview", "done"]),
+  type: z.enum(["task", "bug", "feature", "improvement"]),
+  priority: z.enum(["urgent", "high", "medium", "low", "none"]),
+  status: z.enum(["open", "in_progress", "review", "done", "closed"]),
   assigneeId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const STATUS_CONFIG = {
-  todo: { label: "To Do", color: "bg-gray-500" },
-  inProgress: { label: "In Progress", color: "bg-blue-500" },
-  inReview: { label: "In Review", color: "bg-amber-500" },
+  open: { label: "Open", color: "bg-gray-500" },
+  in_progress: { label: "In Progress", color: "bg-blue-500" },
+  review: { label: "Review", color: "bg-amber-500" },
   done: { label: "Done", color: "bg-green-500" },
+  closed: { label: "Closed", color: "bg-gray-500" },
 } as const;
 
 const PRIORITY_CONFIG = {
-  critical: { label: "Critical", color: "bg-red-500" },
+  urgent: { label: "Urgent", color: "bg-red-500" },
   high: { label: "High", color: "bg-orange-500" },
   medium: { label: "Medium", color: "bg-yellow-500" },
   low: { label: "Low", color: "bg-green-500" },
+  none: { label: "None", color: "bg-gray-500" },
 } as const;
 
 const TYPE_CONFIG = {
   bug: { label: "Bug", color: "bg-red-500" },
-  story: { label: "Story", color: "bg-blue-500" },
+  feature: { label: "Feature", color: "bg-purple-500" },
   task: { label: "Task", color: "bg-green-500" },
-  epic: { label: "Epic", color: "bg-purple-500" },
+  improvement: { label: "Improvement", color: "bg-blue-500" },
 } as const;
 
 interface IssueDetailDialogProps {
@@ -121,22 +125,28 @@ export function IssueDetailDialog({
   const utils = trpc.useUtils();
 
   // Fetch issue detail if issueId is provided
-  const { data: issueDetail, isLoading } = trpc.issue.getDetail.useQuery(
+  const { data: issueDetail, isLoading } = trpc.issue.getById.useQuery(
     { id: issueId || "" },
     { enabled: !!issueId && !propIssue }
   );
 
-  const issue = propIssue || issueDetail?.issue;
+  // Fetch comments separately
+  const { data: comments = [] } = trpc.issue.comment.list.useQuery(
+    { issueId: issueId || "" },
+    { enabled: !!issueId && !propIssue }
+  );
+
+  const issue = propIssue || issueDetail;
 
   const updateIssue = trpc.issue.update.useMutation({
     onSuccess: () => {
       toast.success("Issue updated successfully");
       setIsEditing(false);
       utils.issue.list.invalidate();
-      utils.issue.getDetail.invalidate({ id: issueId || "" });
+      utils.issue.getById.invalidate({ id: issueId || "" });
       onSuccess?.();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || "Failed to update issue");
     },
     onSettled: () => {
@@ -151,18 +161,18 @@ export function IssueDetailDialog({
       utils.issue.list.invalidate();
       onSuccess?.();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || "Failed to delete issue");
     },
   });
 
-  const addComment = trpc.issue.addComment.useMutation({
+  const addComment = trpc.issue.comment.create.useMutation({
     onSuccess: () => {
       toast.success("Comment added");
       setNewComment("");
-      utils.issue.getDetail.invalidate({ id: issueId || "" });
+      utils.issue.comment.list.invalidate({ issueId: issueId || "" });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || "Failed to add comment");
     },
   });
@@ -173,8 +183,8 @@ export function IssueDetailDialog({
       title: issue?.title || "",
       description: issue?.description || "",
       type: issue?.type || "task",
-      priority: issue?.priority || "medium",
-      status: issue?.status || "todo",
+      priority: issue?.priority || "none",
+      status: issue?.status || "open",
       assigneeId: issue?.assignee?.name || "",
     },
   });
@@ -198,7 +208,7 @@ export function IssueDetailDialog({
     setIsSubmitting(true);
     updateIssue.mutate({
       id: issue.id,
-      ...values,
+      data: values,
     });
   };
 
@@ -213,8 +223,9 @@ export function IssueDetailDialog({
 
     addComment.mutate({
       issueId: issue.id,
-      content: newComment,
-      authorId: "current-user-id", // TODO: Get from auth
+      data: {
+        content: newComment,
+      },
     });
   };
 
@@ -241,8 +252,8 @@ export function IssueDetailDialog({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <Badge className={cn(TYPE_CONFIG[issue.type].color, "text-white")}>
-                  {TYPE_CONFIG[issue.type].label}
+                <Badge className={cn(TYPE_CONFIG[issue.type as keyof typeof TYPE_CONFIG].color, "text-white")}>
+                  {TYPE_CONFIG[issue.type as keyof typeof TYPE_CONFIG].label}
                 </Badge>
                 <span className="text-sm text-muted-foreground">{issue.key}</span>
               </div>
@@ -444,8 +455,8 @@ export function IssueDetailDialog({
 
           <TabsContent value="comments" className="space-y-4 mt-4">
             <div className="space-y-4 max-h-[400px] overflow-y-auto">
-              {issueDetail?.comments && issueDetail.comments.length > 0 ? (
-                issueDetail.comments.map((comment) => (
+              {comments && comments.length > 0 ? (
+                comments.map((comment: any) => (
                   <div key={comment.id} className="flex gap-3">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback>U</AvatarFallback>
@@ -489,44 +500,11 @@ export function IssueDetailDialog({
 
           <TabsContent value="activity" className="space-y-4 mt-4">
             <div className="space-y-3 max-h-[400px] overflow-y-auto">
-              {issueDetail?.activities && issueDetail.activities.length > 0 ? (
-                issueDetail.activities.map((activity) => (
-                  <div key={activity.id} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <Activity className="h-4 w-4 text-muted-foreground" />
-                      <div className="w-px bg-border flex-1 mt-1" />
-                    </div>
-                    <div className="flex-1 pb-4">
-                      <p className="text-sm">
-                        <span className="font-medium">User</span> changed{" "}
-                        <span className="font-medium">{activity.field}</span>
-                        {activity.oldValue && (
-                          <span>
-                            {" from "}
-                            <span className="line-through text-muted-foreground">
-                              {activity.oldValue}
-                            </span>
-                          </span>
-                        )}
-                        {activity.newValue && (
-                          <span>
-                            {" to "}
-                            <span className="font-medium">{activity.newValue}</span>
-                          </span>
-                        )}
-                      </p>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p>No activity yet</p>
-                </div>
-              )}
+              {/* TODO: Implement activities tracking */}
+              <div className="text-center text-muted-foreground py-8">
+                <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>Activity tracking coming soon</p>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
