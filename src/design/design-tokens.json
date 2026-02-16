@@ -1,0 +1,152 @@
+{
+  "name": "plm-system-design-tokens",
+  "version": "1.0.0",
+  "description": "Design tokens for PLM System Web - compatible with shadcn/ui and Tailwind CSS",
+  "tokens": {
+    "colors": {
+      "light": {
+        "background": {
+          "primary": "#ffffff",
+          "secondary": "#f4f4f5",
+          "muted": "#f4f4f5",
+          "card": "#ffffff",
+          "popover": "#ffffff",
+          "border": "#e4e4e7",
+          "input": "#e4e4e7"
+        },
+        "foreground": {
+          "primary": "#09090b",
+          "secondary": "#71717a",
+          "muted": "#71717a",
+          "accent": "#18181b"
+        },
+        "primary": {
+          "DEFAULT": "#18181b",
+          "foreground": "#fafafa"
+        },
+        "secondary": {
+          "DEFAULT": "#f4f4f5",
+          "foreground": "#18181b"
+        },
+        "destructive": {
+          "DEFAULT": "#ef4444",
+          "foreground": "#fafafa"
+        },
+        "success": {
+          "DEFAULT": "#22c55e",
+          "foreground": "#fafafa"
+        },
+        "warning": {
+          "DEFAULT": "#f59e0b",
+          "foreground": "#fafafa"
+        },
+        "info": {
+          "DEFAULT": "#3b82f6",
+          "foreground": "#fafafa"
+        }
+      },
+      "dark": {
+        "background": {
+          "primary": "#09090b",
+          "secondary": "#27272a",
+          "muted": "#27272a",
+          "card": "#09090b",
+          "popover": "#09090b",
+          "border": "#27272a",
+          "input": "#27272a"
+        },
+        "foreground": {
+          "primary": "#fafafa",
+          "secondary": "#a1a1aa",
+          "muted": "#a1a1aa",
+          "accent": "#fafafa"
+        },
+        "primary": {
+          "DEFAULT": "#fafafa",
+          "foreground": "#18181b"
+        },
+        "secondary": {
+          "DEFAULT": "#27272a",
+          "foreground": "#fafafa"
+        },
+        "destructive": {
+          "DEFAULT": "#7f1d1d",
+          "foreground": "#fafafa"
+        },
+        "success": {
+          "DEFAULT": "#15803d",
+          "foreground": "#fafafa"
+        },
+        "warning": {
+          "DEFAULT": "#b45309",
+          "foreground": "#fafafa"
+        },
+        "info": {
+          "DEFAULT": "#1e40af",
+          "foreground": "#fafafa"
+        }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "sans": ["Inter", "system-ui", "sans-serif"],
+        "mono": ["JetBrains Mono", "monospace"]
+      },
+      "fontSize": {
+        "xs": ["0.75rem", { "lineHeight": "1rem" }],
+        "sm": ["0.875rem", { "lineHeight": "1.25rem" }],
+        "base": ["1rem", { "lineHeight": "1.5rem" }],
+        "lg": ["1.125rem", { "lineHeight": "1.75rem" }],
+        "xl": ["1.25rem", { "lineHeight": "1.75rem" }],
+        "2xl": ["1.5rem", { "lineHeight": "2rem" }],
+        "3xl": ["1.875rem", { "lineHeight": "2.25rem" }],
+        "4xl": ["2.25rem", { "lineHeight": "2.5rem" }]
+      },
+      "fontWeight": {
+        "normal": "400",
+        "medium": "500",
+        "semibold": "600",
+        "bold": "700"
+      }
+    },
+    "spacing": {
+      "xs": "0.25rem",
+      "sm": "0.5rem",
+      "md": "1rem",
+      "lg": "1.5rem",
+      "xl": "2rem",
+      "2xl": "3rem",
+      "3xl": "4rem"
+    },
+    "borderRadius": {
+      "sm": "0.25rem",
+      "DEFAULT": "0.375rem",
+      "md": "0.5rem",
+      "lg": "0.75rem",
+      "xl": "1rem",
+      "full": "9999px"
+    },
+    "shadows": {
+      "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      "DEFAULT": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+      "md": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+      "lg": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+      "xl": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"
+    },
+    "issue": {
+      "status": {
+        "todo": { "color": "#71717a", "label": "To Do" },
+        "inProgress": { "color": "#3b82f6", "label": "In Progress" },
+        "inReview": { "color": "#f59e0b", "label": "In Review" },
+        "done": { "color": "#22c55e", "label": "Done" },
+        "blocked": { "color": "#ef4444", "label": "Blocked" }
+      },
+      "priority": {
+        "critical": { "color": "#ef4444", "label": "Critical" },
+        "high": { "color": "#f97316", "label": "High" },
+        "medium": { "color": "#f59e0b", "label": "Medium" },
+        "low": { "color": "#22c55e", "label": "Low" }
+      }
+    }
+  }
+}

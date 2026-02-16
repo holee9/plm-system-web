@@ -1,0 +1,547 @@
+{
+  "pencil": {
+    "format": "Pencil DNA Format 1.0",
+    "version": "1.0"
+  },
+  "document": {
+    "name": "PLM Dashboard",
+    "description": "PLM-specific dashboard with BOM management, CAD file integration, and change history",
+    "width": 1440,
+    "height": 900,
+    "pages": [
+      {
+        "name": "PLM Dashboard - Light Mode",
+        "frames": [
+          {
+            "id": "frame-sidebar",
+            "name": "Sidebar",
+            "x": 0,
+            "y": 0,
+            "width": 260,
+            "height": 900,
+            "background": "#18181b",
+            "children": [
+              {
+                "type": "logo",
+                "x": 20,
+                "y": 20,
+                "text": "PLM System",
+                "color": "#ffffff"
+              },
+              {
+                "type": "nav-item",
+                "x": 10,
+                "y": 230,
+                "width": 240,
+                "height": 40,
+                "text": "PLM",
+                "icon": "package",
+                "active": true
+              },
+              {
+                "type": "divider",
+                "x": 20,
+                "y": 280,
+                "width": 220,
+                "height": 1,
+                "color": "#27272a"
+              },
+              {
+                "type": "nav-section",
+                "x": 20,
+                "y": 300,
+                "text": "Product Data"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 330,
+                "width": 220,
+                "height": 36,
+                "text": "BOM Management",
+                "active": true
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 370,
+                "width": 220,
+                "height": 36,
+                "text": "CAD Files"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 410,
+                "width": 220,
+                "height": 36,
+                "text": "Documents"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 450,
+                "width": 220,
+                "height": 36,
+                "text": "Change Requests"
+              },
+              {
+                "type": "divider",
+                "x": 20,
+                "y": 500,
+                "width": 220,
+                "height": 1,
+                "color": "#27272a"
+              },
+              {
+                "type": "nav-section",
+                "x": 20,
+                "y": 520,
+                "text": "Manufacturing"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 550,
+                "width": 220,
+                "height": 36,
+                "text": "Production Orders"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 590,
+                "width": 220,
+                "height": 36,
+                "text": "Quality Control"
+              }
+            ]
+          },
+          {
+            "id": "frame-navbar",
+            "name": "Top Navbar",
+            "x": 260,
+            "y": 0,
+            "width": 1180,
+            "height": 60,
+            "background": "#ffffff",
+            "borderBottom": "1px solid #e4e4e7",
+            "children": [
+              {
+                "type": "breadcrumb",
+                "x": 20,
+                "y": 20,
+                "text": "PLM / BOM Management"
+              },
+              {
+                "type": "product-selector",
+                "x": 400,
+                "y": 12,
+                "width": 200,
+                "height": 36,
+                "placeholder": "Select Product",
+                "value": "ECU-2024"
+              },
+              {
+                "type": "revision-selector",
+                "x": 620,
+                "y": 12,
+                "width": 120,
+                "height": 36,
+                "placeholder": "Revision",
+                "value": "v2.1"
+              },
+              {
+                "type": "button",
+                "x": 1050,
+                "y": 12,
+                "width": 120,
+                "height": 36,
+                "text": "New BOM",
+                "variant": "primary",
+                "icon": "plus"
+              }
+            ]
+          },
+          {
+            "id": "frame-content",
+            "name": "PLM Content",
+            "x": 260,
+            "y": 60,
+            "width": 1180,
+            "height": 840,
+            "background": "#f4f4f5",
+            "children": [
+              {
+                "id": "section-stats",
+                "name": "PLM Statistics",
+                "x": 20,
+                "y": 20,
+                "width": 1140,
+                "height": 100,
+                "layout": "horizontal",
+                "gap": 20,
+                "children": [
+                  {
+                    "type": "stat-card",
+                    "name": "Total Parts",
+                    "x": 0,
+                    "y": 0,
+                    "width": 220,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 8,
+                    "icon": "box",
+                    "iconColor": "#3b82f6",
+                    "value": "847",
+                    "label": "Total Parts"
+                  },
+                  {
+                    "type": "stat-card",
+                    "name": "BOMs",
+                    "x": 240,
+                    "y": 0,
+                    "width": 220,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 8,
+                    "icon": "layers",
+                    "iconColor": "#8b5cf6",
+                    "value": "12",
+                    "label": "Active BOMs"
+                  },
+                  {
+                    "type": "stat-card",
+                    "name": "CAD Files",
+                    "x": 480,
+                    "y": 0,
+                    "width": 220,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 8,
+                    "icon": "file-cad",
+                    "iconColor": "#f59e0b",
+                    "value": "234",
+                    "label": "CAD Files"
+                  },
+                  {
+                    "type": "stat-card",
+                    "name": "Change Requests",
+                    "x": 720,
+                    "y": 0,
+                    "width": 220,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 8,
+                    "icon": "git-pull-request",
+                    "iconColor": "#ef4444",
+                    "value": "8",
+                    "label": "Pending ECRs"
+                  },
+                  {
+                    "type": "stat-card",
+                    "name": "Suppliers",
+                    "x": 960,
+                    "y": 0,
+                    "width": 180,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 8,
+                    "icon": "truck",
+                    "iconColor": "#22c55e",
+                    "value": "45",
+                    "label": "Suppliers"
+                  }
+                ]
+              },
+              {
+                "id": "section-bom",
+                "name": "BOM Table",
+                "x": 20,
+                "y": 140,
+                "width": 760,
+                "height": 420,
+                "background": "#ffffff",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "section-header",
+                    "x": 20,
+                    "y": 20,
+                    "text": "Bill of Materials (ECU-2024 v2.1)",
+                    "actions": [
+                      { "text": "Export", "icon": "download" },
+                      { "text": "Compare", "icon": "git-compare" },
+                      { "text": "History", "icon": "history" }
+                    ]
+                  },
+                  {
+                    "type": "bom-filters",
+                    "x": 20,
+                    "y": 60,
+                    "width": 720,
+                    "height": 40,
+                    "filters": [
+                      { "label": "All", "active": true },
+                      { "label": "Electrical", "active": false },
+                      { "label": "Mechanical", "active": false },
+                      { "label": "Software", "active": false }
+                    ]
+                  },
+                  {
+                    "type": "bom-table",
+                    "x": 20,
+                    "y": 110,
+                    "width": 720,
+                    "height": 290,
+                    "columns": [
+                      { "key": "level", "label": "Lvl", "width": 40 },
+                      { "key": "partNumber", "label": "Part Number", "width": 120 },
+                      { "key": "name", "label": "Part Name", "width": 200 },
+                      { "key": "quantity", "label": "Qty", "width": 50 },
+                      { "key": "unit", "label": "Unit", "width": 60 },
+                      { "key": "revision", "label": "Rev", "width": 50 },
+                      { "key": "status", "label": "Status", "width": 80 },
+                      { "key": "actions", "label": "", "width": 80 }
+                    ],
+                    "rows": [
+                      {
+                        "level": 1,
+                        "partNumber": "ECU-001",
+                        "name": "Main Control Unit",
+                        "quantity": 1,
+                        "unit": "EA",
+                        "revision": "v2.1",
+                        "status": "Released",
+                        "expandable": true
+                      },
+                      {
+                        "level": 2,
+                        "partNumber": "PCB-101",
+                        "name": "Main PCB Assembly",
+                        "quantity": 1,
+                        "unit": "EA",
+                        "revision": "v1.3",
+                        "status": "Released",
+                        "indent": 1
+                      },
+                      {
+                        "level": 3,
+                        "partNumber": "IC-501",
+                        "name": "MCU Controller",
+                        "quantity": 1,
+                        "unit": "EA",
+                        "revision": "v2.0",
+                        "status": "Released",
+                        "indent": 2,
+                        "supplier": "Texas Instruments"
+                      },
+                      {
+                        "level": 3,
+                        "partNumber": "CAP-201",
+                        "name": "Ceramic Capacitor 10uF",
+                        "quantity": 12,
+                        "unit": "EA",
+                        "revision": "v1.0",
+                        "status": "Approved",
+                        "indent": 2
+                      },
+                      {
+                        "level": 2,
+                        "partNumber": "CASE-301",
+                        "name": "Aluminum Housing",
+                        "quantity": 1,
+                        "unit": "EA",
+                        "revision": "v1.1",
+                        "status": "Released",
+                        "indent": 1
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "section-cad",
+                "name": "CAD Files",
+                "x": 800,
+                "y": 140,
+                "width": 360,
+                "height": 200,
+                "background": "#ffffff",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "section-header",
+                    "x": 20,
+                    "y": 20,
+                    "text": "CAD Files",
+                    "action": "View all"
+                  },
+                  {
+                    "type": "file-list",
+                    "x": 20,
+                    "y": 60,
+                    "width": 320,
+                    "height": 120,
+                    "files": [
+                      {
+                        "name": "ecu_assembly_v2.1.dwg",
+                        "type": "cad",
+                        "size": "2.4 MB",
+                        "modified": "2 hours ago",
+                        "thumbnail": true
+                      },
+                      {
+                        "name": "pcb_layout_v1.3.brd",
+                        "type": "pcb",
+                        "size": "890 KB",
+                        "modified": "1 day ago",
+                        "thumbnail": true
+                      },
+                      {
+                        "name": "housing_v1.1.step",
+                        "type": "3d",
+                        "size": "1.2 MB",
+                        "modified": "3 days ago",
+                        "thumbnail": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "section-changes",
+                "name": "Change History",
+                "x": 800,
+                "y": 360,
+                "width": 360,
+                "height": 200,
+                "background": "#ffffff",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "section-header",
+                    "x": 20,
+                    "y": 20,
+                    "text": "Recent Changes",
+                    "action": "View all"
+                  },
+                  {
+                    "type": "change-list",
+                    "x": 20,
+                    "y": 60,
+                    "width": 320,
+                    "height": 120,
+                    "changes": [
+                      {
+                        "type": "ECR",
+                        "id": "ECR-2024-015",
+                        "title": "Update MCU to latest revision",
+                        "status": "Pending Approval",
+                        "color": "#f59e0b"
+                      },
+                      {
+                        "type": "ECO",
+                        "id": "ECO-2024-012",
+                        "title": "Capacitor value change",
+                        "status": "Implemented",
+                        "color": "#22c55e"
+                      },
+                      {
+                        "type": "ECN",
+                        "id": "ECN-2024-008",
+                        "title": "Housing material update",
+                        "status": "Released",
+                        "color": "#3b82f6"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "section-timeline",
+                "name": "Approval Timeline",
+                "x": 20,
+                "y": 580,
+                "width": 1140,
+                "height": 240,
+                "background": "#ffffff",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "section-header",
+                    "x": 20,
+                    "y": 20,
+                    "text": "Approval Workflow"
+                  },
+                  {
+                    "type": "approval-timeline",
+                    "x": 20,
+                    "y": 60,
+                    "width": 1100,
+                    "height": 160,
+                    "steps": [
+                      {
+                        "name": "Design Review",
+                        "status": "completed",
+                        "date": "2024-03-15",
+                        "approver": "John Doe",
+                        "avatar": "JD"
+                      },
+                      {
+                        "name": "Engineering Approval",
+                        "status": "completed",
+                        "date": "2024-03-20",
+                        "approver": "Sarah Kim",
+                        "avatar": "SK"
+                      },
+                      {
+                        "name": "Quality Check",
+                        "status": "in-progress",
+                        "approver": "Anna Lee",
+                        "avatar": "AL"
+                      },
+                      {
+                        "name": "Production Release",
+                        "status": "pending",
+                        "approver": "Robert Kim",
+                        "avatar": "RK"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "components": {
+    "bom-table": {
+      "headerBackground": "#f4f4f5",
+      "rowHeight": 40,
+      "indentWidth": 20,
+      "expandButton": {
+        "icon": "chevron-right",
+        "expandedIcon": "chevron-down"
+      }
+    },
+    "status-badge": {
+      "released": { "color": "#22c55e", "background": "#dcfce7" },
+      "approved": { "color": "#3b82f6", "background": "#dbeafe" },
+      "pending": { "color": "#f59e0b", "background": "#fef3c7" },
+      "draft": { "color": "#71717a", "background": "#f4f4f5" }
+    },
+    "file-thumbnail": {
+      "width": 40,
+      "height": 40,
+      "borderRadius": 4
+    },
+    "approval-step": {
+      "completed": { "color": "#22c55e" },
+      "in-progress": { "color": "#3b82f6" },
+      "pending": { "color": "#71717a" }
+    }
+  }
+}

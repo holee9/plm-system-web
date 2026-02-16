@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://plm-system.design/schemas/token-schema.json",
+  "title": "PLM Design Token Schema",
+  "description": "JSON schema for validating PLM design token files",
+  "type": "object",
+  "required": ["$schema", "name", "version", "description"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to JSON schema"
+    },
+    "name": {
+      "type": "string",
+      "description": "Token package name"
+    },
+    "version": {
+      "type": "string",
+      "description": "Token version following semantic versioning"
+    },
+    "description": {
+      "type": "string",
+      "description": "Token package description"
+    }
+  },
+  "patternProperties": {
+    "^(colors|typography|spacing|borderRadius|shadows|animation|breakpoints|zIndex)$": {
+      "type": "object",
+      "description": "Token category"
+    }
+  },
+  "additionalProperties": true
+}

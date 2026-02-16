@@ -1,0 +1,252 @@
+/**
+ * PLM Design System - TypeScript Types
+ * Auto-generated from .design/tokens/*.json
+ * DO NOT EDIT MANUALLY
+ */
+
+// ============================================================================
+// TOKEN VALUE TYPES
+// ============================================================================
+
+// Spacing tokens
+export const SPACING_XS: "0.25rem" = "0.25rem" as const;
+export const SPACING_SM: "0.5rem" = "0.5rem" as const;
+export const SPACING_MD: "1rem" = "1rem" as const;
+export const SPACING_LG: "1.5rem" = "1.5rem" as const;
+export const SPACING_XL: "2rem" = "2rem" as const;
+export const SPACING_2XL: "3rem" = "3rem" as const;
+export const SPACING_3XL: "4rem" = "4rem" as const;
+
+export type SpacingToken =
+  | typeof SPACING_XS
+  | typeof SPACING_SM
+  | typeof SPACING_MD
+  | typeof SPACING_LG
+  | typeof SPACING_XL
+  | typeof SPACING_2XL
+  | typeof SPACING_3XL;
+
+// Border radius tokens
+export const RADIUS_NONE: "0" = "0" as const;
+export const RADIUS_SM: "0.25rem" = "0.25rem" as const;
+export const RADIUS: "0.375rem" = "0.375rem" as const;
+export const RADIUS_MD: "0.5rem" = "0.5rem" as const;
+export const RADIUS_LG: "0.75rem" = "0.75rem" as const;
+export const RADIUS_XL: "1rem" = "1rem" as const;
+export const RADIUS_FULL: "9999px" = "9999px" as const;
+
+export type BorderRadiusToken =
+  | typeof RADIUS_NONE
+  | typeof RADIUS_SM
+  | typeof RADIUS_MD
+  | typeof RADIUS_LG
+  | typeof RADIUS_XL
+  | typeof RADIUS_FULL;
+
+// Shadow tokens
+export const SHADOW_XS: "0 1px 1px 0 rgb(0 0 0 / 0.05)" = "0 1px 1px 0 rgb(0 0 0 / 0.05)" as const;
+export const SHADOW_SM: "0 1px 2px 0 rgb(0 0 0 / 0.05)" = "0 1px 2px 0 rgb(0 0 0 / 0.05)" as const;
+export const SHADOW: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)" = "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)" as const;
+export const SHADOW_MD: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)" = "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)" as const;
+export const SHADOW_LG: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)" = "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)" as const;
+export const SHADOW_XL: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" = "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" as const;
+
+export type ShadowToken =
+  | typeof SHADOW_XS
+  | typeof SHADOW_SM
+  | typeof SHADOW_MD
+  | typeof SHADOW_LG
+  | typeof SHADOW_XL;
+
+// Z-index tokens
+export const Z_DROPDOWN: 1000 = 1000 as const;
+export const Z_STICKY: 1020 = 1020 as const;
+export const Z_FIXED: 1030 = 1030 as const;
+export const Z_MODAL_BACKDROP: 1040 = 1040 as const;
+export const Z_MODAL: 1050 = 1050 as const;
+export const Z_POPOVER: 1060 = 1060 as const;
+export const Z_TOOLTIP: 1070 = 1070 as const;
+
+export type ZIndexToken =
+  | typeof Z_DROPDOWN
+  | typeof Z_STICKY
+  | typeof Z_FIXED
+  | typeof Z_MODAL_BACKDROP
+  | typeof Z_MODAL
+  | typeof Z_POPOVER
+  | typeof Z_TOOLTIP;
+
+// Font size tokens
+export const FONT_SIZE_XS: "0.75rem" = "0.75rem" as const;
+export const FONT_SIZE_SM: "0.875rem" = "0.875rem" as const;
+export const FONT_SIZE_BASE: "1rem" = "1rem" as const;
+export const FONT_SIZE_LG: "1.125rem" = "1.125rem" as const;
+export const FONT_SIZE_XL: "1.25rem" = "1.25rem" as const;
+export const FONT_SIZE_2XL: "1.5rem" = "1.5rem" as const;
+export const FONT_SIZE_3XL: "1.875rem" = "1.875rem" as const;
+export const FONT_SIZE_4XL: "2.25rem" = "2.25rem" as const;
+
+export type FontSizeToken =
+  | typeof FONT_SIZE_XS
+  | typeof FONT_SIZE_SM
+  | typeof FONT_SIZE_BASE
+  | typeof FONT_SIZE_LG
+  | typeof FONT_SIZE_XL
+  | typeof FONT_SIZE_2XL
+  | typeof FONT_SIZE_3XL
+  | typeof FONT_SIZE_4XL;
+
+// Font weight tokens
+export const FONT_WEIGHT_NORMAL: "400" = "400" as const;
+export const FONT_WEIGHT_MEDIUM: "500" = "500" as const;
+export const FONT_WEIGHT_SEMIBOLD: "600" = "600" as const;
+export const FONT_WEIGHT_BOLD: "700" = "700" as const;
+
+export type FontWeightToken =
+  | typeof FONT_WEIGHT_NORMAL
+  | typeof FONT_WEIGHT_MEDIUM
+  | typeof FONT_WEIGHT_SEMIBOLD
+  | typeof FONT_WEIGHT_BOLD;
+
+// Animation duration tokens
+export const DURATION_FAST: 150 = 150 as const;
+export const DURATION_NORMAL: 300 = 300 as const;
+export const DURATION_SLOW: 500 = 500 as const;
+
+export type DurationToken =
+  | typeof DURATION_FAST
+  | typeof DURATION_NORMAL
+  | typeof DURATION_SLOW;
+
+// Animation easing tokens
+export const EASE_DEFAULT: "cubic-bezier(0.4, 0, 0.2, 1)" = "cubic-bezier(0.4, 0, 0.2, 1)" as const;
+export const EASE_IN: "cubic-bezier(0.4, 0, 1, 1)" = "cubic-bezier(0.4, 0, 1, 1)" as const;
+export const EASE_OUT: "cubic-bezier(0, 0, 0.2, 1)" = "cubic-bezier(0, 0, 0.2, 1)" as const;
+export const EASE_BOUNCE: "cubic-bezier(0.68, -0.55, 0.265, 1.55)" = "cubic-bezier(0.68, -0.55, 0.265, 1.55)" as const;
+
+export type EasingToken =
+  | typeof EASE_DEFAULT
+  | typeof EASE_IN
+  | typeof EASE_OUT
+  | typeof EASE_BOUNCE;
+
+// Color tokens
+export type ColorToken =
+  | "background-primary"
+  | "background-secondary"
+  | "foreground-primary"
+  | "foreground-secondary"
+  | "primary-default"
+  | "destructive-default"
+  | "success-default"
+  | "warning-default"
+  | "info-default"
+  | string; // Allow custom colors
+
+// ============================================================================
+// TOKEN CATEGORY INTERFACES
+// ============================================================================
+
+export interface SpacingTokens {
+  xs: typeof SPACING_XS;
+  sm: typeof SPACING_SM;
+  md: typeof SPACING_MD;
+  lg: typeof SPACING_LG;
+  xl: typeof SPACING_XL;
+  "2xl": typeof SPACING_2XL;
+  "3xl": typeof SPACING_3XL;
+}
+
+export interface BorderRadiusTokens {
+  none: typeof RADIUS_NONE;
+  sm: typeof RADIUS_SM;
+  DEFAULT: typeof RADIUS;
+  md: typeof RADIUS_MD;
+  lg: typeof RADIUS_LG;
+  xl: typeof RADIUS_XL;
+  full: typeof RADIUS_FULL;
+}
+
+export interface ShadowTokens {
+  xs: typeof SHADOW_XS;
+  sm: typeof SHADOW_SM;
+  DEFAULT: typeof SHADOW;
+  md: typeof SHADOW_MD;
+  lg: typeof SHADOW_LG;
+  xl: typeof SHADOW_XL;
+}
+
+export interface TypographyTokens {
+  fontSize: {
+    xs: typeof FONT_SIZE_XS;
+    sm: typeof FONT_SIZE_SM;
+    base: typeof FONT_SIZE_BASE;
+    lg: typeof FONT_SIZE_LG;
+    xl: typeof FONT_SIZE_XL;
+    "2xl": typeof FONT_SIZE_2XL;
+    "3xl": typeof FONT_SIZE_3XL;
+    "4xl": typeof FONT_SIZE_4XL;
+  };
+  fontWeight: {
+    normal: typeof FONT_WEIGHT_NORMAL;
+    medium: typeof FONT_WEIGHT_MEDIUM;
+    semibold: typeof FONT_WEIGHT_SEMIBOLD;
+    bold: typeof FONT_WEIGHT_BOLD;
+  };
+}
+
+export interface AnimationTokens {
+  duration: {
+    fast: typeof DURATION_FAST;
+    normal: typeof DURATION_NORMAL;
+    slow: typeof DURATION_SLOW;
+  };
+  easing: {
+    default: typeof EASE_DEFAULT;
+    in: typeof EASE_IN;
+    out: typeof EASE_OUT;
+    bounce: typeof EASE_BOUNCE;
+  };
+}
+
+// ============================================================================
+// TOKENS EXPORT
+// ============================================================================
+
+export const tokens = {
+  spacing: {
+    xs: SPACING_XS,
+    sm: SPACING_SM,
+    md: SPACING_MD,
+    lg: SPACING_LG,
+    xl: SPACING_XL,
+    "2xl": SPACING_2XL,
+    "3xl": SPACING_3XL,
+  },
+  borderRadius: {
+    none: RADIUS_NONE,
+    sm: RADIUS_SM,
+    DEFAULT: RADIUS,
+    md: RADIUS_MD,
+    lg: RADIUS_LG,
+    xl: RADIUS_XL,
+    full: RADIUS_FULL,
+  },
+  shadows: {
+    xs: SHADOW_XS,
+    sm: SHADOW_SM,
+    DEFAULT: SHADOW,
+    md: SHADOW_MD,
+    lg: SHADOW_LG,
+    xl: SHADOW_XL,
+  },
+  zIndex: {
+    dropdown: Z_DROPDOWN,
+    sticky: Z_STICKY,
+    fixed: Z_FIXED,
+    modalBackdrop: Z_MODAL_BACKDROP,
+    modal: Z_MODAL,
+    popover: Z_POPOVER,
+    tooltip: Z_TOOLTIP,
+  },
+} as const;

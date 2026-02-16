@@ -1,0 +1,411 @@
+{
+  "pencil": {
+    "format": "Pencil DNA Format 1.0",
+    "version": "1.0"
+  },
+  "document": {
+    "name": "Issue Board (Kanban)",
+    "description": "Kanban-style issue board with drag-and-drop, based on Jira Agile Board",
+    "width": 1440,
+    "height": 900,
+    "pages": [
+      {
+        "name": "Issue Board - Light Mode",
+        "frames": [
+          {
+            "id": "frame-sidebar",
+            "name": "Sidebar",
+            "x": 0,
+            "y": 0,
+            "width": 260,
+            "height": 900,
+            "background": "#18181b",
+            "children": [
+              {
+                "type": "logo",
+                "x": 20,
+                "y": 20,
+                "text": "PLM System",
+                "color": "#ffffff"
+              },
+              {
+                "type": "nav-item",
+                "x": 10,
+                "y": 130,
+                "width": 240,
+                "height": 40,
+                "text": "Issues",
+                "icon": "circle-dot",
+                "active": true
+              },
+              {
+                "type": "divider",
+                "x": 20,
+                "y": 180,
+                "width": 220,
+                "height": 1,
+                "color": "#27272a"
+              },
+              {
+                "type": "filter-section",
+                "x": 20,
+                "y": 200,
+                "text": "Filters"
+              },
+              {
+                "type": "filter-group",
+                "x": 10,
+                "y": 230,
+                "label": "Assignee",
+                "value": "Only My Issues"
+              },
+              {
+                "type": "filter-group",
+                "x": 10,
+                "y": 280,
+                "label": "Priority",
+                "value": "All"
+              },
+              {
+                "type": "filter-group",
+                "x": 10,
+                "y": 330,
+                "label": "Project",
+                "value": "ECU Development"
+              }
+            ]
+          },
+          {
+            "id": "frame-navbar",
+            "name": "Top Navbar",
+            "x": 260,
+            "y": 0,
+            "width": 1180,
+            "height": 60,
+            "background": "#ffffff",
+            "borderBottom": "1px solid #e4e4e7",
+            "children": [
+              {
+                "type": "breadcrumb",
+                "x": 20,
+                "y": 20,
+                "text": "Issues / Board"
+              },
+              {
+                "type": "view-toggle",
+                "x": 400,
+                "y": 12,
+                "width": 200,
+                "height": 36,
+                "options": ["Board", "List", "Timeline"],
+                "active": "Board"
+              },
+              {
+                "type": "button",
+                "x": 1050,
+                "y": 12,
+                "width": 120,
+                "height": 36,
+                "text": "Create Issue",
+                "variant": "primary",
+                "icon": "plus"
+              }
+            ]
+          },
+          {
+            "id": "frame-board",
+            "name": "Kanban Board",
+            "x": 260,
+            "y": 60,
+            "width": 1180,
+            "height": 840,
+            "background": "#f4f4f5",
+            "overflow": "horizontal",
+            "children": [
+              {
+                "id": "column-todo",
+                "name": "To Do",
+                "x": 20,
+                "y": 20,
+                "width": 270,
+                "height": 800,
+                "background": "#e4e4e7",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "column-header",
+                    "x": 0,
+                    "y": 0,
+                    "width": 270,
+                    "height": 48,
+                    "background": "#ffffff",
+                    "borderRadius": "8px 8px 0 0",
+                    "title": "To Do",
+                    "count": 5,
+                    "iconColor": "#71717a"
+                  },
+                  {
+                    "type": "issue-card",
+                    "id": "PLM-144",
+                    "x": 10,
+                    "y": 58,
+                    "width": 250,
+                    "height": 120,
+                    "background": "#ffffff",
+                    "borderRadius": 6,
+                    "borderLeft": "4px solid #ef4444",
+                    "priority": "critical",
+                    "children": [
+                      {
+                        "type": "issue-key",
+                        "x": 12,
+                        "y": 10,
+                        "text": "PLM-144",
+                        "color": "#71717a",
+                        "fontSize": 12
+                      },
+                      {
+                        "type": "issue-title",
+                        "x": 12,
+                        "y": 30,
+                        "text": "Fix battery thermal management",
+                        "fontSize": 14,
+                        "fontWeight": "500"
+                      },
+                      {
+                        "type": "issue-meta",
+                        "x": 12,
+                        "y": 80,
+                        "children": [
+                          {
+                            "type": "badge",
+                            "text": "Bug",
+                            "color": "#ef4444"
+                          },
+                          {
+                            "type": "avatar",
+                            "fallback": "JD"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "issue-card",
+                    "id": "PLM-145",
+                    "x": 10,
+                    "y": 188,
+                    "width": 250,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 6,
+                    "borderLeft": "4px solid #f59e0b",
+                    "priority": "high"
+                  },
+                  {
+                    "type": "issue-card",
+                    "id": "PLM-146",
+                    "x": 10,
+                    "y": 298,
+                    "width": 250,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 6,
+                    "borderLeft": "4px solid #22c55e",
+                    "priority": "low"
+                  }
+                ]
+              },
+              {
+                "id": "column-inprogress",
+                "name": "In Progress",
+                "x": 310,
+                "y": 20,
+                "width": 270,
+                "height": 800,
+                "background": "#e4e4e7",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "column-header",
+                    "x": 0,
+                    "y": 0,
+                    "width": 270,
+                    "height": 48,
+                    "background": "#ffffff",
+                    "borderRadius": "8px 8px 0 0",
+                    "title": "In Progress",
+                    "count": 3,
+                    "iconColor": "#3b82f6"
+                  },
+                  {
+                    "type": "issue-card",
+                    "id": "PLM-140",
+                    "x": 10,
+                    "y": 58,
+                    "width": 250,
+                    "height": 120,
+                    "background": "#ffffff",
+                    "borderRadius": 6,
+                    "borderLeft": "4px solid #f97316",
+                    "priority": "high",
+                    "title": "Implement BOM versioning"
+                  },
+                  {
+                    "type": "issue-card",
+                    "id": "PLM-141",
+                    "x": 10,
+                    "y": 188,
+                    "width": 250,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 6,
+                    "borderLeft": "4px solid #f59e0b",
+                    "priority": "medium"
+                  }
+                ]
+              },
+              {
+                "id": "column-review",
+                "name": "In Review",
+                "x": 600,
+                "y": 20,
+                "width": 270,
+                "height": 800,
+                "background": "#e4e4e7",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "column-header",
+                    "x": 0,
+                    "y": 0,
+                    "width": 270,
+                    "height": 48,
+                    "background": "#ffffff",
+                    "borderRadius": "8px 8px 0 0",
+                    "title": "In Review",
+                    "count": 2,
+                    "iconColor": "#f59e0b"
+                  },
+                  {
+                    "type": "issue-card",
+                    "id": "PLM-138",
+                    "x": 10,
+                    "y": 58,
+                    "width": 250,
+                    "height": 100,
+                    "background": "#ffffff",
+                    "borderRadius": 6,
+                    "borderLeft": "4px solid #22c55e",
+                    "priority": "low"
+                  }
+                ]
+              },
+              {
+                "id": "column-done",
+                "name": "Done",
+                "x": 890,
+                "y": 20,
+                "width": 270,
+                "height": 800,
+                "background": "#e4e4e7",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "column-header",
+                    "x": 0,
+                    "y": 0,
+                    "width": 270,
+                    "height": 48,
+                    "background": "#ffffff",
+                    "borderRadius": "8px 8px 0 0",
+                    "title": "Done",
+                    "count": 12,
+                    "iconColor": "#22c55e"
+                  },
+                  {
+                    "type": "issue-card",
+                    "id": "PLM-137",
+                    "x": 10,
+                    "y": 58,
+                    "width": 250,
+                    "height": 80,
+                    "background": "#ffffff",
+                    "borderRadius": 6,
+                    "borderLeft": "4px solid #22c55e",
+                    "priority": "low",
+                    "opacity": 0.7
+                  },
+                  {
+                    "type": "issue-card",
+                    "id": "PLM-136",
+                    "x": 10,
+                    "y": 148,
+                    "width": 250,
+                    "height": 80,
+                    "background": "#ffffff",
+                    "borderRadius": 6,
+                    "borderLeft": "4px solid #22c55e",
+                    "priority": "medium",
+                    "opacity": 0.7
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "components": {
+    "issue-card": {
+      "default": {
+        "padding": 12,
+        "shadow": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "cursor": "grab",
+        "transition": "all 0.2s"
+      },
+      "hover": {
+        "shadow": "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+        "transform": "translateY(-2px)"
+      },
+      "dragging": {
+        "opacity": 0.5,
+        "cursor": "grabbing"
+      }
+    },
+    "column-header": {
+      "padding": "12px 16px",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "display": "flex",
+      "alignItems": "center",
+      "justifyContent": "space-between"
+    },
+    "badge": {
+      "padding": "2px 8px",
+      "borderRadius": 4,
+      "fontSize": 11,
+      "fontWeight": 500
+    },
+    "priority": {
+      "critical": { "color": "#ef4444" },
+      "high": { "color": "#f97316" },
+      "medium": { "color": "#f59e0b" },
+      "low": { "color": "#22c55e" }
+    }
+  },
+  "interactions": {
+    "dragDrop": {
+      "enabled": true,
+      "columns": ["todo", "inprogress", "review", "done"],
+      "onDrop": "updateIssueStatus"
+    },
+    "click": {
+      "issue-card": "openIssueDetail"
+    },
+    "hover": {
+      "issue-card": "showQuickActions"
+    }
+  }
+}

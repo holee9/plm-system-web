@@ -1,0 +1,90 @@
+{
+  "$schema": "../schemas/token-schema.json",
+  "name": "plm-color-tokens",
+  "version": "1.0.0",
+  "description": "Color design tokens for PLM System supporting light and dark themes",
+  "colors": {
+    "light": {
+      "background": {
+        "primary": "#ffffff",
+        "secondary": "#f4f4f5",
+        "muted": "#f4f4f5",
+        "card": "#ffffff",
+        "popover": "#ffffff",
+        "border": "#e4e4e7",
+        "input": "#e4e4e7"
+      },
+      "foreground": {
+        "primary": "#09090b",
+        "secondary": "#71717a",
+        "muted": "#71717a",
+        "accent": "#18181b"
+      },
+      "primary": {
+        "DEFAULT": "#18181b",
+        "foreground": "#fafafa"
+      },
+      "secondary": {
+        "DEFAULT": "#f4f4f5",
+        "foreground": "#18181b"
+      },
+      "destructive": {
+        "DEFAULT": "#ef4444",
+        "foreground": "#fafafa"
+      },
+      "success": {
+        "DEFAULT": "#22c55e",
+        "foreground": "#fafafa"
+      },
+      "warning": {
+        "DEFAULT": "#f59e0b",
+        "foreground": "#fafafa"
+      },
+      "info": {
+        "DEFAULT": "#3b82f6",
+        "foreground": "#fafafa"
+      }
+    },
+    "dark": {
+      "background": {
+        "primary": "#09090b",
+        "secondary": "#27272a",
+        "muted": "#27272a",
+        "card": "#09090b",
+        "popover": "#09090b",
+        "border": "#27272a",
+        "input": "#27272a"
+      },
+      "foreground": {
+        "primary": "#fafafa",
+        "secondary": "#a1a1aa",
+        "muted": "#a1a1aa",
+        "accent": "#fafafa"
+      },
+      "primary": {
+        "DEFAULT": "#fafafa",
+        "foreground": "#18181b"
+      },
+      "secondary": {
+        "DEFAULT": "#27272a",
+        "foreground": "#fafafa"
+      },
+      "destructive": {
+        "DEFAULT": "#7f1d1d",
+        "foreground": "#fafafa"
+      },
+      "success": {
+        "DEFAULT": "#15803d",
+        "foreground": "#fafafa"
+      },
+      "warning": {
+        "DEFAULT": "#b45309",
+        "foreground": "#fafafa"
+      },
+      "info": {
+        "DEFAULT": "#1e40af",
+        "foreground": "#fafafa"
+      }
+    }
+  }
+}

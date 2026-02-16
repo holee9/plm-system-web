@@ -1,0 +1,468 @@
+{
+  "pencil": {
+    "format": "Pencil DNA Format 1.0",
+    "version": "1.0"
+  },
+  "document": {
+    "name": "Project Detail",
+    "description": "Project detail page with Gantt chart, team members, and milestones",
+    "width": 1440,
+    "height": 900,
+    "pages": [
+      {
+        "name": "Project Detail - Light Mode",
+        "frames": [
+          {
+            "id": "frame-sidebar",
+            "name": "Sidebar",
+            "x": 0,
+            "y": 0,
+            "width": 260,
+            "height": 900,
+            "background": "#18181b",
+            "children": [
+              {
+                "type": "logo",
+                "x": 20,
+                "y": 20,
+                "text": "PLM System",
+                "color": "#ffffff"
+              },
+              {
+                "type": "nav-item",
+                "x": 10,
+                "y": 130,
+                "width": 240,
+                "height": 40,
+                "text": "Projects",
+                "icon": "folder",
+                "active": true
+              },
+              {
+                "type": "project-breadcrumb",
+                "x": 20,
+                "y": 180,
+                "text": "ECU Development"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 220,
+                "width": 220,
+                "height": 36,
+                "text": "Overview",
+                "active": true
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 260,
+                "width": 220,
+                "height": 36,
+                "text": "Issues"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 300,
+                "width": 220,
+                "height": 36,
+                "text": "Milestones"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 340,
+                "width": 220,
+                "height": 36,
+                "text": "Files"
+              },
+              {
+                "type": "nav-item",
+                "x": 30,
+                "y": 380,
+                "width": 220,
+                "height": 36,
+                "text": "Settings"
+              }
+            ]
+          },
+          {
+            "id": "frame-header",
+            "name": "Project Header",
+            "x": 260,
+            "y": 0,
+            "width": 1180,
+            "height": 140,
+            "background": "#ffffff",
+            "borderBottom": "1px solid #e4e4e7",
+            "children": [
+              {
+                "type": "project-title",
+                "x": 20,
+                "y": 20,
+                "text": "ECU Development 2024",
+                "key": "ECU-2024",
+                "fontSize": 24,
+                "fontWeight": "bold"
+              },
+              {
+                "type": "project-meta",
+                "x": 20,
+                "y": 60,
+                "children": [
+                  {
+                    "type": "meta-item",
+                    "icon": "calendar",
+                    "text": "Jan 15 - Jun 30, 2024"
+                  },
+                  {
+                    "type": "meta-item",
+                    "icon": "user",
+                    "text": "5 members"
+                  },
+                  {
+                    "type": "meta-item",
+                    "icon": "progress",
+                    "text": "65% complete"
+                  }
+                ]
+              },
+              {
+                "type": "status-badge",
+                "x": 20,
+                "y": 100,
+                "text": "In Progress",
+                "color": "#3b82f6"
+              },
+              {
+                "type": "button-group",
+                "x": 950,
+                "y": 20,
+                "children": [
+                  {
+                    "type": "button",
+                    "text": "Edit",
+                    "variant": "outline"
+                  },
+                  {
+                    "type": "button",
+                    "text": "Add Issue",
+                    "variant": "primary"
+                  }
+                ]
+              },
+              {
+                "type": "tabs",
+                "x": 20,
+                "y": 120,
+                "width": 1140,
+                "height": 40,
+                "options": ["Overview", "Issues", "Timeline", "Activity"],
+                "active": "Overview"
+              }
+            ]
+          },
+          {
+            "id": "frame-content",
+            "name": "Project Content",
+            "x": 260,
+            "y": 140,
+            "width": 1180,
+            "height": 760,
+            "background": "#f4f4f5",
+            "children": [
+              {
+                "id": "section-gantt",
+                "name": "Gantt Chart",
+                "x": 20,
+                "y": 20,
+                "width": 760,
+                "height": 360,
+                "background": "#ffffff",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "section-header",
+                    "x": 20,
+                    "y": 20,
+                    "text": "Timeline",
+                    "action": "Expand"
+                  },
+                  {
+                    "type": "gantt-chart",
+                    "x": 20,
+                    "y": 60,
+                    "width": 720,
+                    "height": 280,
+                    "timeline": {
+                      "start": "2024-01-01",
+                      "end": "2024-06-30",
+                      "granularity": "week"
+                    },
+                    "tasks": [
+                      {
+                        "id": "task-1",
+                        "name": "Requirements Analysis",
+                        "start": "2024-01-15",
+                        "end": "2024-02-15",
+                        "progress": 100,
+                        "color": "#22c55e",
+                        "assignee": "JD"
+                      },
+                      {
+                        "id": "task-2",
+                        "name": "Hardware Design",
+                        "start": "2024-02-01",
+                        "end": "2024-04-15",
+                        "progress": 75,
+                        "color": "#3b82f6",
+                        "assignee": "SK"
+                      },
+                      {
+                        "id": "task-3",
+                        "name": "Software Development",
+                        "start": "2024-03-01",
+                        "end": "2024-05-30",
+                        "progress": 40,
+                        "color": "#f59e0b",
+                        "assignee": "MJ"
+                      },
+                      {
+                        "id": "task-4",
+                        "name": "Testing & Validation",
+                        "start": "2024-05-01",
+                        "end": "2024-06-15",
+                        "progress": 0,
+                        "color": "#71717a",
+                        "assignee": "AL"
+                      },
+                      {
+                        "id": "task-5",
+                        "name": "Production",
+                        "start": "2024-06-01",
+                        "end": "2024-06-30",
+                        "progress": 0,
+                        "color": "#71717a",
+                        "assignee": "RK"
+                      }
+                    ],
+                    "milestones": [
+                      {
+                        "id": "milestone-1",
+                        "name": "Design Review",
+                        "date": "2024-03-15",
+                        "color": "#ef4444"
+                      },
+                      {
+                        "id": "milestone-2",
+                        "name": "Alpha Release",
+                        "date": "2024-05-15",
+                        "color": "#3b82f6"
+                      }
+                    ],
+                    "currentDate": "2024-04-01"
+                  }
+                ]
+              },
+              {
+                "id": "section-team",
+                "name": "Team Members",
+                "x": 800,
+                "y": 20,
+                "width": 360,
+                "height": 360,
+                "background": "#ffffff",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "section-header",
+                    "x": 20,
+                    "y": 20,
+                    "text": "Team",
+                    "action": "Manage"
+                  },
+                  {
+                    "type": "member-list",
+                    "x": 20,
+                    "y": 60,
+                    "width": 320,
+                    "height": 280,
+                    "members": [
+                      {
+                        "name": "John Doe",
+                        "role": "Project Lead",
+                        "avatar": "JD",
+                        "email": "john@example.com"
+                      },
+                      {
+                        "name": "Sarah Kim",
+                        "role": "Hardware Engineer",
+                        "avatar": "SK",
+                        "email": "sarah@example.com"
+                      },
+                      {
+                        "name": "Mike Johnson",
+                        "role": "Software Engineer",
+                        "avatar": "MJ",
+                        "email": "mike@example.com"
+                      },
+                      {
+                        "name": "Anna Lee",
+                        "role": "QA Engineer",
+                        "avatar": "AL",
+                        "email": "anna@example.com"
+                      },
+                      {
+                        "name": "Robert Kim",
+                        "role": "DevOps Engineer",
+                        "avatar": "RK",
+                        "email": "robert@example.com"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "section-issues",
+                "name": "Recent Issues",
+                "x": 20,
+                "y": 400,
+                "width": 760,
+                "height": 340,
+                "background": "#ffffff",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "section-header",
+                    "x": 20,
+                    "y": 20,
+                    "text": "Recent Issues",
+                    "action": "View all (24)"
+                  },
+                  {
+                    "type": "issue-table",
+                    "x": 20,
+                    "y": 60,
+                    "width": 720,
+                    "height": 260,
+                    "columns": [
+                      { "key": "id", "label": "Key", "width": 80 },
+                      { "key": "summary", "label": "Summary", "width": 300 },
+                      { "key": "status", "label": "Status", "width": 100 },
+                      { "key": "priority", "label": "Priority", "width": 80 },
+                      { "key": "assignee", "label": "Assignee", "width": 80 },
+                      { "key": "due", "label": "Due Date", "width": 80 }
+                    ],
+                    "rows": [
+                      {
+                        "id": "PLM-144",
+                        "summary": "Fix battery thermal management",
+                        "status": "To Do",
+                        "priority": "Critical",
+                        "assignee": "JD",
+                        "due": "2024-04-15"
+                      },
+                      {
+                        "id": "PLM-140",
+                        "summary": "Implement BOM versioning",
+                        "status": "In Progress",
+                        "priority": "High",
+                        "assignee": "SK",
+                        "due": "2024-04-20"
+                      },
+                      {
+                        "id": "PLM-138",
+                        "summary": "Add CAD file preview",
+                        "status": "In Review",
+                        "priority": "Medium",
+                        "assignee": "MJ",
+                        "due": "2024-04-10"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "section-activity",
+                "name": "Activity Feed",
+                "x": 800,
+                "y": 400,
+                "width": 360,
+                "height": 340,
+                "background": "#ffffff",
+                "borderRadius": 8,
+                "children": [
+                  {
+                    "type": "section-header",
+                    "x": 20,
+                    "y": 20,
+                    "text": "Activity"
+                  },
+                  {
+                    "type": "activity-feed",
+                    "x": 20,
+                    "y": 60,
+                    "width": 320,
+                    "height": 260,
+                    "items": [
+                      {
+                        "avatar": "SK",
+                        "text": "uploaded CAD file",
+                        "target": "ecu_v2.dwg",
+                        "time": "5 min ago"
+                      },
+                      {
+                        "avatar": "MJ",
+                        "text": "commented on",
+                        "target": "PLM-140",
+                        "time": "1 hour ago"
+                      },
+                      {
+                        "avatar": "JD",
+                        "text": "created milestone",
+                        "target": "Design Review",
+                        "time": "2 hours ago"
+                      },
+                      {
+                        "avatar": "AL",
+                        "text": "completed issue",
+                        "target": "PLM-137",
+                        "time": "3 hours ago"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "components": {
+    "gantt-chart": {
+      "headerHeight": 40,
+      "rowHeight": 40,
+      "barHeight": 24,
+      "todayLine": {
+        "color": "#ef4444",
+        "style": "dashed"
+      },
+      "milestone": {
+        "shape": "diamond",
+        "size": 16
+      }
+    },
+    "member-list": {
+      "itemHeight": 56,
+      "padding": 12,
+      "borderBottom": "1px solid #f4f4f5"
+    },
+    "issue-table": {
+      "headerBackground": "#f4f4f5",
+      "rowHeight": 48,
+      "hoverBackground": "#fafafa"
+    }
+  }
+}
