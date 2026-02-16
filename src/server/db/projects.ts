@@ -6,6 +6,9 @@ import { teams } from "./teams";
 // Project status enum
 export const projectStatusEnum = pgEnum("project_status", ["active", "archived"]);
 
+// Project visibility enum
+export const projectVisibilityEnum = pgEnum("project_visibility", ["private", "public"]);
+
 // Projects table
 export const projects = pgTable("projects", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -13,6 +16,7 @@ export const projects = pgTable("projects", {
   key: varchar("key", { length: 10 }).notNull().unique(),
   description: text("description"),
   status: projectStatusEnum("status").default("active").notNull(),
+  visibility: projectVisibilityEnum("visibility").default("private").notNull(),
   teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
   createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "restrict" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -26,6 +30,8 @@ export const projects = pgTable("projects", {
   createdByIdx: sql`CREATE INDEX IF NOT EXISTS projects_created_by_idx ON projects(created_by)`,
   // Index for status filtering
   statusIdx: sql`CREATE INDEX IF NOT EXISTS projects_status_idx ON projects(status)`,
+  // Index for visibility filtering
+  visibilityIdx: sql`CREATE INDEX IF NOT EXISTS projects_visibility_idx ON projects(visibility)`,
 }));
 
 // Type inference

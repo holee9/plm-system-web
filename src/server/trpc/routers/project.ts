@@ -21,6 +21,18 @@ import {
   ProjectAccessError,
   ProjectNotFoundError,
 } from "~/modules/project/service";
+import {
+  createMilestone,
+  getMilestoneById,
+  listMilestones,
+  updateMilestone,
+  deleteMilestone,
+  closeMilestone,
+  reopenMilestone,
+  MilestoneValidationError,
+  MilestoneAccessError,
+  MilestoneNotFoundError,
+} from "~/modules/project/milestone-service";
 
 // Zod schemas
 const createProjectInput = z.object({
@@ -53,6 +65,28 @@ const updateMemberRoleInput = z.object({
   projectId: z.string().uuid(),
   userId: z.string().uuid(),
   role: z.enum(["admin", "member", "viewer"]),
+});
+
+// Milestone Zod schemas
+const createMilestoneInput = z.object({
+  projectId: z.string().uuid(),
+  title: z.string().min(2).max(255),
+  description: z.string().optional(),
+  dueDate: z.date().optional(),
+});
+
+const updateMilestoneInput = z.object({
+  title: z.string().min(2).max(255).optional(),
+  description: z.string().optional(),
+  dueDate: z.date().nullable().optional(),
+  status: z.enum(["open", "closed"]).optional(),
+});
+
+const listMilestonesInput = z.object({
+  projectId: z.string().uuid(),
+  status: z.enum(["open", "closed"]).optional(),
+  limit: z.number().min(1).max(100).default(20),
+  offset: z.number().min(0).default(0),
 });
 
 export const projectRouter = createTRPCRouter({
@@ -296,6 +330,167 @@ export const projectRouter = createTRPCRouter({
           throw new Error(error.message);
         }
         throw new Error("Failed to list members");
+      }
+    }),
+
+  // Create milestone
+  createMilestone: protectedProcedure
+    .input(createMilestoneInput)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const milestone = await createMilestone(
+          input.projectId,
+          ctx.user.id,
+          {
+            title: input.title,
+            description: input.description,
+            dueDate: input.dueDate,
+          }
+        );
+
+        return {
+          success: true,
+          data: milestone,
+        };
+      } catch (error) {
+        if (
+          error instanceof MilestoneValidationError ||
+          error instanceof MilestoneAccessError
+        ) {
+          throw new Error(error.message);
+        }
+        throw new Error("Failed to create milestone");
+      }
+    }),
+
+  // Get milestone by ID
+  getMilestoneById: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const milestone = await getMilestoneById(input.id, ctx.user.id);
+        if (!milestone) {
+          throw new Error("Milestone not found");
+        }
+        return milestone;
+      } catch (error) {
+        if (error instanceof MilestoneAccessError) {
+          throw new Error(error.message);
+        }
+        throw new Error("Failed to get milestone");
+      }
+    }),
+
+  // List milestones for a project
+  listMilestones: protectedProcedure
+    .input(listMilestonesInput)
+    .query(async ({ ctx, input }) => {
+      try {
+        const result = await listMilestones({
+          projectId: input.projectId,
+          userId: ctx.user.id,
+          status: input.status,
+          limit: input.limit,
+          offset: input.offset,
+        });
+
+        return result;
+      } catch (error) {
+        if (error instanceof MilestoneAccessError) {
+          throw new Error(error.message);
+        }
+        throw new Error("Failed to list milestones");
+      }
+    }),
+
+  // Update milestone
+  updateMilestone: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        data: updateMilestoneInput,
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const milestone = await updateMilestone(
+          input.id,
+          ctx.user.id,
+          input.data
+        );
+
+        return {
+          success: true,
+          data: milestone,
+        };
+      } catch (error) {
+        if (
+          error instanceof MilestoneAccessError ||
+          error instanceof MilestoneValidationError ||
+          error instanceof MilestoneNotFoundError
+        ) {
+          throw new Error(error.message);
+        }
+        throw new Error("Failed to update milestone");
+      }
+    }),
+
+  // Delete milestone
+  deleteMilestone: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await deleteMilestone(input.id, ctx.user.id);
+
+        return {
+          success: true,
+        };
+      } catch (error) {
+        if (
+          error instanceof MilestoneAccessError ||
+          error instanceof MilestoneNotFoundError
+        ) {
+          throw new Error(error.message);
+        }
+        throw new Error("Failed to delete milestone");
+      }
+    }),
+
+  // Close milestone
+  closeMilestone: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const milestone = await closeMilestone(input.id, ctx.user.id);
+
+        return {
+          success: true,
+          data: milestone,
+        };
+      } catch (error) {
+        if (error instanceof MilestoneAccessError) {
+          throw new Error(error.message);
+        }
+        throw new Error("Failed to close milestone");
+      }
+    }),
+
+  // Reopen milestone
+  reopenMilestone: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const milestone = await reopenMilestone(input.id, ctx.user.id);
+
+        return {
+          success: true,
+          data: milestone,
+        };
+      } catch (error) {
+        if (error instanceof MilestoneAccessError) {
+          throw new Error(error.message);
+        }
+        throw new Error("Failed to reopen milestone");
       }
     }),
 });

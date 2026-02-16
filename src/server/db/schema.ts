@@ -19,7 +19,7 @@ export * from "./team_members";
 export * from "./projects";
 export * from "./project_members";
 
-// Issue module tables (new implementation)
+// Issue module tables (includes milestones)
 export * from "../../modules/issue/schemas";
 
 // PLM tables
