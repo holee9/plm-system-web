@@ -202,3 +202,27 @@ export interface PaginatedResult<T> {
   hasMore: boolean;
   total: number;
 }
+
+/**
+ * Issue attachment
+ */
+export interface IssueAttachment {
+  id: string;
+  issueId: string;
+  fileName: string; // UUID_prefix + original name (stored file name)
+  originalFileName: string; // Original file name (user provided)
+  fileSize: number; // File size in bytes
+  mimeType: string;
+  uploadedBy: string;
+  uploadedAt: Date;
+}
+
+/**
+ * Upload attachment input
+ */
+export interface UploadAttachmentInput {
+  issueId: string;
+  originalFileName: string;
+  fileSize: number;
+  mimeType: string;
+}

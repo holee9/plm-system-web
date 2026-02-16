@@ -2,7 +2,8 @@
 export { PartList } from "./PartList";
 export { PartDetail } from "./PartDetail";
 export { PartStatusBadge } from "./PartStatusBadge";
-export { BomTree } from "./BomTree";
+export { BomTree, type BomTreeFilter } from "./BomTree";
+export { BomTreeFilters } from "./BomTreeFilters";
 export { BomFlatTable } from "./BomFlatTable";
 export { RevisionTimeline } from "./RevisionTimeline";
 export { WhereUsedTable } from "./WhereUsedTable";

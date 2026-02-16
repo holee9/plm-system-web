@@ -4,3 +4,4 @@ export * from "./issue-comments";
 export * from "./labels";
 export * from "./issue-labels";
 export * from "./milestones";
+export * from "./issue-attachments";

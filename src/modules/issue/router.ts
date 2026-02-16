@@ -2,6 +2,8 @@
 import { z } from "zod";
 import { router, publicProcedure } from "~/server/trpc";
 import * as service from "./service";
+import * as labelService from "./label-service";
+import * as attachmentService from "./attachment-service";
 import type { IssueStatus } from "./types";
 
 // TODO: Replace with actual auth context once implemented
@@ -93,6 +95,18 @@ const updateMilestoneSchema = z.object({
   description: z.string().nullable().optional(),
   dueDate: z.coerce.date().nullable().optional(),
   status: z.enum(["open", "closed"]).optional(),
+});
+
+// Attachment schemas
+const uploadAttachmentSchema = z.object({
+  issueId: z.string().uuid(),
+  originalFileName: z.string().min(1).max(255),
+  fileSize: z.number().int().positive().max(10 * 1024 * 1024), // Max 10MB
+  mimeType: z.string(),
+});
+
+const listAttachmentsSchema = z.object({
+  issueId: z.string().uuid(),
 });
 
 // Export router
@@ -222,15 +236,18 @@ export const issueRouter = router({
         data: updateLabelSchema,
       }))
       .mutation(async ({ ctx, input }) => {
-        // TODO: Implement update
-        throw new Error("Not implemented");
+        return labelService.updateLabel(
+          input.id,
+          input.data,
+          getUserId(ctx)
+        );
       }),
 
     delete: publicProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
-        // TODO: Implement delete
-        throw new Error("Not implemented");
+        await labelService.deleteLabel(input.id, getUserId(ctx));
+        return { success: true };
       }),
 
     assign: publicProcedure
@@ -290,6 +307,40 @@ export const issueRouter = router({
       .mutation(async ({ ctx, input }) => {
         // TODO: Implement close
         throw new Error("Not implemented");
+      }),
+  }),
+
+  // Attachments
+  attachment: router({
+    upload: publicProcedure
+      .input(uploadAttachmentSchema)
+      .mutation(async ({ ctx, input }) => {
+        return attachmentService.uploadAttachment(
+          input.issueId,
+          input.originalFileName,
+          input.fileSize,
+          input.mimeType,
+          getUserId(ctx)
+        );
+      }),
+
+    list: publicProcedure
+      .input(listAttachmentsSchema)
+      .query(async ({ ctx, input }) => {
+        return attachmentService.listAttachments(input.issueId);
+      }),
+
+    getById: publicProcedure
+      .input(z.object({ id: z.string().uuid() }))
+      .query(async ({ ctx, input }) => {
+        return attachmentService.getAttachmentById(input.id);
+      }),
+
+    delete: publicProcedure
+      .input(z.object({ id: z.string().uuid() }))
+      .mutation(async ({ ctx, input }) => {
+        await attachmentService.deleteAttachment(input.id, getUserId(ctx));
+        return { success: true };
       }),
   }),
 });
