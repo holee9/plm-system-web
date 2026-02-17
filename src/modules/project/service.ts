@@ -312,6 +312,7 @@ export async function updateProject(
     name?: string;
     description?: string;
     status?: "active" | "archived";
+    visibility?: "private" | "public";
   }
 ): Promise<Project> {
   // Check admin access
@@ -330,6 +331,7 @@ export async function updateProject(
     ...(data.name !== undefined && { name: data.name }),
     ...(data.description !== undefined && { description: data.description }),
     ...(data.status !== undefined && { status: data.status }),
+    ...(data.visibility !== undefined && { visibility: data.visibility }),
     updatedAt: new Date(),
   };
 

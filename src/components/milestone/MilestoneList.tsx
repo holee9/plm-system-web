@@ -92,6 +92,9 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
     dueDate: "",
   });
 
+  // Cache utils for invalidation
+  const utils = trpc.useUtils();
+
   // Type for milestone data from API (progress is optional)
   type MilestoneFromApi = ApiMilestone;
 
@@ -99,7 +102,6 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
   const {
     data: milestonesData,
     isLoading,
-    refetch,
   } = trpc.project.listMilestones.useQuery({
     projectId,
     limit: 100,
@@ -121,7 +123,8 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
       toast.success("Milestone created successfully");
       setIsCreateDialogOpen(false);
       setNewMilestone({ title: "", description: "", dueDate: "" });
-      refetch();
+      void utils.project.listMilestones.invalidate({ projectId, limit: 100 });
+      void utils.issue.getProjectMilestonesProgress.invalidate({ projectId });
     },
     onError: (error) => {
       toast.error(`Failed to create milestone: ${error.message}`);
@@ -134,7 +137,8 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
       toast.success("Milestone updated successfully");
       setIsEditDialogOpen(false);
       setEditingMilestone(null);
-      refetch();
+      void utils.project.listMilestones.invalidate({ projectId, limit: 100 });
+      void utils.issue.getProjectMilestonesProgress.invalidate({ projectId });
     },
     onError: (error) => {
       toast.error(`Failed to update milestone: ${error.message}`);
@@ -145,7 +149,8 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
   const deleteMilestone = trpc.project.deleteMilestone.useMutation({
     onSuccess: () => {
       toast.success("Milestone deleted successfully");
-      refetch();
+      void utils.project.listMilestones.invalidate({ projectId, limit: 100 });
+      void utils.issue.getProjectMilestonesProgress.invalidate({ projectId });
     },
     onError: (error) => {
       toast.error(`Failed to delete milestone: ${error.message}`);
@@ -156,7 +161,8 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
   const closeMilestone = trpc.project.closeMilestone.useMutation({
     onSuccess: () => {
       toast.success("Milestone closed successfully");
-      refetch();
+      void utils.project.listMilestones.invalidate({ projectId, limit: 100 });
+      void utils.issue.getProjectMilestonesProgress.invalidate({ projectId });
     },
     onError: (error) => {
       toast.error(`Failed to close milestone: ${error.message}`);
@@ -167,7 +173,8 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
   const reopenMilestone = trpc.project.reopenMilestone.useMutation({
     onSuccess: () => {
       toast.success("Milestone reopened successfully");
-      refetch();
+      void utils.project.listMilestones.invalidate({ projectId, limit: 100 });
+      void utils.issue.getProjectMilestonesProgress.invalidate({ projectId });
     },
     onError: (error) => {
       toast.error(`Failed to reopen milestone: ${error.message}`);

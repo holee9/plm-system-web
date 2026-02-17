@@ -30,7 +30,7 @@ export class AttachmentNotFoundError extends Error {
 }
 
 // Constants
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 const MAX_ATTACHMENTS_PER_ISSUE = 10;
 
 // Allowed MIME types

@@ -40,8 +40,11 @@ export function ManufacturerList({ projectId }: ManufacturerListProps) {
   const [selectedManufacturer, setSelectedManufacturer] = useState<any>(null);
   const limit = 20;
 
+  // Cache utils for invalidation
+  const utils = trpc.useUtils();
+
   // Fetch manufacturers
-  const { data, isLoading, refetch } = trpc.plm.manufacturer.list.useQuery({
+  const { data, isLoading } = trpc.plm.manufacturer.list.useQuery({
     query: searchQuery || undefined,
     limit,
     offset: (page - 1) * limit,
@@ -52,7 +55,7 @@ export function ManufacturerList({ projectId }: ManufacturerListProps) {
     onSuccess: () => {
       toast.success("Manufacturer created successfully");
       setCreateDialogOpen(false);
-      refetch();
+      void utils.plm.manufacturer.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -65,7 +68,7 @@ export function ManufacturerList({ projectId }: ManufacturerListProps) {
       toast.success("Manufacturer updated successfully");
       setEditDialogOpen(false);
       setSelectedManufacturer(null);
-      refetch();
+      void utils.plm.manufacturer.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -78,7 +81,7 @@ export function ManufacturerList({ projectId }: ManufacturerListProps) {
       toast.success("Manufacturer deleted successfully");
       setDeleteDialogOpen(false);
       setSelectedManufacturer(null);
-      refetch();
+      void utils.plm.manufacturer.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);

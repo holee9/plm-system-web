@@ -40,8 +40,11 @@ export function SupplierList({ projectId }: SupplierListProps) {
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
   const limit = 20;
 
+  // Cache utils for invalidation
+  const utils = trpc.useUtils();
+
   // Fetch suppliers
-  const { data, isLoading, refetch } = trpc.plm.supplier.list.useQuery({
+  const { data, isLoading } = trpc.plm.supplier.list.useQuery({
     query: searchQuery || undefined,
     limit,
     offset: (page - 1) * limit,
@@ -52,7 +55,7 @@ export function SupplierList({ projectId }: SupplierListProps) {
     onSuccess: () => {
       toast.success("Supplier created successfully");
       setCreateDialogOpen(false);
-      refetch();
+      void utils.plm.supplier.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -65,7 +68,7 @@ export function SupplierList({ projectId }: SupplierListProps) {
       toast.success("Supplier updated successfully");
       setEditDialogOpen(false);
       setSelectedSupplier(null);
-      refetch();
+      void utils.plm.supplier.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -78,7 +81,7 @@ export function SupplierList({ projectId }: SupplierListProps) {
       toast.success("Supplier deleted successfully");
       setDeleteDialogOpen(false);
       setSelectedSupplier(null);
-      refetch();
+      void utils.plm.supplier.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);

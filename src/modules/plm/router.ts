@@ -334,8 +334,20 @@ export const plmRouter = createTRPCRouter({
     getById: protectedProcedure
       .input(z.object({ revisionId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
-        // TODO: Implement getRevisionById
-        throw new Error("Not implemented");
+        try {
+          const revision = await plmService.getRevisionById(input.revisionId);
+
+          if (!revision) {
+            throw new Error("Revision not found");
+          }
+
+          return revision;
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to get revision");
+        }
       }),
   }),
 

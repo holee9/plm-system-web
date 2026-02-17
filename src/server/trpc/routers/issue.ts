@@ -238,6 +238,67 @@ export const issueRouter = router({
       return result;
     }),
 
+  // List attachments for issue
+  listAttachments: publicProcedure
+    .input(z.object({ issueId: z.string().uuid() }))
+    .query(async ({ input }) => {
+      const { listAttachments } = await import("~/modules/issue/attachment-service");
+      return listAttachments(input.issueId);
+    }),
+
+  // Get download URL for attachment
+  getAttachmentDownloadUrl: publicProcedure
+    .input(z.object({ attachmentId: z.string().uuid() }))
+    .query(async ({ input }) => {
+      // Return signed URL or direct download endpoint path
+      return {
+        downloadUrl: `/api/attachments/${input.attachmentId}/download`,
+      };
+    }),
+
+  // Upload attachment (metadata only - file upload handled by API route)
+  uploadAttachment: publicProcedure
+    .input(z.object({
+      issueId: z.string().uuid(),
+      fileName: z.string().min(1).max(255),
+      fileSize: z.number().positive().max(50 * 1024 * 1024), // Max 50MB
+      mimeType: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { uploadAttachment } = await import("~/modules/issue/attachment-service");
+
+      // TODO: Get actual user ID from auth context
+      const userId = "00000000-0000-0000-0000-000000000001";
+
+      const attachment = await uploadAttachment(
+        input.issueId,
+        input.fileName,
+        input.fileSize,
+        input.mimeType,
+        userId
+      );
+
+      return {
+        attachment,
+        // Client should use this URL to upload the actual file
+        uploadUrl: `/api/issues/${input.issueId}/attachments`,
+      };
+    }),
+
+  // Delete attachment
+  deleteAttachment: publicProcedure
+    .input(z.object({ attachmentId: z.string().uuid() }))
+    .mutation(async ({ input, ctx }) => {
+      const { deleteAttachment } = await import("~/modules/issue/attachment-service");
+
+      // TODO: Get actual user ID from auth context
+      const userId = "00000000-0000-0000-0000-000000000001";
+
+      await deleteAttachment(input.attachmentId, userId);
+
+      return { success: true };
+    }),
+
   // TODO: Implement activities table
   // getActivities: publicProcedure
   //   .input(z.object({ issueId: z.string() }))

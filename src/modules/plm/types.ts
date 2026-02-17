@@ -60,12 +60,33 @@ export interface PartSearchParams {
 
 export type RevisionStatus = "draft" | "released" | "superceded";
 
+/**
+ * JSON-serializable value type for revision changes
+ * Represents any value that can be stored in JSON format
+ */
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
+export interface RevisionChange {
+  field: string;
+  oldValue: JsonValue | null;
+  newValue: JsonValue | null;
+}
+
+export interface RevisionChangesRecord {
+  [field: string]: {
+    oldValue: JsonValue | null;
+    newValue: JsonValue | null;
+  };
+}
+
 export interface RevisionWithChanges extends Omit<Revision, "changes"> {
-  changes?: {
-    field: string;
-    oldValue: any;
-    newValue: any;
-  }[];
+  changes?: RevisionChangesRecord;
   isCurrent?: boolean;
 }
 
@@ -73,7 +94,7 @@ export interface CreateRevisionInput {
   partId: string;
   revisionCode: string;
   description?: string;
-  changes?: Record<string, { oldValue: any; newValue: any }>;
+  changes?: RevisionChangesRecord;
   createdBy: string;
   status?: RevisionStatus;
 }

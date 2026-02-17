@@ -15,6 +15,7 @@ import {
   type NewManufacturer,
   type Supplier,
   type NewSupplier,
+  type Part,
 } from "~/server/db";
 import {
   PlmValidationError,
@@ -182,7 +183,7 @@ export async function listManufacturers(
   const { query, limit = 20, offset = 0 } = params;
 
   // Build conditions
-  const conditions: any[] = [];
+  const conditions: Array<ReturnType<typeof eq>> = [];
 
   // Text search
   let searchCondition = null;
@@ -488,7 +489,7 @@ export async function listSuppliers(
   const { query, limit = 20, offset = 0 } = params;
 
   // Build conditions
-  const conditions: any[] = [];
+  const conditions: Array<ReturnType<typeof eq>> = [];
 
   // Text search
   let searchCondition = null;
@@ -771,7 +772,7 @@ export async function getManufacturersForPart(
  */
 export async function getPartsForManufacturer(
   manufacturerId: string
-): Promise<any[]> {
+): Promise<Part[]> {
   const results = await db
     .select({
       id: parts.id,
@@ -793,7 +794,7 @@ export async function getPartsForManufacturer(
     )
     .where(eq(partsManufacturers.manufacturerId, manufacturerId));
 
-  return results;
+  return results as Part[];
 }
 
 // ============================================================================
@@ -922,7 +923,7 @@ export async function getSuppliersForPart(partId: string): Promise<Supplier[]> {
 /**
  * Get parts for a supplier
  */
-export async function getPartsForSupplier(supplierId: string): Promise<any[]> {
+export async function getPartsForSupplier(supplierId: string): Promise<Part[]> {
   const results = await db
     .select({
       id: parts.id,
@@ -944,5 +945,5 @@ export async function getPartsForSupplier(supplierId: string): Promise<any[]> {
     )
     .where(eq(partsSuppliers.supplierId, supplierId));
 
-  return results;
+  return results as Part[];
 }

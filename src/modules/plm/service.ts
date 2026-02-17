@@ -45,6 +45,8 @@ import {
   type WhereUsedResponse,
   type RevisionHistoryResponse,
   type RevisionWithChanges,
+  type RevisionChangesRecord,
+  type JsonValue,
 } from "./types";
 
 // ============================================================================
@@ -332,7 +334,7 @@ export async function updatePart(
   }
 
   // Build changes record
-  const changes: Record<string, { oldValue: any; newValue: any }> = {};
+  const changes: RevisionChangesRecord = {};
 
   if (input.name !== undefined && input.name !== part.name) {
     changes.name = { oldValue: part.name, newValue: input.name };
@@ -374,15 +376,14 @@ export async function updatePart(
       partId: input.partId,
       revisionCode: nextRevisionCode,
       description: input.changeDescription || `Revision ${nextRevisionCode}`,
-      changes: changes as any,
+      changes: changes as RevisionChangesRecord,
       createdBy: userId,
     };
 
     const [revision] = await tx.insert(revisions).values(newRevision).returning();
 
     // Update part
-    const updateData: any = {
-      updatedAt: sql`now()`,
+    const updateData: Partial<NewPart> = {
       currentRevisionId: revision.id,
     };
 
@@ -687,6 +688,38 @@ export async function getWhereUsed(partId: string): Promise<WhereUsedResponse> {
     partNumber: part.partNumber,
     name: part.name,
     parents: parentList,
+  };
+}
+
+/**
+ * Get specific revision by ID with full details
+ */
+export async function getRevisionById(
+  revisionId: string
+): Promise<RevisionWithChanges | null> {
+  const [revision] = await db
+    .select()
+    .from(revisions)
+    .where(eq(revisions.id, revisionId))
+    .limit(1);
+
+  if (!revision) {
+    return null;
+  }
+
+  // Get associated part to determine if this is the current revision
+  const [part] = await db
+    .select()
+    .from(parts)
+    .where(eq(parts.id, revision.partId))
+    .limit(1);
+
+  const isCurrent = part?.currentRevisionId === revision.id;
+
+  return {
+    ...revision,
+    changes: revision.changes as RevisionChangesRecord | undefined,
+    isCurrent,
   };
 }
 

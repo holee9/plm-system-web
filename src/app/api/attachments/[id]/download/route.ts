@@ -5,7 +5,29 @@ import { NextRequest, NextResponse } from "next/server";
 import * as attachmentService from "~/modules/issue/attachment-service";
 import { readUploadedFile, getAttachmentFilePath } from "~/modules/issue/attachment-utils";
 import { existsSync } from "node:fs";
-import { getIssueById } from "~/modules/issue/service";
+import { getIssueById, isUserProjectMember } from "~/modules/issue/service";
+import { verifyAccessToken } from "~/utils/jwt";
+import { cookies } from "next/headers";
+
+/**
+ * Get current user ID from JWT access token in cookies
+ * @returns User ID if authenticated, null otherwise
+ */
+async function getCurrentUserId(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("access_token")?.value;
+
+    if (!accessToken) {
+      return null;
+    }
+
+    const payload = await verifyAccessToken(accessToken);
+    return payload.sub;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * GET /api/attachments/:id/download
@@ -37,16 +59,22 @@ export async function GET(
       );
     }
 
-    // TODO: Verify user has access to parent issue
-    // For now, we'll skip auth check
-    // const userId = await getCurrentUserId();
-    // const isMember = await isUserProjectMember(issue.projectId, userId);
-    // if (!isMember) {
-    //   return NextResponse.json(
-    //     { error: "You don't have permission to download this attachment" },
-    //     { status: 403 }
-    //   );
-    // }
+    // Verify user has access to parent issue (Security Check)
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      return NextResponse.json(
+        { error: "인증이 필요합니다. 로그인해 주세요." },
+        { status: 401 }
+      );
+    }
+
+    const isMember = await isUserProjectMember(issue.projectId, userId);
+    if (!isMember) {
+      return NextResponse.json(
+        { error: "이 첨부파일에 접근할 권한이 없습니다." },
+        { status: 403 }
+      );
+    }
 
     // Get file path
     const filePath = getAttachmentFilePath(attachment.fileName);

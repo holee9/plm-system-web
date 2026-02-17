@@ -176,13 +176,24 @@ async function getNextChangeOrderNumber(
   return String(maxNumber + 1).padStart(3, "0"); // E.g., "001", "002"
 }
 
+/**
+ * JSON-serializable value type for audit metadata
+ */
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
 async function auditStatusChange(
   changeOrderId: string,
   fromStatus: ChangeOrderStatus,
   toStatus: ChangeOrderStatus,
   changedBy: string,
   comment?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, JsonValue>
 ): Promise<void> {
   const auditEntry: NewChangeOrderAuditTrail = {
     changeOrderId,
@@ -190,7 +201,7 @@ async function auditStatusChange(
     toStatus,
     changedBy,
     comment,
-    metadata: metadata as any,
+    metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : null,
   };
   await db.insert(changeOrderAuditTrail).values(auditEntry);
 }
@@ -385,7 +396,7 @@ export async function updateChangeOrder(
 
   return db.transaction(async (tx) => {
     // Update change order
-    const updateData: any = {
+    const updateData: Partial<NewChangeOrder> = {
       updatedAt: new Date(),
     };
 
@@ -624,7 +635,7 @@ export async function reviewChangeOrder(
         newStatus,
         userId,
         auditComment,
-        { approverId: userId, approverComment: input.comment }
+        input.comment ? { approverId: userId, approverComment: input.comment } : undefined
       );
     }
 
@@ -718,9 +729,66 @@ export async function listChangeOrders(
     .limit(limit)
     .offset(offset);
 
-  // TODO: Add details for each item efficiently
+  // Batch fetch details for all items (efficient approach)
+  const itemIds = items.map(item => item.id);
+
+  // Fetch requesters in batch
+  const requesterIds = items.map(item => item.requesterId);
+  const requesters = requesterIds.length > 0
+    ? await db
+        .select({ id: users.id, name: users.name })
+        .from(users)
+        .where(inArray(users.id, requesterIds))
+    : [];
+  const requesterMap = new Map(requesters.map(r => [r.id, r.name]));
+
+  // Fetch projects in batch
+  const projectIds = items.map(item => item.projectId);
+  const projectData = projectIds.length > 0
+    ? await db
+        .select({ id: projects.id, name: projects.name })
+        .from(projects)
+        .where(inArray(projects.id, projectIds))
+    : [];
+  const projectMap = new Map(projectData.map(p => [p.id, p.name]));
+
+  // Fetch approvers in batch
+  const approvers = itemIds.length > 0
+    ? await db
+        .select()
+        .from(changeOrderApprovers)
+        .where(inArray(changeOrderApprovers.changeOrderId, itemIds))
+    : [];
+  const approversMap = new Map<string, ChangeOrderApprover[]>();
+  for (const approver of approvers) {
+    const existing = approversMap.get(approver.changeOrderId) || [];
+    existing.push(approver);
+    approversMap.set(approver.changeOrderId, existing);
+  }
+
+  // Build items with details
+  const itemsWithDetails: ChangeOrderWithDetails[] = items.map(item => {
+    const approversList = approversMap.get(item.id) || [];
+    const approved = approversList.filter(a => a.status === "approved").length;
+    const rejected = approversList.filter(a => a.status === "rejected").length;
+    const pending = approversList.filter(a => a.status === "pending").length;
+
+    return {
+      ...item,
+      requesterName: requesterMap.get(item.requesterId),
+      projectName: projectMap.get(item.projectId),
+      approvers: approversList,
+      approvalProgress: {
+        total: approversList.length,
+        approved,
+        rejected,
+        pending,
+      },
+    };
+  });
+
   return {
-    items: items as ChangeOrderWithDetails[],
+    items: itemsWithDetails,
     total: Number(count),
   };
 }

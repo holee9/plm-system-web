@@ -332,11 +332,11 @@ export function PartDetail({ projectId, partId }: PartDetailProps) {
                     createdBy: r.createdBy || "Unknown",
                     createdAt: r.createdAt,
                     isCurrent: r.isCurrent,
-                    changes: r.changes?.map(c => ({
-                      field: c.field,
-                      oldValue: c.oldValue,
-                      newValue: c.newValue,
-                    })),
+                    changes: r.changes ? Object.entries(r.changes).map(([field, values]) => ({
+                      field,
+                      oldValue: values.oldValue,
+                      newValue: values.newValue,
+                    })) : undefined,
                   }))}
                   currentRevisionId={part.currentRevisionId || ""}
                 />

@@ -56,14 +56,17 @@ const PREDEFINED_COLORS = [
 ];
 
 export function LabelList({ projectId }: LabelListProps) {
+  // Cache utils for invalidation
+  const utils = api.useUtils();
+
   // Fetch labels
-  const { data: labels = [], isLoading, refetch } = api.issue.label.list.useQuery({ projectId });
+  const { data: labels = [], isLoading } = api.issue.label.list.useQuery({ projectId });
 
   // Create mutation
   const createMutation = api.issue.label.create.useMutation({
     onSuccess: () => {
       toast.success("Label created successfully");
-      refetch();
+      void utils.issue.label.list.invalidate({ projectId });
       setIsCreateDialogOpen(false);
       setNewLabel({ name: "", color: PREDEFINED_COLORS[6], description: "" });
     },
@@ -76,7 +79,7 @@ export function LabelList({ projectId }: LabelListProps) {
   const updateMutation = api.issue.label.update.useMutation({
     onSuccess: () => {
       toast.success("Label updated successfully");
-      refetch();
+      void utils.issue.label.list.invalidate({ projectId });
       setIsEditDialogOpen(false);
       setEditingLabel(null);
     },
@@ -89,7 +92,7 @@ export function LabelList({ projectId }: LabelListProps) {
   const deleteMutation = api.issue.label.delete.useMutation({
     onSuccess: () => {
       toast.success("Label deleted successfully");
-      refetch();
+      void utils.issue.label.list.invalidate({ projectId });
       setIsDeleteDialogOpen(false);
       setLabelToDelete(null);
     },
