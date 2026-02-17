@@ -3,7 +3,8 @@
 import * as React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
-import { File, Download, Trash2, Eye } from "lucide-react";
+import { File, Download, Trash2, Eye, History } from "lucide-react";
+import { DocumentVersionHistory } from "./document-version-history";
 
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface DocumentListProps {
   resourceId: string;
@@ -47,6 +54,9 @@ const typeIcons: Record<string, string> = {
 
 export function DocumentList({ resourceId, resourceType, onDownload }: DocumentListProps) {
   const utils = trpc.useUtils();
+
+  // State for version history dialog
+  const [versionHistoryDocId, setVersionHistoryDocId] = React.useState<string | null>(null);
 
   // Fetch documents
   const { data: documents = [], isLoading } = trpc.document.list.useQuery(
@@ -121,8 +131,9 @@ export function DocumentList({ resourceId, resourceType, onDownload }: DocumentL
   }
 
   return (
-    <Card>
-      <CardContent className="p-0">
+    <>
+      <Card>
+        <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
@@ -177,6 +188,10 @@ export function DocumentList({ resourceId, resourceType, onDownload }: DocumentL
                         <Download className="h-4 w-4 mr-2" />
                         다운로드
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setVersionHistoryDocId(doc.id)}>
+                        <History className="h-4 w-4 mr-2" />
+                        버전 기록
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDelete(doc.id)}
                         className="text-destructive"
@@ -194,5 +209,18 @@ export function DocumentList({ resourceId, resourceType, onDownload }: DocumentL
         </Table>
       </CardContent>
     </Card>
+
+    {/* Version History Dialog */}
+    <Dialog open={!!versionHistoryDocId} onOpenChange={() => setVersionHistoryDocId(null)}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>문서 버전 기록</DialogTitle>
+        </DialogHeader>
+        {versionHistoryDocId && (
+          <DocumentVersionHistory documentId={versionHistoryDocId} />
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

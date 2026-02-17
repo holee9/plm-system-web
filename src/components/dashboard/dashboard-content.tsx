@@ -8,6 +8,9 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { ActivityFeed } from "./activity-feed";
+import { ActivityTimeline } from "./activity-timeline";
+import { ChangeOrderChart } from "./change-order-chart";
+import { PartCategoryChart } from "./part-category-chart";
 import { StatCard } from "./stat-card";
 import { SystemHealth } from "./system-health";
 import { Button } from "@/components/ui/button";
@@ -101,6 +104,15 @@ export function DashboardContent() {
           <StatCard key={stat.label} {...stat} />
         ))}
       </div>
+
+      {/* P4 UI: Change Order Status Chart */}
+      <ChangeOrderChart data={[]} />
+
+      {/* P4 UI: Part Category Distribution */}
+      <PartCategoryChart data={[]} />
+
+      {/* P4 UI: Activity Timeline */}
+      <ActivityTimeline activities={[]} />
 
       <Card className="rounded-xl border-border/60 shadow-sm">
         <CardHeader>

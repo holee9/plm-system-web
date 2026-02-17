@@ -36,6 +36,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { AffectedPartSelector } from "./affected-part-selector";
 import { cn } from "@/lib/utils";
 
 const changeOrderSchema = z.object({
@@ -73,6 +74,9 @@ export function ChangeOrderCreateDialog({
 }: ChangeOrderCreateDialogProps) {
   const utils = trpc.useUtils();
 
+  // State for affected parts
+  const [affectedPartIds, setAffectedPartIds] = React.useState<string[]>([]);
+
   // Fetch project members for approvers
   const { data: memberData = [] } = trpc.project.listMembers.useQuery(
     { projectId },
@@ -108,7 +112,8 @@ export function ChangeOrderCreateDialog({
     createMutation.mutate({
       projectId,
       ...values,
-    });
+      affectedPartIds, // Include affected parts
+    } as any);
   };
 
   return (
@@ -245,6 +250,20 @@ export function ChangeOrderCreateDialog({
                 </FormItem>
               )}
             />
+
+            {/* Affected Parts */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">영향받는 부품</label>
+              <AffectedPartSelector
+                projectId={projectId}
+                value={affectedPartIds}
+                onChange={setAffectedPartIds}
+                compact={false}
+              />
+              <p className="text-xs text-muted-foreground">
+                이 변경으로 영향받는 부품을 선택하세요 (선택 사항)
+              </p>
+            </div>
 
             {/* Approvers */}
             <FormField

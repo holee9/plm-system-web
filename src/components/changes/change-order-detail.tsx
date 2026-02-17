@@ -27,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChangeOrderStatusBadge } from "./change-order-status-badge";
+import { AuditTrailTable } from "./audit-trail-table";
 import { cn } from "@/lib/utils";
 
 const priorityConfig = {
@@ -314,33 +315,7 @@ export function ChangeOrderDetail({ projectKey }: ChangeOrderDetailProps) {
 
           {/* Audit Trail */}
           {auditTrail.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <History className="h-5 w-5" />
-                  감사 기록
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-64">
-                  <div className="space-y-3 pr-4">
-                    {auditTrail.map((entry: any) => (
-                      <div key={entry.id} className="text-sm">
-                        <p className="font-medium">
-                          {entry.fromStatus} &rarr; {entry.toStatus}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(entry.createdAt).toLocaleString("ko-KR")}
-                        </p>
-                        {entry.comment && (
-                          <p className="text-xs text-muted-foreground mt-1">{entry.comment}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+            <AuditTrailTable changeOrderId={changeOrderId} maxHeight="400px" />
           )}
         </div>
       </div>
