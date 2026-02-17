@@ -44,6 +44,7 @@ import {
   type BomTreeResponse,
   type WhereUsedResponse,
   type RevisionHistoryResponse,
+  type RevisionWithChanges,
 } from "./types";
 
 // ============================================================================
@@ -463,15 +464,19 @@ export async function addBomItem(input: AddBomItemInput): Promise<BomItem> {
 
   // Get existing BOM edges for cycle detection
   const existingEdges = await db
-    .select({
-      parentId: bomItems.parentPartId,
-      childId: bomItems.childPartId,
-    })
+    .select()
     .from(bomItems);
 
   // Check for cycle
   const hasCycle = detectCycle(
-    existingEdges,
+    existingEdges.map(e => ({
+      parentId: e.parentPartId,
+      childId: e.childPartId,
+      quantity: e.quantity,
+      unit: e.unit,
+      position: e.position,
+      notes: e.notes || undefined,
+    })),
     input.parentPartId,
     input.childPartId
   );
@@ -584,7 +589,7 @@ export async function getBomTree(partId: string): Promise<BomTreeResponse> {
 
   const partsMap = new Map(
     allParts.map(p => [p.id, p])
-  );
+  ) as Map<string, { id: string; name: string; partNumber: string; description?: string; category?: string; status?: string }>;
 
   // Get BOM relationships
   const bomRelations = await db
@@ -658,7 +663,7 @@ export async function getWhereUsed(partId: string): Promise<WhereUsedResponse> {
       .where(inArray(parts.id, parentIds))
     : [];
 
-  const parentsMap = new Map(
+  const parentsMap: Map<string, typeof parentParts[number]> = new Map(
     parentParts.map(p => [p.id, p])
   );
 
@@ -718,7 +723,7 @@ export async function getRevisionHistory(partId: string): Promise<RevisionHistor
     partId: part.id,
     partNumber: part.partNumber,
     name: part.name,
-    revisions: sortedRevisions,
+    revisions: sortedRevisions as RevisionWithChanges[],
     total: sortedRevisions.length,
   };
 }

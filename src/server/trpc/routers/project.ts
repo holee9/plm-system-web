@@ -5,6 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "../procedures";
+import type { AuthenticatedContext } from "../middleware/is-authed";
 import {
   createProject,
   getProjectById,
@@ -102,9 +103,9 @@ export const projectRouter = createTRPCRouter({
             key: input.key,
             description: input.description,
             teamId: input.teamId,
-            createdBy: ctx.user.id,
+            createdBy: (ctx as AuthenticatedContext).user.id,
           },
-          ctx.user.id
+          (ctx as AuthenticatedContext).user.id
         );
 
         return {
@@ -130,7 +131,7 @@ export const projectRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const result = await listUserProjects({
-        userId: ctx.user.id,
+        userId: (ctx as AuthenticatedContext).user.id,
         status: input.status,
         limit: input.limit,
         offset: input.offset,
@@ -144,7 +145,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       try {
-        const project = await getProjectById(input.id, ctx.user.id);
+        const project = await getProjectById(input.id, (ctx as AuthenticatedContext).user.id);
         if (!project) {
           throw new Error("Project not found");
         }
@@ -162,7 +163,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ key: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        const project = await getProjectByKey(input.key, ctx.user.id);
+        const project = await getProjectByKey(input.key, (ctx as AuthenticatedContext).user.id);
         if (!project) {
           throw new Error("Project not found");
         }
@@ -187,7 +188,7 @@ export const projectRouter = createTRPCRouter({
       try {
         const project = await updateProject(
           input.projectId,
-          ctx.user.id,
+          (ctx as AuthenticatedContext).user.id,
           input.data
         );
 
@@ -208,7 +209,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ projectId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       try {
-        const project = await archiveProject(input.projectId, ctx.user.id);
+        const project = await archiveProject(input.projectId, (ctx as AuthenticatedContext).user.id);
 
         return {
           success: true,
@@ -227,7 +228,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ projectId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       try {
-        const project = await restoreProject(input.projectId, ctx.user.id);
+        const project = await restoreProject(input.projectId, (ctx as AuthenticatedContext).user.id);
 
         return {
           success: true,
@@ -248,10 +249,10 @@ export const projectRouter = createTRPCRouter({
       try {
         const member = await addProjectMember(
           input.projectId,
-          ctx.user.id,
+          (ctx as AuthenticatedContext).user.id,
           input.userId,
           input.role,
-          ctx.user.id
+          (ctx as AuthenticatedContext).user.id
         );
 
         return {
@@ -277,7 +278,7 @@ export const projectRouter = createTRPCRouter({
         await removeProjectMember(
           input.projectId,
           input.userId,
-          ctx.user.id
+          (ctx as AuthenticatedContext).user.id
         );
 
         return {
@@ -300,7 +301,7 @@ export const projectRouter = createTRPCRouter({
           input.projectId,
           input.userId,
           input.role,
-          ctx.user.id
+          (ctx as AuthenticatedContext).user.id
         );
 
         return {
@@ -322,7 +323,7 @@ export const projectRouter = createTRPCRouter({
       try {
         const members = await listProjectMembers(
           input.projectId,
-          ctx.user.id
+          (ctx as AuthenticatedContext).user.id
         );
 
         return members;
@@ -341,7 +342,7 @@ export const projectRouter = createTRPCRouter({
       try {
         const milestone = await createMilestone(
           input.projectId,
-          ctx.user.id,
+          (ctx as AuthenticatedContext).user.id,
           {
             title: input.title,
             description: input.description,
@@ -369,7 +370,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       try {
-        const milestone = await getMilestoneById(input.id, ctx.user.id);
+        const milestone = await getMilestoneById(input.id, (ctx as AuthenticatedContext).user.id);
         if (!milestone) {
           throw new Error("Milestone not found");
         }
@@ -389,7 +390,7 @@ export const projectRouter = createTRPCRouter({
       try {
         const result = await listMilestones({
           projectId: input.projectId,
-          userId: ctx.user.id,
+          userId: (ctx as AuthenticatedContext).user.id,
           status: input.status,
           limit: input.limit,
           offset: input.offset,
@@ -416,7 +417,7 @@ export const projectRouter = createTRPCRouter({
       try {
         const milestone = await updateMilestone(
           input.id,
-          ctx.user.id,
+          (ctx as AuthenticatedContext).user.id,
           input.data
         );
 
@@ -441,7 +442,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       try {
-        await deleteMilestone(input.id, ctx.user.id);
+        await deleteMilestone(input.id, (ctx as AuthenticatedContext).user.id);
 
         return {
           success: true,
@@ -462,7 +463,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       try {
-        const milestone = await closeMilestone(input.id, ctx.user.id);
+        const milestone = await closeMilestone(input.id, (ctx as AuthenticatedContext).user.id);
 
         return {
           success: true,
@@ -481,7 +482,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       try {
-        const milestone = await reopenMilestone(input.id, ctx.user.id);
+        const milestone = await reopenMilestone(input.id, (ctx as AuthenticatedContext).user.id);
 
         return {
           success: true,

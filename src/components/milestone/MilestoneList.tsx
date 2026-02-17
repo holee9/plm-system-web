@@ -49,6 +49,18 @@ interface MilestoneListProps {
 
 type MilestoneStatus = "open" | "closed";
 
+// Milestone from API (no updatedAt, no progress)
+interface ApiMilestone {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string | null;
+  status: MilestoneStatus;
+  dueDate: Date | null;
+  createdAt: Date;
+}
+
+// Component's Milestone interface for editing (includes optional updatedAt)
 interface Milestone {
   id: string;
   title: string;
@@ -56,8 +68,18 @@ interface Milestone {
   status: MilestoneStatus;
   dueDate?: Date | null;
   createdAt: Date;
-  updatedAt: Date;
-  progress?: number;
+  updatedAt?: Date;
+}
+
+// Milestone with computed progress
+interface MilestoneWithProgress {
+  id: string;
+  title: string;
+  description: string | null;
+  status: MilestoneStatus;
+  dueDate: Date | null;
+  createdAt: Date;
+  progress: number;
 }
 
 export function MilestoneList({ projectId }: MilestoneListProps) {
@@ -69,6 +91,9 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
     description: "",
     dueDate: "",
   });
+
+  // Type for milestone data from API (progress is optional)
+  type MilestoneFromApi = ApiMilestone;
 
   // Fetch milestones
   const {
@@ -151,9 +176,14 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
 
   const milestones = milestonesData?.milestones ?? [];
 
-  // Add progress to each milestone
-  const milestonesWithProgress = milestones.map((milestone) => ({
-    ...milestone,
+  // Add progress to each milestone - map ApiMilestone to MilestoneWithProgress
+  const milestonesWithProgress: MilestoneWithProgress[] = milestones.map((milestone) => ({
+    id: milestone.id,
+    title: milestone.title,
+    description: milestone.description,
+    status: milestone.status,
+    dueDate: milestone.dueDate,
+    createdAt: milestone.createdAt,
     progress: progressData?.[milestone.id] ?? 0,
   }));
 
@@ -193,7 +223,7 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
     }
   };
 
-  const handleToggleStatus = (milestone: Milestone) => {
+  const handleToggleStatus = (milestone: MilestoneWithProgress) => {
     if (milestone.status === "open") {
       closeMilestone.mutate({ id: milestone.id });
     } else {
@@ -201,7 +231,7 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
     }
   };
 
-  const openEditDialog = (milestone: Milestone) => {
+  const openEditDialog = (milestone: MilestoneWithProgress) => {
     setEditingMilestone(milestone);
     setNewMilestone({
       title: milestone.title,
@@ -236,7 +266,7 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
     );
   };
 
-  const isOverdue = (milestone: Milestone) => {
+  const isOverdue = (milestone: MilestoneWithProgress) => {
     return (
       milestone.status === "open" &&
       milestone.dueDate &&
@@ -269,7 +299,7 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{milestones.length}</div>
+            <div className="text-2xl font-bold">{milestonesWithProgress.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -280,7 +310,7 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {milestones.filter((m) => m.status === "closed").length}
+              {milestonesWithProgress.filter((m) => m.status === "closed").length}
             </div>
           </CardContent>
         </Card>
@@ -292,7 +322,7 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {milestones.filter((m) => m.status === "open").length}
+              {milestonesWithProgress.filter((m) => m.status === "open").length}
             </div>
           </CardContent>
         </Card>
@@ -304,7 +334,7 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-500">
-              {milestones.filter(isOverdue).length}
+              {milestonesWithProgress.filter(isOverdue).length}
             </div>
           </CardContent>
         </Card>

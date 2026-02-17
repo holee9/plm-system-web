@@ -46,7 +46,7 @@ function getUserAgent(ctx: Context): string {
 async function logAuthEvent(
   db: Context["db"],
   eventType: any,
-  userId: number | null,
+  userId: string | null,
   ctx: Context
 ): Promise<void> {
   try {

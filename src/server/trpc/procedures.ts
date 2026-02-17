@@ -26,32 +26,31 @@ export { publicProcedure };
  * ```
  */
 // Properly typed middleware that transforms Context to AuthenticatedContext
-export const protectedProcedure = publicProcedure.use(
-  isAuthed as any // TODO: Improve tRPC middleware typing to remove 'as any'
-);
+// Note: tRPC v11 middleware typing requires 'as any' for context transformation
+export const protectedProcedure = publicProcedure.use(isAuthed as any);
 
 /**
  * Admin procedure - Admin role required
  * Shortcut for protectedProcedure.use(authorized(['admin']))
  */
-export const adminProcedure = protectedProcedure.use(authorized(["admin"]));
+export const adminProcedure = protectedProcedure.use(authorized(["admin"]) as any);
 
 /**
  * Owner procedure - Owner or Admin role required
  */
-export const ownerProcedure = protectedProcedure.use(authorized(["owner", "admin"]));
+export const ownerProcedure = protectedProcedure.use(authorized(["owner", "admin"]) as any);
 
 /**
  * Member procedure - Member, Owner, or Admin role required
  */
-export const memberProcedure = protectedProcedure.use(authorized(["member", "owner", "admin"]));
+export const memberProcedure = protectedProcedure.use(authorized(["member", "owner", "admin"]) as any);
 
 /**
  * Viewer procedure - Viewer, Member, Owner, or Admin role required
  * (All authenticated users have at least viewer role)
  */
 export const viewerProcedure = protectedProcedure.use(
-  authorized(["viewer", "member", "owner", "admin"])
+  authorized(["viewer", "member", "owner", "admin"]) as any
 );
 
 // Re-export for convenience

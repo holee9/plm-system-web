@@ -65,7 +65,7 @@ function getBrowserName(deviceInfo: string): string {
 
 interface SessionCardProps {
   session: Session;
-  onRevoke: (sessionId: number) => void;
+  onRevoke: (sessionId: string) => void;
   isRevoking: boolean;
 }
 
@@ -127,7 +127,7 @@ export function SessionManager() {
   const { getSessions, revokeSession, revokeAllSessions } = useAuthStore();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isRevoking, setIsRevoking] = useState<number | null>(null);
+  const [isRevoking, setIsRevoking] = useState<string | null>(null);
   const [isRevokingAll, setIsRevokingAll] = useState(false);
 
   useEffect(() => {
@@ -151,7 +151,7 @@ export function SessionManager() {
     }
   }
 
-  async function handleRevokeSession(sessionId: number) {
+  async function handleRevokeSession(sessionId: string) {
     setIsRevoking(sessionId);
     try {
       await revokeSession(sessionId);

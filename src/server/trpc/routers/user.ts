@@ -39,7 +39,7 @@ export const userRouter = router({
           status: users.status,
         })
         .from(users)
-        .where(eq(users.status, "active"))
+        .where(eq(users.status, "ACTIVE"))
         .limit(input.limit)
         .offset(input.offset);
 

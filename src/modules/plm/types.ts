@@ -60,13 +60,12 @@ export interface PartSearchParams {
 
 export type RevisionStatus = "draft" | "released" | "superceded";
 
-export interface RevisionWithChanges extends Revision {
+export interface RevisionWithChanges extends Omit<Revision, "changes"> {
   changes?: {
     field: string;
     oldValue: any;
     newValue: any;
   }[];
-  status?: RevisionStatus;
   isCurrent?: boolean;
 }
 

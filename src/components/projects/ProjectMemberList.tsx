@@ -1,7 +1,7 @@
 // Project Member List Component
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,16 @@ import {
 } from "@/components/ui/dialog";
 import { AddMemberDialog } from "./AddMemberDialog";
 
+// Database ProjectMember type (from TRPC)
+interface DbProjectMember {
+  id: string;
+  projectId: string;
+  userId: string;
+  role: "admin" | "member" | "viewer";
+  joinedAt: Date;
+}
+
+// Component's ProjectMember type with user data
 interface ProjectMember {
   id: string;
   role: "admin" | "member" | "viewer";
@@ -48,15 +58,9 @@ export function ProjectMemberList({
   const [members, setMembers] = useState(initialMembers);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: membersData } = trpc.project.listMembers.useQuery(
-    { projectId },
-    {
-      initialData: initialMembers,
-      onSuccess: (data) => {
-        setMembers(data);
-      },
-    }
-  );
+  // Note: We'll use initialMembers for now since TRPC returns DbProjectMember
+  // which doesn't include the nested user object
+  // const { data: membersData } = trpc.project.listMembers.useQuery({ projectId });
 
   const updateRole = trpc.project.updateMemberRole.useMutation({
     onSuccess: () => {

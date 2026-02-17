@@ -8,7 +8,7 @@ import { KanbanBoard } from "./kanban-board";
 import { IssueCreateDialog } from "./issue-create-dialog";
 import { IssueDetailDialog } from "./issue-detail-dialog";
 import { IssueFilters } from "./issue-filters";
-import type { Issue } from "./issue-card";
+import type { IssueCardData } from "./issue-card";
 import type { IssueStatus } from "~/modules/issue/types";
 import { trpc } from "@/lib/trpc";
 
@@ -19,7 +19,6 @@ interface IssueBoardProps {
 
 export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedIssue, setSelectedIssue] = useState<Issue | undefined>(undefined);
   const [selectedIssueId, setSelectedIssueId] = useState<string | undefined>(undefined);
 
   // Filters
@@ -66,8 +65,7 @@ export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
   };
 
   // Handle issue click
-  const handleIssueClick = (issue: Issue) => {
-    setSelectedIssue(issue);
+  const handleIssueClick = (issue: IssueCardData) => {
     setSelectedIssueId(issue.id);
   };
 
@@ -81,12 +79,12 @@ export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
   };
 
   // Convert database issues to component format
-  const formattedIssues: Issue[] = issues.map((issue: any) => ({
+  const formattedIssues: IssueCardData[] = issues.map((issue: any) => ({
     id: issue.id,
     key: issue.key,
     title: issue.title,
-    type: issue.type as Issue["type"],
-    priority: issue.priority as Issue["priority"],
+    type: issue.type as IssueCardData["type"],
+    priority: issue.priority as IssueCardData["priority"],
     status: issue.status, // Already matches backend IssueStatus type
     assignee: issue.assigneeId
       ? {
@@ -147,12 +145,10 @@ export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
         open={!!selectedIssueId}
         onOpenChange={(open) => {
           if (!open) {
-            setSelectedIssue(undefined);
             setSelectedIssueId(undefined);
           }
         }}
         issueId={selectedIssueId}
-        issue={selectedIssue}
         onSuccess={() => {
           utils.issue.list.invalidate();
         }}

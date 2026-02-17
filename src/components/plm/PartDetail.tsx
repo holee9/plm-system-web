@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { BomTree } from "./BomTree";
 import { BomFlatTable } from "./BomFlatTable";
 import { RevisionTimeline } from "./RevisionTimeline";
+import { type RevisionTimelineItem } from "./RevisionTimeline";
 import { WhereUsedTable } from "./WhereUsedTable";
 import { BomAddItemDialog } from "./BomAddItemDialog";
 import { PartStatusBadge } from "./PartStatusBadge";
@@ -323,7 +324,20 @@ export function PartDetail({ projectId, partId }: PartDetailProps) {
               </CardHeader>
               <CardContent>
                 <RevisionTimeline
-                  revisions={revisionData.revisions}
+                  revisions={revisionData.revisions.map(r => ({
+                    id: r.id,
+                    revision: r.revisionCode,
+                    description: r.description || "",
+                    status: "released" as const, // Default to released for historical revisions
+                    createdBy: r.createdBy || "Unknown",
+                    createdAt: r.createdAt,
+                    isCurrent: r.isCurrent,
+                    changes: r.changes?.map(c => ({
+                      field: c.field,
+                      oldValue: c.oldValue,
+                      newValue: c.newValue,
+                    })),
+                  }))}
                   currentRevisionId={part.currentRevisionId || ""}
                 />
               </CardContent>

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
 
 import { publicProcedure, router } from "../index";
-import { issues, issueComments, issueActivities } from "../../db";
+import { issues, issueComments } from "../../db";
 
 // Input schemas
 const createIssueSchema = z.object({
@@ -13,7 +13,7 @@ const createIssueSchema = z.object({
   status: z.enum(["open", "in_progress", "review", "done", "closed"]).default("open"),
   assigneeId: z.string().optional(),
   reporterId: z.string().optional(),
-  projectId: z.string().optional(),
+  projectId: z.string().uuid("Invalid project ID format"),
   labels: z.array(z.string()).optional(),
 });
 
@@ -114,7 +114,7 @@ export const issueRouter = router({
       return result[0] || null;
     }),
 
-  // Get issue with comments and activities
+  // Get issue with comments
   getDetail: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -135,16 +135,10 @@ export const issueRouter = router({
         .where(eq(issueComments.issueId, input.id))
         .orderBy(asc(issueComments.createdAt));
 
-      const activitiesResult = await ctx.db
-        .select()
-        .from(issueActivities)
-        .where(eq(issueActivities.issueId, input.id))
-        .orderBy(desc(issueActivities.createdAt));
-
       return {
         issue,
         comments: commentsResult,
-        activities: activitiesResult,
+        activities: [], // TODO: Implement activities table
       };
     }),
 
@@ -158,13 +152,23 @@ export const issueRouter = router({
         .from(issues);
 
       const count = Number(countResult[0]?.count || 0);
-      const key = `ISS-${String(count + 1).padStart(3, "0")}`;
+      const number = count + 1;
+      const key = `ISS-${String(number).padStart(3, "0")}`;
 
       const result = await ctx.db
         .insert(issues)
         .values({
-          ...input,
+          title: input.title,
+          description: input.description,
+          type: input.type,
+          priority: input.priority,
+          status: input.status,
+          assigneeId: input.assigneeId ?? null,
+          reporterId: input.reporterId ?? "", // Will fail validation if not provided
+          projectId: input.projectId,
+          number,
           key,
+          position: 0,
         })
         .returning();
 
@@ -193,7 +197,7 @@ export const issueRouter = router({
         .update(issues)
         .set({
           ...updateData,
-          updatedAt: new Date().getTime(),
+          updatedAt: new Date(),
         })
         .where(eq(issues.id, id))
         .returning();
@@ -234,16 +238,16 @@ export const issueRouter = router({
       return result;
     }),
 
-  // Get activities for issue
-  getActivities: publicProcedure
-    .input(z.object({ issueId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const result = await ctx.db
-        .select()
-        .from(issueActivities)
-        .where(eq(issueActivities.issueId, input.issueId))
-        .orderBy(desc(issueActivities.createdAt));
-
-      return result;
-    }),
+  // TODO: Implement activities table
+  // getActivities: publicProcedure
+  //   .input(z.object({ issueId: z.string() }))
+  //   .query(async ({ ctx, input }) => {
+  //     const result = await ctx.db
+  //       .select()
+  //       .from(issueActivities)
+  //       .where(eq(issueActivities.issueId, input.issueId))
+  //       .orderBy(desc(issueActivities.createdAt));
+  //
+  //     return result;
+  //   }),
 });

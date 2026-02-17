@@ -8,10 +8,11 @@
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 import { trpc } from "@/lib/trpc";
+import type { AppRouter } from "@/server/trpc/router";
 
 // User type matching the backend API
 export interface User {
-  id: number;
+  id: string;
   email: string;
   name: string | null;
   roles: string[];
@@ -24,7 +25,7 @@ export interface User {
 
 // Session type for session management
 export interface Session {
-  id: number;
+  id: string;
   device: string;
   ipAddress: string;
   lastActive: Date;
@@ -49,7 +50,7 @@ export interface AuthState {
 
   // Session management
   getSessions: () => Promise<Session[]>;
-  revokeSession: (sessionId: number) => Promise<void>;
+  revokeSession: (sessionId: string) => Promise<void>;
   revokeAllSessions: () => Promise<void>;
 
   // Internal actions
@@ -71,9 +72,10 @@ export const useAuthStore = create<AuthState>()(
         login: async (email: string, password: string) => {
           set({ isLoading: true });
           try {
-            const result = await trpc.auth.login.mutate({ email, password });
+            const caller = trpc as unknown as AppRouter;
+            const result = await (caller as any).auth.login.mutate({ email, password });
             set({
-              user: result.user as User,
+              user: result.user?.data?.user || result.data?.user,
               isAuthenticated: true,
               isLoading: false,
             });
@@ -86,7 +88,8 @@ export const useAuthStore = create<AuthState>()(
         logout: async () => {
           set({ isLoading: true });
           try {
-            await trpc.auth.logout.mutate();
+            const caller = trpc as unknown as AppRouter;
+            await (caller as any).auth.logout.mutate();
             set({ user: null, isAuthenticated: false, isLoading: false });
           } catch (error) {
             set({ isLoading: false });
@@ -96,7 +99,8 @@ export const useAuthStore = create<AuthState>()(
 
         refreshAuth: async () => {
           try {
-            const result = await trpc.auth.refresh.mutate();
+            const caller = trpc as unknown as AppRouter;
+            await (caller as any).auth.refresh.mutate();
             // Token is refreshed automatically via cookies
             // No state change needed
           } catch (error) {
@@ -108,8 +112,13 @@ export const useAuthStore = create<AuthState>()(
         checkAuth: async () => {
           set({ isLoading: true });
           try {
-            const user = await trpc.user.me.query();
-            set({ user: user as User, isAuthenticated: true, isLoading: false });
+            const caller = trpc as unknown as AppRouter;
+            const user = await (caller as any).user.me.query();
+            set({
+              user: user?.data || user,
+              isAuthenticated: true,
+              isLoading: false
+            });
           } catch {
             set({ user: null, isAuthenticated: false, isLoading: false });
           }
@@ -117,7 +126,8 @@ export const useAuthStore = create<AuthState>()(
 
         changePassword: async (currentPassword: string, newPassword: string) => {
           try {
-            await trpc.user.changePassword.mutate({
+            const caller = trpc as unknown as AppRouter;
+            await (caller as any).user.changePassword.mutate({
               currentPassword,
               newPassword,
             });
@@ -128,16 +138,18 @@ export const useAuthStore = create<AuthState>()(
 
         getSessions: async () => {
           try {
-            const result = await trpc.user.sessions.query();
-            return result.sessions as Session[];
+            const caller = trpc as unknown as AppRouter;
+            const result = await (caller as any).user.sessions.query();
+            return result?.data?.sessions || result?.sessions || [];
           } catch (error) {
             throw error;
           }
         },
 
-        revokeSession: async (sessionId: number) => {
+        revokeSession: async (sessionId: string) => {
           try {
-            await trpc.user.revokeSession.mutate({ sessionId });
+            const caller = trpc as unknown as AppRouter;
+            await (caller as any).user.revokeSession.mutate({ sessionId });
           } catch (error) {
             throw error;
           }
@@ -145,7 +157,8 @@ export const useAuthStore = create<AuthState>()(
 
         revokeAllSessions: async () => {
           try {
-            await trpc.user.revokeAllSessions.mutate();
+            const caller = trpc as unknown as AppRouter;
+            await (caller as any).user.revokeAllSessions.mutate();
           } catch (error) {
             throw error;
           }
