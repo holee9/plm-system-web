@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
+import { ProjectCard } from "./ProjectCard";
 
 export function ProjectList() {
   const { data: projects, isLoading } = trpc.project.list.useQuery({
@@ -48,26 +49,11 @@ export function ProjectList() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.projects.map((project) => (
-            <Link
+            <ProjectCard
               key={project.id}
+              project={project}
               href={`/projects/${project.key}`}
-              className="block p-6 border rounded-lg hover:border-primary/50 transition-colors"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-lg">{project.name}</h3>
-                <span className="text-xs bg-secondary px-2 py-1 rounded">
-                  {project.key}
-                </span>
-              </div>
-              {project.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {project.description}
-                </p>
-              )}
-              <div className="mt-4 text-xs text-muted-foreground">
-                Last updated {new Date(project.updatedAt).toLocaleDateString()}
-              </div>
-            </Link>
+            />
           ))}
         </div>
       )}

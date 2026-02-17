@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ProjectKeyInput } from "./ProjectKeyInput";
 
 export function ProjectCreateForm() {
   const router = useRouter();
@@ -41,16 +42,9 @@ export function ProjectCreateForm() {
 
     createProject.mutate({
       name: name.trim(),
-      key: key.trim().toUpperCase(),
+      key: key,
       description: description.trim() || undefined,
     });
-  };
-
-  const handleKeyChange = (value: string) => {
-    // Auto uppercase and limit to 10 characters
-    const uppercased = value.toUpperCase();
-    const alphanumeric = uppercased.replace(/[^A-Z0-9]/g, "");
-    setKey(alphanumeric.slice(0, 10));
   };
 
   return (
@@ -79,23 +73,12 @@ export function ProjectCreateForm() {
         </p>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="key">
-          Project Key <span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="key"
-          value={key}
-          onChange={(e) => handleKeyChange(e.target.value)}
-          placeholder="PROJ01"
-          disabled={createProject.isPending}
-          maxLength={10}
-          required
-        />
-        <p className="text-xs text-muted-foreground">
-          2-10 uppercase letters and numbers (e.g., PLM, PROJ01)
-        </p>
-      </div>
+      <ProjectKeyInput
+        value={key}
+        onChange={setKey}
+        disabled={createProject.isPending}
+        required
+      />
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
