@@ -4,6 +4,7 @@
  */
 import { z } from "zod";
 import { router as createTRPCRouter, protectedProcedure } from "~/server/trpc";
+import type { AuthenticatedContext } from "~/server/trpc/middleware/is-authed";
 import * as plmService from "./service";
 import {
   PlmValidationError,
@@ -85,7 +86,8 @@ export const plmRouter = createTRPCRouter({
       .input(createPartInput)
       .mutation(async ({ ctx, input }) => {
         try {
-          const part = await plmService.createPart(input, ctx.user.id);
+          const authCtx = ctx as AuthenticatedContext;
+          const part = await plmService.createPart(input, authCtx.user.id);
 
           return {
             success: true,
@@ -103,7 +105,8 @@ export const plmRouter = createTRPCRouter({
     getById: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
-        const part = await plmService.getPartById(input.partId, ctx.user.id);
+        const authCtx = ctx as AuthenticatedContext;
+        const part = await plmService.getPartById(input.partId, authCtx.user.id);
 
         if (!part) {
           throw new Error("Part not found");
@@ -124,7 +127,8 @@ export const plmRouter = createTRPCRouter({
       .input(updatePartInput)
       .mutation(async ({ ctx, input }) => {
         try {
-          const part = await plmService.updatePart(input, ctx.user.id);
+          const authCtx = ctx as AuthenticatedContext;
+          const part = await plmService.updatePart(input, authCtx.user.id);
 
           return {
             success: true,
@@ -150,7 +154,8 @@ export const plmRouter = createTRPCRouter({
         })
       )
       .query(async ({ ctx, input }) => {
-        return plmService.searchParts(ctx.user.id, input.query, input.limit);
+        const authCtx = ctx as AuthenticatedContext;
+        return plmService.searchParts(authCtx.user.id, input.query, input.limit);
       }),
 
     // Get where-used
@@ -164,6 +169,144 @@ export const plmRouter = createTRPCRouter({
             throw new Error(error.message);
           }
           throw new Error("Failed to get where-used");
+        }
+      }),
+
+    // Link manufacturer to part
+    linkManufacturer: protectedProcedure
+      .input(
+        z.object({
+          partId: z.string().uuid(),
+          manufacturerId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.linkManufacturerToPart(
+            input.partId,
+            input.manufacturerId
+          );
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (
+            error instanceof PlmValidationError ||
+            error instanceof PlmNotFoundError
+          ) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to link manufacturer to part");
+        }
+      }),
+
+    // Unlink manufacturer from part
+    unlinkManufacturer: protectedProcedure
+      .input(
+        z.object({
+          partId: z.string().uuid(),
+          manufacturerId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.unlinkManufacturerFromPart(
+            input.partId,
+            input.manufacturerId
+          );
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to unlink manufacturer from part");
+        }
+      }),
+
+    // Get manufacturers for part
+    manufacturers: protectedProcedure
+      .input(z.object({ partId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        try {
+          return await manufacturerService.getManufacturersForPart(input.partId);
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to get part manufacturers");
+        }
+      }),
+
+    // Link supplier to part
+    linkSupplier: protectedProcedure
+      .input(
+        z.object({
+          partId: z.string().uuid(),
+          supplierId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.linkSupplierToPart(
+            input.partId,
+            input.supplierId
+          );
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (
+            error instanceof PlmValidationError ||
+            error instanceof PlmNotFoundError
+          ) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to link supplier to part");
+        }
+      }),
+
+    // Unlink supplier from part
+    unlinkSupplier: protectedProcedure
+      .input(
+        z.object({
+          partId: z.string().uuid(),
+          supplierId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.unlinkSupplierFromPart(
+            input.partId,
+            input.supplierId
+          );
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to unlink supplier from part");
+        }
+      }),
+
+    // Get suppliers for part
+    suppliers: protectedProcedure
+      .input(z.object({ partId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        try {
+          return await manufacturerService.getSuppliersForPart(input.partId);
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to get part suppliers");
         }
       }),
   }),
@@ -343,7 +486,8 @@ export const plmRouter = createTRPCRouter({
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const manufacturer = await manufacturerService.createManufacturer(input, ctx.user.id);
+          const authCtx = ctx as AuthenticatedContext;
+          const manufacturer = await manufacturerService.createManufacturer(input, authCtx.user.id);
 
           return {
             success: true,
@@ -469,7 +613,8 @@ export const plmRouter = createTRPCRouter({
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const supplier = await manufacturerService.createSupplier(input, ctx.user.id);
+          const authCtx = ctx as AuthenticatedContext;
+          const supplier = await manufacturerService.createSupplier(input, authCtx.user.id);
 
           return {
             success: true,
@@ -579,150 +724,6 @@ export const plmRouter = createTRPCRouter({
   }),
 
   // ========================================================================
-  // Part-Entity Linking Procedures
-  // ========================================================================
-
-  part: createTRPCRouter({
-    // Link manufacturer to part
-    linkManufacturer: protectedProcedure
-      .input(
-        z.object({
-          partId: z.string().uuid(),
-          manufacturerId: z.string().uuid(),
-        })
-      )
-      .mutation(async ({ input }) => {
-        try {
-          await manufacturerService.linkManufacturerToPart(
-            input.partId,
-            input.manufacturerId
-          );
-
-          return {
-            success: true,
-          };
-        } catch (error) {
-          if (
-            error instanceof PlmValidationError ||
-            error instanceof PlmNotFoundError
-          ) {
-            throw new Error(error.message);
-          }
-          throw new Error("Failed to link manufacturer to part");
-        }
-      }),
-
-    // Unlink manufacturer from part
-    unlinkManufacturer: protectedProcedure
-      .input(
-        z.object({
-          partId: z.string().uuid(),
-          manufacturerId: z.string().uuid(),
-        })
-      )
-      .mutation(async ({ input }) => {
-        try {
-          await manufacturerService.unlinkManufacturerFromPart(
-            input.partId,
-            input.manufacturerId
-          );
-
-          return {
-            success: true,
-          };
-        } catch (error) {
-          if (error instanceof PlmNotFoundError) {
-            throw new Error(error.message);
-          }
-          throw new Error("Failed to unlink manufacturer from part");
-        }
-      }),
-
-    // Get manufacturers for part
-    manufacturers: protectedProcedure
-      .input(z.object({ partId: z.string().uuid() }))
-      .query(async ({ input }) => {
-        try {
-          return await manufacturerService.getManufacturersForPart(input.partId);
-        } catch (error) {
-          if (error instanceof PlmNotFoundError) {
-            throw new Error(error.message);
-          }
-          throw new Error("Failed to get part manufacturers");
-        }
-      }),
-
-    // Link supplier to part
-    linkSupplier: protectedProcedure
-      .input(
-        z.object({
-          partId: z.string().uuid(),
-          supplierId: z.string().uuid(),
-        })
-      )
-      .mutation(async ({ input }) => {
-        try {
-          await manufacturerService.linkSupplierToPart(
-            input.partId,
-            input.supplierId
-          );
-
-          return {
-            success: true,
-          };
-        } catch (error) {
-          if (
-            error instanceof PlmValidationError ||
-            error instanceof PlmNotFoundError
-          ) {
-            throw new Error(error.message);
-          }
-          throw new Error("Failed to link supplier to part");
-        }
-      }),
-
-    // Unlink supplier from part
-    unlinkSupplier: protectedProcedure
-      .input(
-        z.object({
-          partId: z.string().uuid(),
-          supplierId: z.string().uuid(),
-        })
-      )
-      .mutation(async ({ input }) => {
-        try {
-          await manufacturerService.unlinkSupplierFromPart(
-            input.partId,
-            input.supplierId
-          );
-
-          return {
-            success: true,
-          };
-        } catch (error) {
-          if (error instanceof PlmNotFoundError) {
-            throw new Error(error.message);
-          }
-          throw new Error("Failed to unlink supplier from part");
-        }
-      }),
-
-    // Get suppliers for part
-    suppliers: protectedProcedure
-      .input(z.object({ partId: z.string().uuid() }))
-      .query(async ({ input }) => {
-        try {
-          return await manufacturerService.getSuppliersForPart(input.partId);
-        } catch (error) {
-          if (error instanceof PlmNotFoundError) {
-            throw new Error(error.message);
-          }
-          throw new Error("Failed to get part suppliers");
-        }
-      }),
-  }),
-
-  // ========================================================================
   // Change Order Procedures (ECR/ECN)
   // ========================================================================
 
@@ -743,7 +744,10 @@ export const plmRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         try {
           const changeOrder = await import("./change-order-service").then(
-            (m) => m.createChangeOrder(input, ctx.user.id)
+            (m) => {
+              const authCtx = ctx as AuthenticatedContext;
+              return m.createChangeOrder(input, authCtx.user.id);
+            }
           );
 
           return {
@@ -763,7 +767,10 @@ export const plmRouter = createTRPCRouter({
       .input(z.object({ changeOrderId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         const changeOrder = await import("./change-order-service").then(
-          (m) => m.getChangeOrderById(input.changeOrderId, ctx.user.id)
+          (m) => {
+            const authCtx = ctx as AuthenticatedContext;
+            return m.getChangeOrderById(input.changeOrderId, authCtx.user.id);
+          }
         );
 
         if (!changeOrder) {
@@ -789,7 +796,10 @@ export const plmRouter = createTRPCRouter({
         try {
           const { changeOrderId, ...updateData } = input;
           const changeOrder = await import("./change-order-service").then(
-            (m) => m.updateChangeOrder({ changeOrderId, ...updateData }, ctx.user.id)
+            (m) => {
+              const authCtx = ctx as AuthenticatedContext;
+              return m.updateChangeOrder({ changeOrderId, ...updateData }, authCtx.user.id);
+            }
           );
 
           return {
@@ -810,7 +820,10 @@ export const plmRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         try {
           const changeOrder = await import("./change-order-service").then(
-            (m) => m.submitChangeOrder(input, ctx.user.id)
+            (m) => {
+              const authCtx = ctx as AuthenticatedContext;
+              return m.submitChangeOrder(input, authCtx.user.id);
+            }
           );
 
           return {
@@ -831,7 +844,10 @@ export const plmRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         try {
           const changeOrder = await import("./change-order-service").then(
-            (m) => m.acceptForReview(input.changeOrderId, ctx.user.id)
+            (m) => {
+              const authCtx = ctx as AuthenticatedContext;
+              return m.acceptForReview(input.changeOrderId, authCtx.user.id);
+            }
           );
 
           return {
@@ -858,7 +874,10 @@ export const plmRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         try {
           const changeOrder = await import("./change-order-service").then(
-            (m) => m.reviewChangeOrder(input, ctx.user.id)
+            (m) => {
+              const authCtx = ctx as AuthenticatedContext;
+              return m.reviewChangeOrder(input, authCtx.user.id);
+            }
           );
 
           return {
@@ -884,7 +903,10 @@ export const plmRouter = createTRPCRouter({
       .mutation(async ({ ctx, input }) => {
         try {
           const changeOrder = await import("./change-order-service").then(
-            (m) => m.implementChangeOrder(input, ctx.user.id)
+            (m) => {
+              const authCtx = ctx as AuthenticatedContext;
+              return m.implementChangeOrder(input, authCtx.user.id);
+            }
           );
 
           return {

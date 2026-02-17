@@ -260,6 +260,7 @@ export async function getRecentActivities(
     .select({
       id: issues.id,
       title: issues.title,
+      reporterId: issues.reporterId,
       createdAt: issues.createdAt,
       updatedAt: issues.updatedAt,
     })
@@ -293,6 +294,7 @@ export async function getRecentActivities(
       id: changeOrders.id,
       title: changeOrders.title,
       status: changeOrders.status,
+      requesterId: changeOrders.requesterId,
       createdAt: changeOrders.createdAt,
       updatedAt: changeOrders.updatedAt,
     })
@@ -326,11 +328,10 @@ export async function getRecentActivities(
       id: milestones.id,
       title: milestones.title,
       createdAt: milestones.createdAt,
-      updatedAt: milestones.updatedAt,
     })
     .from(milestones)
     .where(eq(milestones.projectId, projectId))
-    .orderBy(desc(milestones.updatedAt))
+    .orderBy(desc(milestones.createdAt))
     .limit(3);
 
   for (const milestone of recentMilestones) {
@@ -341,7 +342,7 @@ export async function getRecentActivities(
       description: `Milestone "${milestone.title}" was updated`,
       userId: "",
       userName: "System",
-      createdAt: milestone.updatedAt,
+      createdAt: milestone.createdAt,
       resourceId: milestone.id,
     });
   }

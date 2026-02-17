@@ -1,7 +1,12 @@
 // Milestone Service - Business logic for milestone management
 import { eq, and, desc, sql } from "drizzle-orm";
 import { db } from "~/server/db";
-import { milestones, type Milestone, type NewMilestone } from "~/server/db";
+import { milestones } from "~/server/db";
+import { milestones as milestonesTable } from "~/modules/issue/schemas/milestones";
+import type { Milestone } from "~/modules/issue/types";
+
+// Use the inferred types from the schema
+type NewMilestone = typeof milestonesTable.$inferInsert;
 
 // Validation errors
 export class MilestoneValidationError extends Error {

@@ -3,7 +3,10 @@
  * Handles cycle detection, tree building, flattening, and quantity calculation
  */
 
-import type { BomTreeNode, FlatBomItem } from "./types";
+import type { BomTreeNode, FlatBomItem, PartStatus } from "./types";
+
+// Re-export types for convenience
+export type { BomTreeNode, FlatBomItem };
 
 export interface BomEdge {
   parentId: string;
@@ -156,7 +159,7 @@ export function buildBomTree(
       name: part.name,
       description: part.description,
       category: part.category,
-      status: part.status || "draft",
+      status: (part.status || "draft") as PartStatus,
       quantity: level === 0 ? "1" : parentQuantity, // Root has quantity 1, children get from parent edge
       unit: level === 0 ? "EA" : parentUnit,
       level,

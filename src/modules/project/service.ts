@@ -4,12 +4,15 @@ import { db } from "~/server/db";
 import {
   projects,
   projectMembers,
+  projectMemberRoleEnum,
   type Project,
   type NewProject,
   type ProjectMember,
   type NewProjectMember,
-  ProjectMemberRole,
 } from "~/server/db";
+
+// Type alias for project member role
+type ProjectMemberRole = "admin" | "member" | "viewer";
 
 // Validation patterns
 const PROJECT_KEY_PATTERN = /^[A-Z0-9]{2,10}$/;

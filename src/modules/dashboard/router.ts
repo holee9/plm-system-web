@@ -4,6 +4,7 @@
  */
 import { z } from "zod";
 import { router as createTRPCRouter, protectedProcedure } from "~/server/trpc";
+import type { AuthenticatedContext } from "~/server/trpc/middleware/is-authed";
 import * as dashboardService from "./service";
 
 export const dashboardRouter = createTRPCRouter({
@@ -11,14 +12,16 @@ export const dashboardRouter = createTRPCRouter({
   getData: protectedProcedure
     .input(z.object({ projectId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      return dashboardService.getDashboardData(input.projectId, ctx.user.id);
+      const authCtx = ctx as AuthenticatedContext;
+      return dashboardService.getDashboardData(input.projectId, authCtx.user.id);
     }),
 
   // Get project statistics
   statistics: protectedProcedure
     .input(z.object({ projectId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      return dashboardService.getProjectStatistics(input.projectId, ctx.user.id);
+      const authCtx = ctx as AuthenticatedContext;
+      return dashboardService.getProjectStatistics(input.projectId, authCtx.user.id);
     }),
 
   // Get issue status distribution
@@ -63,8 +66,9 @@ export const dashboardRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      const authCtx = ctx as AuthenticatedContext;
       return dashboardService.getUserAssignedIssues(
-        ctx.user.id,
+        authCtx.user.id,
         input.projectId,
         input.limit
       );

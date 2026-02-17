@@ -55,7 +55,7 @@ export function ManufacturerSelector({
     onSuccess: () => {
       toast.success("Manufacturer unlinked successfully");
       refetch();
-      onSelectionChange?.(linkedManufacturers?.filter((m: any) => m.id !== unlinkMutation.variables.manufacturerId) || []);
+      onSelectionChange?.(linkedManufacturers?.filter((m: any) => unlinkMutation.variables && m.id !== unlinkMutation.variables.manufacturerId) || []);
     },
     onError: (error) => {
       toast.error(error.message);

@@ -4,6 +4,7 @@
  */
 import { z } from "zod";
 import { router as createTRPCRouter, protectedProcedure } from "~/server/trpc";
+import type { AuthenticatedContext } from "~/server/trpc/middleware/is-authed";
 import * as documentService from "./service";
 
 const resourceTypeEnum = z.enum(["issue", "part", "change_order", "project", "milestone"]);
@@ -24,9 +25,10 @@ export const documentRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
+        const authCtx = ctx as AuthenticatedContext;
         const document = await documentService.uploadDocument({
           ...input,
-          uploadedBy: ctx.user.id,
+          uploadedBy: authCtx.user.id,
         });
 
         return {
@@ -106,7 +108,8 @@ export const documentRouter = createTRPCRouter({
     .input(z.object({ documentId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       try {
-        await documentService.deleteDocument(input.documentId, ctx.user.id);
+        const authCtx = ctx as AuthenticatedContext;
+        await documentService.deleteDocument(input.documentId, authCtx.user.id);
 
         return {
           success: true,
@@ -129,10 +132,11 @@ export const documentRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
+        const authCtx = ctx as AuthenticatedContext;
         const document = await documentService.updateDocumentDescription(
           input.documentId,
           input.description,
-          ctx.user.id
+          authCtx.user.id
         );
 
         return {
@@ -152,9 +156,10 @@ export const documentRouter = createTRPCRouter({
     .input(z.object({ documentId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       try {
+        const authCtx = ctx as AuthenticatedContext;
         const path = await documentService.getDocumentDownloadPath(
           input.documentId,
-          ctx.user.id
+          authCtx.user.id
         );
 
         return {

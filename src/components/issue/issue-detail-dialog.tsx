@@ -48,7 +48,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
-import type { Issue } from "./issue-card";
+import type { Issue } from "~/modules/issue/types";
 
 // Helper function to format date relative to now
 function formatDistanceToNow(date: Date, options?: { addSuffix?: boolean }): string {

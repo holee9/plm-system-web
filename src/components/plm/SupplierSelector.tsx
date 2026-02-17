@@ -55,7 +55,7 @@ export function SupplierSelector({
     onSuccess: () => {
       toast.success("Supplier unlinked successfully");
       refetch();
-      onSelectionChange?.(linkedSuppliers?.filter((s: any) => s.id !== unlinkMutation.variables.supplierId) || []);
+      onSelectionChange?.(linkedSuppliers?.filter((s: any) => unlinkMutation.variables && s.id !== unlinkMutation.variables.supplierId) || []);
     },
     onError: (error) => {
       toast.error(error.message);

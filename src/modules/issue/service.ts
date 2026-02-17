@@ -524,8 +524,8 @@ export async function createLabel(
   projectId: string,
   name: string,
   color: string,
-  description?: string,
-  userId: string
+  userId: string,
+  description?: string
 ): Promise<Label> {
   // Check access
   const { projectMembers } = await import("~/server/db");

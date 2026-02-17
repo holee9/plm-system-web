@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import type { IssueStatus, IssuePriority } from "~/modules/issue/types";
 
 /**
  * StatusBadge component for PLM status indicators
@@ -25,17 +26,18 @@ const statusBadgeVariants = cva(
   {
     variants: {
       status: {
-        // Issue statuses
-        "issue-todo": "border-transparent bg-issueStatus-todo text-white",
-        "issue-in-progress": "border-transparent bg-issueStatus-inProgress text-white",
-        "issue-in-review": "border-transparent bg-issueStatus-inReview text-white",
+        // Issue statuses (matching types.ts IssueStatus)
+        "issue-open": "border-transparent bg-issueStatus-open text-white",
+        "issue-in_progress": "border-transparent bg-issueStatus-in_progress text-white",
+        "issue-review": "border-transparent bg-issueStatus-review text-white",
         "issue-done": "border-transparent bg-issueStatus-done text-white",
-        "issue-blocked": "border-transparent bg-issueStatus-blocked text-white",
-        // Issue priorities
-        "priority-critical": "border-transparent bg-priority-critical text-white",
+        "issue-closed": "border-transparent bg-issueStatus-closed text-white",
+        // Issue priorities (matching types.ts IssuePriority)
+        "priority-urgent": "border-transparent bg-priority-urgent text-white",
         "priority-high": "border-transparent bg-priority-high text-white",
         "priority-medium": "border-transparent bg-priority-medium text-white",
         "priority-low": "border-transparent bg-priority-low text-white",
+        "priority-none": "border-transparent bg-priority-none text-white",
         // Part statuses
         "part-draft": "border-transparent bg-partStatus-draft text-white",
         "part-pending": "border-transparent bg-partStatus-pending text-white",
@@ -45,13 +47,13 @@ const statusBadgeVariants = cva(
         // ECR statuses
         "ecr-draft": "border-transparent bg-ecrStatus-draft text-white",
         "ecr-submitted": "border-transparent bg-ecrStatus-submitted text-white",
-        "ecr-under-review": "border-transparent bg-ecrStatus-underReview text-white",
+        "ecr-under_review": "border-transparent bg-ecrStatus-under_review text-white",
         "ecr-approved": "border-transparent bg-ecrStatus-approved text-white",
         "ecr-rejected": "border-transparent bg-ecrStatus-rejected text-white",
         "ecr-implemented": "border-transparent bg-ecrStatus-implemented text-white",
         // BOM statuses
         "bom-draft": "border-transparent bg-bomStatus-draft text-white",
-        "bom-under-review": "border-transparent bg-bomStatus-underReview text-white",
+        "bom-under_review": "border-transparent bg-bomStatus-under_review text-white",
         "bom-approved": "border-transparent bg-bomStatus-approved text-white",
         "bom-released": "border-transparent bg-bomStatus-released text-white",
         "bom-superseded": "border-transparent bg-bomStatus-superseded text-white",
@@ -69,7 +71,7 @@ const statusBadgeVariants = cva(
       },
     },
     defaultVariants: {
-      status: "issue-todo",
+      status: "issue-open",
       size: "default",
     },
   }
@@ -113,66 +115,19 @@ StatusBadge.displayName = "StatusBadge";
 
 export { StatusBadge, statusBadgeVariants };
 
-/**
- * Helper type for issue status values
- */
-export type IssueStatus =
-  | "todo"
-  | "inProgress"
-  | "inReview"
-  | "done"
-  | "blocked";
-
-/**
- * Helper type for issue priority values
- */
-export type IssuePriority =
-  | "critical"
-  | "high"
-  | "medium"
-  | "low";
-
-/**
- * Helper type for part status values
- */
-export type PartStatus =
-  | "draft"
-  | "pending"
-  | "approved"
-  | "released"
-  | "obsolete";
-
-/**
- * Helper type for ECR status values
- */
-export type EcrStatus =
-  | "draft"
-  | "submitted"
-  | "underReview"
-  | "approved"
-  | "rejected"
-  | "implemented";
-
-/**
- * Helper type for BOM status values
- */
-export type BomStatus =
-  | "draft"
-  | "underReview"
-  | "approved"
-  | "released"
-  | "superseded";
+// Re-export types from types.ts
+export type { IssueStatus, IssuePriority } from "~/modules/issue/types";
 
 /**
  * Convert issue status to status badge prop
  */
 export function issueStatusToBadge(status: IssueStatus): `issue-${IssueStatus}` {
   const statusMap: Record<IssueStatus, `issue-${IssueStatus}`> = {
-    todo: "issue-todo",
-    inProgress: "issue-in-progress",
-    inReview: "issue-in-review",
+    open: "issue-open",
+    in_progress: "issue-in_progress",
+    review: "issue-review",
     done: "issue-done",
-    blocked: "issue-blocked",
+    closed: "issue-closed",
   };
   return statusMap[status];
 }
@@ -192,13 +147,44 @@ export function partStatusToBadge(status: PartStatus): `part-${PartStatus}` {
 }
 
 /**
+ * Helper type for part status values
+ */
+export type PartStatus =
+  | "draft"
+  | "pending"
+  | "approved"
+  | "released"
+  | "obsolete";
+
+/**
+ * Helper type for ECR status values
+ */
+export type EcrStatus =
+  | "draft"
+  | "submitted"
+  | "under_review"
+  | "approved"
+  | "rejected"
+  | "implemented";
+
+/**
+ * Helper type for BOM status values
+ */
+export type BomStatus =
+  | "draft"
+  | "under_review"
+  | "approved"
+  | "released"
+  | "superseded";
+
+/**
  * Convert ECR status to status badge prop
  */
 export function ecrStatusToBadge(status: EcrStatus): `ecr-${EcrStatus}` {
   const statusMap: Record<EcrStatus, `ecr-${EcrStatus}`> = {
     draft: "ecr-draft",
     submitted: "ecr-submitted",
-    underReview: "ecr-under-review",
+    under_review: "ecr-under_review",
     approved: "ecr-approved",
     rejected: "ecr-rejected",
     implemented: "ecr-implemented",
@@ -212,7 +198,7 @@ export function ecrStatusToBadge(status: EcrStatus): `ecr-${EcrStatus}` {
 export function bomStatusToBadge(status: BomStatus): `bom-${BomStatus}` {
   const statusMap: Record<BomStatus, `bom-${BomStatus}`> = {
     draft: "bom-draft",
-    underReview: "bom-under-review",
+    under_review: "bom-under_review",
     approved: "bom-approved",
     released: "bom-released",
     superseded: "bom-superseded",

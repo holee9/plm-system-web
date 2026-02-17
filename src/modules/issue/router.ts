@@ -1,6 +1,7 @@
 // Issue tRPC Router
 import { z } from "zod";
 import { router, protectedProcedure } from "~/server/trpc";
+import type { AuthenticatedContext } from "~/server/trpc/middleware/is-authed";
 import * as service from "./service";
 import * as labelService from "./label-service";
 import * as attachmentService from "./attachment-service";
@@ -106,7 +107,7 @@ export const issueRouter = router({
   create: protectedProcedure
     .input(createIssueSchema)
     .mutation(async ({ ctx, input }) => {
-      return service.createIssue(input, ctx.user.id);
+      return service.createIssue(input, (ctx as AuthenticatedContext).user.id);
     }),
 
   list: protectedProcedure
@@ -136,13 +137,13 @@ export const issueRouter = router({
   update: protectedProcedure
     .input(z.object({ id: z.string().uuid(), data: updateIssueSchema }))
     .mutation(async ({ ctx, input }) => {
-      return service.updateIssue(input.id, input.data, ctx.user.id);
+      return service.updateIssue(input.id, input.data, (ctx as AuthenticatedContext).user.id);
     }),
 
   updateStatus: protectedProcedure
     .input(z.object({ id: z.string().uuid(), data: updateStatusSchema }))
     .mutation(async ({ ctx, input }) => {
-      return service.updateIssueStatus(input.id, input.data.status, ctx.user.id);
+      return service.updateIssueStatus(input.id, input.data.status, (ctx as AuthenticatedContext).user.id);
     }),
 
   updatePosition: protectedProcedure
@@ -152,7 +153,7 @@ export const issueRouter = router({
         input.id,
         input.data.status,
         input.data.position,
-        ctx.user.id
+        (ctx as AuthenticatedContext).user.id
       );
     }),
 
@@ -171,7 +172,7 @@ export const issueRouter = router({
         data: createCommentSchema,
       }))
       .mutation(async ({ ctx, input }) => {
-        return service.createIssueComment(input.issueId, input.data.content, ctx.user.id);
+        return service.createIssueComment(input.issueId, input.data.content, (ctx as AuthenticatedContext).user.id);
       }),
 
     list: protectedProcedure
@@ -210,8 +211,8 @@ export const issueRouter = router({
           input.projectId,
           input.data.name,
           input.data.color,
-          input.data.description,
-          ctx.user.id
+          (ctx as AuthenticatedContext).user.id,
+          input.data.description
         );
       }),
 
@@ -230,14 +231,14 @@ export const issueRouter = router({
         return labelService.updateLabel(
           input.id,
           input.data,
-          ctx.user.id
+          (ctx as AuthenticatedContext).user.id
         );
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
-        await labelService.deleteLabel(input.id, ctx.user.id);
+        await labelService.deleteLabel(input.id, (ctx as AuthenticatedContext).user.id);
         return { success: true };
       }),
 
@@ -247,7 +248,7 @@ export const issueRouter = router({
         data: assignLabelSchema,
       }))
       .mutation(async ({ ctx, input }) => {
-        return service.assignLabelToIssue(input.issueId, input.data.labelId, ctx.user.id);
+        return service.assignLabelToIssue(input.issueId, input.data.labelId, (ctx as AuthenticatedContext).user.id);
       }),
 
     unassign: protectedProcedure
@@ -256,7 +257,7 @@ export const issueRouter = router({
         data: assignLabelSchema,
       }))
       .mutation(async ({ ctx, input }) => {
-        return service.unassignLabelFromIssue(input.issueId, input.data.labelId, ctx.user.id);
+        return service.unassignLabelFromIssue(input.issueId, input.data.labelId, (ctx as AuthenticatedContext).user.id);
       }),
   }),
 
@@ -271,7 +272,7 @@ export const issueRouter = router({
         return service.createMilestone(
           input.projectId,
           input.data.title,
-          ctx.user.id,
+          (ctx as AuthenticatedContext).user.id,
           input.data.description,
           input.data.dueDate
         );
@@ -324,7 +325,7 @@ export const issueRouter = router({
           input.originalFileName,
           input.fileSize,
           input.mimeType,
-          ctx.user.id
+          (ctx as AuthenticatedContext).user.id
         );
       }),
 
@@ -343,7 +344,7 @@ export const issueRouter = router({
     delete: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
-        await attachmentService.deleteAttachment(input.id, ctx.user.id);
+        await attachmentService.deleteAttachment(input.id, (ctx as AuthenticatedContext).user.id);
         return { success: true };
       }),
   }),

@@ -14,6 +14,7 @@ import type {
   PaginatedNotifications,
   NotificationType,
   TemplateContext,
+  NotificationData,
 } from "./types";
 
 // Custom errors
@@ -61,7 +62,17 @@ export async function createNotification(
     await db.insert(notificationRecipients).values(recipientValues);
   }
 
-  return created;
+  // Transform DB type to domain type
+  return {
+    id: created.id,
+    type: created.type as NotificationType,
+    title: created.title,
+    message: created.message,
+    data: created.data as NotificationData | null,
+    link: created.link,
+    createdBy: created.createdBy,
+    createdAt: created.createdAt,
+  };
 }
 
 /**
@@ -156,24 +167,26 @@ export async function listNotifications(
     .limit(limit)
     .offset(offset);
 
-  // Transform to match expected type
-  const transformedItems: NotificationRecipient[] = items.map((item) => ({
-    id: item.id,
-    notificationId: item.notificationId,
-    userId: item.userId,
-    isRead: item.isRead,
-    readAt: item.readAt,
-    notification: {
-      id: item.notification.id,
-      type: item.notification.type as NotificationType,
-      title: item.notification.title,
-      message: item.notification.message,
-      data: item.notification.data,
-      link: item.notification.link,
-      createdBy: item.notification.createdBy,
-      createdAt: item.notification.createdAt,
-    },
-  }));
+  // Transform to match expected type - filter out items with null notifications
+  const transformedItems: NotificationRecipient[] = items
+    .filter((item) => item.notification !== null)
+    .map((item) => ({
+      id: item.id,
+      notificationId: item.notificationId,
+      userId: item.userId,
+      isRead: item.isRead,
+      readAt: item.readAt,
+      notification: {
+        id: item.notification!.id,
+        type: item.notification!.type as NotificationType,
+        title: item.notification!.title,
+        message: item.notification!.message,
+        data: item.notification!.data as NotificationData | null,
+        link: item.notification!.link,
+        createdBy: item.notification!.createdBy,
+        createdAt: item.notification!.createdAt,
+      },
+    }));
 
   return {
     items: transformedItems,
@@ -242,8 +255,17 @@ export async function markAsRead(
 
     return {
       ...updated,
-      notification: notification!,
-    };
+      notification: notification ? {
+        id: notification.id,
+        type: notification.type as NotificationType,
+        title: notification.title,
+        message: notification.message,
+        data: notification.data as NotificationData | null,
+        link: notification.link,
+        createdBy: notification.createdBy,
+        createdAt: notification.createdAt,
+      } : null,
+    } as NotificationRecipient;
   }
 
   // Get notification details for existing
@@ -255,15 +277,36 @@ export async function markAsRead(
 
   return {
     ...existing,
-    notification: notification!,
-  };
+    notification: notification ? {
+      id: notification.id,
+      type: notification.type as NotificationType,
+      title: notification.title,
+      message: notification.message,
+      data: notification.data as NotificationData | null,
+      link: notification.link,
+      createdBy: notification.createdBy,
+      createdAt: notification.createdAt,
+    } : null,
+  } as NotificationRecipient;
 }
 
 /**
  * Mark all notifications as read for user
  */
 export async function markAllAsRead(userId: string): Promise<number> {
-  const result = await db
+  // Count records to be updated
+  const [{ totalCount }] = await db
+    .select({ totalCount: count() })
+    .from(notificationRecipients)
+    .where(
+      and(
+        eq(notificationRecipients.userId, userId),
+        eq(notificationRecipients.isRead, false)
+      )
+    );
+
+  // Update records
+  await db
     .update(notificationRecipients)
     .set({
       isRead: true,
@@ -276,7 +319,7 @@ export async function markAllAsRead(userId: string): Promise<number> {
       )
     );
 
-  return result.rowCount || 0;
+  return Number(totalCount);
 }
 
 /**
@@ -310,22 +353,32 @@ export async function deleteNotification(
 
 /**
  * Clean up old notifications (for maintenance)
- * Deletes notifications older than specified days where all recipients have read
+ * Deletes notification recipients where notification was read long ago
  */
 export async function cleanupOldNotifications(daysOld: number = 30): Promise<number> {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysOld);
 
-  // Delete notification recipients where all recipients have read the notification
-  // and the notification is older than the cutoff date
-  const result = await db
-    .delete(notificationRecipients)
+  // Count records to be deleted
+  const [{ totalCount }] = await db
+    .select({ totalCount: count() })
+    .from(notificationRecipients)
     .where(
       and(
-        sql`${notificationRecipients.createdAt} < ${cutoffDate}`,
+        sql`${notificationRecipients.readAt} < ${cutoffDate}`,
         eq(notificationRecipients.isRead, true)
       )
     );
 
-  return result.rowCount || 0;
+  // Delete old read notifications
+  await db
+    .delete(notificationRecipients)
+    .where(
+      and(
+        sql`${notificationRecipients.readAt} < ${cutoffDate}`,
+        eq(notificationRecipients.isRead, true)
+      )
+    );
+
+  return Number(totalCount);
 }

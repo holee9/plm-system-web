@@ -163,13 +163,13 @@ export async function getManufacturerById(
 
   // Count associated parts
   const [partsCount] = await db
-    .select({ count: count() })
+    .select({ partsCount: count() })
     .from(partsManufacturers)
     .where(eq(partsManufacturers.manufacturerId, manufacturerId));
 
   return {
     ...manufacturer,
-    partsCount: Number(partsCount.count),
+    partsCount: Number(partsCount.partsCount),
   };
 }
 
@@ -200,7 +200,7 @@ export async function listManufacturers(
     ? [...conditions, searchCondition]
     : conditions;
 
-  const [{ count }] = await db
+  const [{ count: totalCount }] = await db
     .select({ count: sql<number>`count(*)` })
     .from(manufacturers)
     .where(searchCondition ? searchCondition : undefined);
@@ -220,7 +220,7 @@ export async function listManufacturers(
     ? await db
         .select({
           manufacturerId: partsManufacturers.manufacturerId,
-          count: count(),
+          partsCount: count(),
         })
         .from(partsManufacturers)
         .where(inArray(partsManufacturers.manufacturerId, manufacturerIds))
@@ -228,7 +228,7 @@ export async function listManufacturers(
     : [];
 
   const countsMap = new Map(
-    partsCounts.map(pc => [pc.manufacturerId, Number(pc.count)])
+    partsCounts.map(pc => [pc.manufacturerId, Number(pc.partsCount)])
   );
 
   const manufacturersWithCounts = manufacturersList.map(m => ({
@@ -238,7 +238,7 @@ export async function listManufacturers(
 
   return {
     manufacturers: manufacturersWithCounts,
-    total: Number(count),
+    total: Number(totalCount),
   };
 }
 
@@ -282,7 +282,7 @@ export async function updateManufacturer(
 
   // Build update data
   const updateData: Partial<NewManufacturer> = {
-    updatedAt: sql`now()`,
+    updatedAt: new Date(),
   };
 
   if (input.code !== undefined) updateData.code = input.code;
@@ -315,14 +315,14 @@ export async function deleteManufacturer(manufacturerId: string): Promise<void> 
 
   // Check if manufacturer has associated parts
   const [partsCount] = await db
-    .select({ count: count() })
+    .select({ partsCount: count() })
     .from(partsManufacturers)
     .where(eq(partsManufacturers.manufacturerId, manufacturerId));
 
-  if (Number(partsCount.count) > 0) {
+  if (Number(partsCount.partsCount) > 0) {
     throw new PlmValidationError(
       "manufacturerId",
-      `Cannot delete manufacturer with ${partsCount.count} associated parts. Please unlink all parts first.`
+      `Cannot delete manufacturer with ${partsCount.partsCount} associated parts. Please unlink all parts first.`
     );
   }
 
@@ -439,7 +439,6 @@ export async function createSupplier(
     contactEmail: input.contactEmail || null,
     contactPhone: input.contactPhone || null,
     address: input.address || null,
-    website: input.website || null,
     description: input.description || null,
     createdBy: userId,
   };
@@ -470,13 +469,13 @@ export async function getSupplierById(
 
   // Count associated parts
   const [partsCount] = await db
-    .select({ count: count() })
+    .select({ partsCount: count() })
     .from(partsSuppliers)
     .where(eq(partsSuppliers.supplierId, supplierId));
 
   return {
     ...supplier,
-    partsCount: Number(partsCount.count),
+    partsCount: Number(partsCount.partsCount),
   };
 }
 
@@ -507,7 +506,7 @@ export async function listSuppliers(
     ? [...conditions, searchCondition]
     : conditions;
 
-  const [{ count }] = await db
+  const [{ count: totalCount }] = await db
     .select({ count: sql<number>`count(*)` })
     .from(suppliers)
     .where(searchCondition ? searchCondition : undefined);
@@ -527,7 +526,7 @@ export async function listSuppliers(
     ? await db
         .select({
           supplierId: partsSuppliers.supplierId,
-          count: count(),
+          partsCount: count(),
         })
         .from(partsSuppliers)
         .where(inArray(partsSuppliers.supplierId, supplierIds))
@@ -535,7 +534,7 @@ export async function listSuppliers(
     : [];
 
   const countsMap = new Map(
-    partsCounts.map(pc => [pc.supplierId, Number(pc.count)])
+    partsCounts.map(pc => [pc.supplierId, Number(pc.partsCount)])
   );
 
   const suppliersWithCounts = suppliersList.map(s => ({
@@ -545,7 +544,7 @@ export async function listSuppliers(
 
   return {
     suppliers: suppliersWithCounts,
-    total: Number(count),
+    total: Number(totalCount),
   };
 }
 
@@ -592,14 +591,9 @@ export async function updateSupplier(
     validatePhone(input.contactPhone);
   }
 
-  // Validate website if being updated
-  if (input.website !== undefined) {
-    validateWebsite(input.website);
-  }
-
   // Build update data
   const updateData: Partial<NewSupplier> = {
-    updatedAt: sql`now()`,
+    updatedAt: new Date(),
   };
 
   if (input.code !== undefined) updateData.code = input.code;
@@ -607,7 +601,6 @@ export async function updateSupplier(
   if (input.contactEmail !== undefined) updateData.contactEmail = input.contactEmail || null;
   if (input.contactPhone !== undefined) updateData.contactPhone = input.contactPhone || null;
   if (input.address !== undefined) updateData.address = input.address || null;
-  if (input.website !== undefined) updateData.website = input.website || null;
   if (input.description !== undefined) updateData.description = input.description || null;
 
   await db
@@ -635,14 +628,14 @@ export async function deleteSupplier(supplierId: string): Promise<void> {
 
   // Check if supplier has associated parts
   const [partsCount] = await db
-    .select({ count: count() })
+    .select({ partsCount: count() })
     .from(partsSuppliers)
     .where(eq(partsSuppliers.supplierId, supplierId));
 
-  if (Number(partsCount.count) > 0) {
+  if (Number(partsCount.partsCount) > 0) {
     throw new PlmValidationError(
       "supplierId",
-      `Cannot delete supplier with ${partsCount.count} associated parts. Please unlink all parts first.`
+      `Cannot delete supplier with ${partsCount.partsCount} associated parts. Please unlink all parts first.`
     );
   }
 

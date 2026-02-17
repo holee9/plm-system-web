@@ -100,7 +100,7 @@ export const isAuthed = async ({ ctx, next }: { ctx: Context; next: any }) => {
   }
 
   const user: AuthenticatedUser = {
-    id: firstRow.id as number,
+    id: firstRow.id as string,
     email: firstRow.email as string,
     name: firstRow.name as string,
     roles: userRolesList,

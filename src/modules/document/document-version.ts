@@ -1,7 +1,7 @@
 // Document module - Document Version
 // Placeholder for document version implementation
 
-export interface DocumentVersion {
+export interface DocumentVersionRecord {
   id: string;
   documentId: string;
   version: string;

@@ -22,7 +22,8 @@ const ISSUE_TYPE_COLORS: Record<IssueType, string> = {
   improvement: "#3b82f6",
 } as const;
 
-export interface Issue {
+// Issue card data (UI-specific format)
+export interface IssueCardData {
   id: string;
   key: string;
   title: string;
@@ -39,8 +40,11 @@ export interface Issue {
   updatedAt: Date | string;
 }
 
+// Re-export as Issue for backward compatibility
+export type Issue = IssueCardData;
+
 interface IssueCardProps {
-  issue: Issue;
+  issue: IssueCardData;
   isDragging?: boolean;
   onClick?: () => void;
 }

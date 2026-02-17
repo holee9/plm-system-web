@@ -25,7 +25,8 @@ export const notificationRecipients = pgTable("notification_recipients", {
 }));
 
 // Type inference - internal only
-type NotificationRecipient = typeof notificationRecipients.$inferSelect;
-type NewNotificationRecipient = typeof notificationRecipients.$inferInsert;
+type DbNotificationRecipient = typeof notificationRecipients.$inferSelect;
+type NewDbNotificationRecipient = typeof notificationRecipients.$inferInsert;
 
-export { NotificationRecipient, NewNotificationRecipient };
+// Export types with different names to avoid conflicts
+export type { DbNotificationRecipient as NotificationRecipientSchema, NewDbNotificationRecipient as NewNotificationRecipientSchema };
