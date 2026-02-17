@@ -48,6 +48,7 @@ const updateProjectInput = z.object({
   name: z.string().min(2).max(255).optional(),
   description: z.string().optional(),
   status: z.enum(["active", "archived"]).optional(),
+  visibility: z.enum(["private", "public"]).optional(),
 });
 
 const addMemberInput = z.object({

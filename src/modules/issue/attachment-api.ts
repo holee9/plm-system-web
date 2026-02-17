@@ -1,6 +1,6 @@
 // Issue Attachment API Routes
 // This file provides Next.js API route handlers for file uploads
-// since tRPC doesn't support multipart/form-data natively
+// with multipart/form-data support
 
 import { NextRequest, NextResponse } from "next/server";
 import * as attachmentService from "./attachment-service";
@@ -37,10 +37,7 @@ export async function GET(
 
 /**
  * POST /api/issues/:issueId/attachments
- * Upload a new attachment
- *
- * Note: This should be called with multipart/form-data
- * The actual file upload handler would typically use a library like `formidable` or `multer`
+ * Upload a new attachment with multipart/form-data support
  */
 export async function POST(
   request: NextRequest,
@@ -49,121 +46,68 @@ export async function POST(
   try {
     const { issueId } = params;
 
-    // Note: For actual file upload, you would need to parse multipart/form-data
-    // This is a simplified version that expects JSON metadata
-    // In a real implementation, use a library like `formidable` for Next.js API routes
+    // Parse multipart/form-data
+    const formData = await request.formData();
 
-    const body = await request.json();
-    const { originalFileName, fileSize, mimeType, fileData } = body;
+    // Get file from form data
+    const file = formData.get("file") as File | null;
 
-    // Validate inputs
-    if (!originalFileName || !fileSize || !mimeType) {
+    if (!file) {
       return NextResponse.json(
-        { error: "Missing required fields: originalFileName, fileSize, mimeType" },
+        { error: "No file provided. Please upload a file." },
         { status: 400 }
       );
     }
+
+    // Validate file size
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxFileSize) {
+      return NextResponse.json(
+        { error: `File size exceeds maximum limit of ${maxFileSize / (1024 * 1024)}MB` },
+        { status: 400 }
+      );
+    }
+
+    // Validate MIME type using service layer
+    try {
+      attachmentService.validateMimeType(file.type);
+    } catch (error) {
+      if (error instanceof Error) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     // Create attachment record
     const attachment = await attachmentService.uploadAttachment(
       issueId,
-      originalFileName,
-      fileSize,
-      mimeType,
+      file.name,
+      file.size,
+      file.type,
       TEST_USER_ID
     );
 
-    // Save file to disk if file data is provided
-    if (fileData) {
-      const buffer = Buffer.from(fileData, "base64");
-      await attachmentUtils.saveUploadedFile(attachment.fileName, buffer);
-    }
+    // Save file to disk
+    await attachmentUtils.saveUploadedFile(attachment.fileName, buffer);
 
-    return NextResponse.json({ attachment }, { status: 201 });
-  } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
-    }
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      {
+        attachment: {
+          id: attachment.id,
+          originalFileName: attachment.originalFileName,
+          fileSize: attachment.fileSize,
+          mimeType: attachment.mimeType,
+          uploadedAt: attachment.uploadedAt,
+        },
+      },
+      { status: 201 }
     );
-  }
-}
-
-/**
- * GET /api/attachments/:id/download
- * Download an attachment file
- */
-export async function getAttachmentDownload(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = params;
-    const attachment = await attachmentService.getAttachmentById(id);
-
-    if (!attachment) {
-      return NextResponse.json(
-        { error: "Attachment not found" },
-        { status: 404 }
-      );
-    }
-
-    // In a real implementation, you would:
-    // 1. Read the file from disk
-    // 2. Stream it back with proper Content-Type and Content-Disposition headers
-    // For now, return metadata
-    return NextResponse.json({
-      fileName: attachment.originalFileName,
-      mimeType: attachment.mimeType,
-      fileSize: attachment.fileSize,
-      downloadUrl: `/uploads/attachments/${attachment.fileName}`,
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * DELETE /api/attachments/:id
- * Delete an attachment
- */
-export async function deleteAttachment(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = params;
-
-    // Get attachment before deletion to get file name
-    const attachment = await attachmentService.getAttachmentById(id);
-    if (!attachment) {
-      return NextResponse.json(
-        { error: "Attachment not found" },
-        { status: 404 }
-      );
-    }
-
-    // Delete from database (this will also check permissions)
-    await attachmentService.deleteAttachment(id, TEST_USER_ID);
-
-    // Delete file from disk
-    await attachmentUtils.deleteUploadedFile(attachment.fileName);
-
-    return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json(

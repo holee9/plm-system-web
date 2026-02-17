@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface ProjectSettingsFormProps {
   project: {
@@ -16,6 +17,7 @@ interface ProjectSettingsFormProps {
     key: string;
     description: string | null;
     status: "active" | "archived";
+    visibility: "private" | "public";
   };
 }
 
@@ -23,6 +25,7 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
   const router = useRouter();
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description || "");
+  const [visibility, setVisibility] = useState<"private" | "public">(project.visibility);
   const [error, setError] = useState<string | null>(null);
 
   const updateProject = trpc.project.update.useMutation({
@@ -36,6 +39,15 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
   });
 
   const archiveProject = trpc.project.archive.useMutation({
+    onSuccess: () => {
+      router.push(`/projects/${project.key}`);
+    },
+    onError: (error) => {
+      setError(error.message);
+    },
+  });
+
+  const restoreProject = trpc.project.restore.useMutation({
     onSuccess: () => {
       router.push(`/projects/${project.key}`);
     },
@@ -58,6 +70,7 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
       data: {
         name: name.trim(),
         description: description.trim() || undefined,
+        visibility,
       },
     });
   };
@@ -65,6 +78,12 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
   const handleArchive = () => {
     if (confirm("Are you sure you want to archive this project?")) {
       archiveProject.mutate({ projectId: project.id });
+    }
+  };
+
+  const handleRestore = () => {
+    if (confirm("Are you sure you want to restore this project?")) {
+      restoreProject.mutate({ projectId: project.id });
     }
   };
 
@@ -115,6 +134,38 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
           />
         </div>
 
+        <div className="space-y-3">
+          <Label>Visibility</Label>
+          <RadioGroup
+            value={visibility}
+            onValueChange={(value) => setVisibility(value as "private" | "public")}
+            disabled={updateProject.isPending}
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="private" id="private" />
+              <div className="grid gap-1.5">
+                <Label htmlFor="private" className="font-medium cursor-pointer">
+                  Private
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Only project members can view and access this project
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="public" id="public" />
+              <div className="grid gap-1.5">
+                <Label htmlFor="public" className="font-medium cursor-pointer">
+                  Public
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Anyone in the organization can view this project
+                </p>
+              </div>
+            </div>
+          </RadioGroup>
+        </div>
+
         <div className="flex gap-4">
           <Button
             type="submit"
@@ -139,6 +190,25 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
             disabled={archiveProject.isPending}
           >
             {archiveProject.isPending ? "Archiving..." : "Archive Project"}
+          </Button>
+        </div>
+      )}
+
+      {project.status === "archived" && (
+        <div className="border border-green-500/50 bg-green-500/5 rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-2">
+            Restore Project
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            This project is archived and read-only. Restore it to make changes and add new items.
+          </p>
+          <Button
+            variant="outline"
+            className="border-green-500 text-green-700 hover:bg-green-500 hover:text-white dark:text-green-400 dark:border-green-400 dark:hover:bg-green-400 dark:hover:text-white"
+            onClick={handleRestore}
+            disabled={restoreProject.isPending}
+          >
+            {restoreProject.isPending ? "Restoring..." : "Restore Project"}
           </Button>
         </div>
       )}

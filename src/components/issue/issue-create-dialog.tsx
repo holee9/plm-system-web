@@ -33,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
+import { MilestoneSelector } from "@/components/milestone/MilestoneSelector";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
@@ -40,6 +41,7 @@ const formSchema = z.object({
   type: z.enum(["task", "bug", "feature", "improvement"]),
   priority: z.enum(["urgent", "high", "medium", "low", "none"]),
   assigneeId: z.string().optional(),
+  milestoneId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -84,6 +86,7 @@ export function IssueCreateDialog({
       type: "task",
       priority: "none",
       assigneeId: undefined,
+      milestoneId: undefined,
     },
   });
 
@@ -212,6 +215,28 @@ export function IssueCreateDialog({
                 </FormItem>
               )}
             />
+
+            {/* Milestone */}
+            {projectId && (
+              <FormField
+                control={form.control}
+                name="milestoneId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Milestone</FormLabel>
+                    <FormControl>
+                      <MilestoneSelector
+                        projectId={projectId}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="No milestone"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {/* Description */}
             <FormField

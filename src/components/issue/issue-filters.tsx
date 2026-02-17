@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { X, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MilestoneSelector } from "@/components/milestone/MilestoneSelector";
 import type { IssuePriority, IssueStatus, IssueType } from "~/modules/issue/types";
 
 interface IssueFiltersProps {
@@ -26,6 +27,8 @@ interface IssueFiltersProps {
   projectId?: string;
   onProjectIdChange: (value: string | undefined) => void;
   projects?: Array<{ id: string; name: string }>;
+  milestoneId?: string | null;
+  onMilestoneIdChange: (value: string | null | undefined) => void;
   onClearFilters: () => void;
   className?: string;
 }
@@ -42,11 +45,13 @@ export function IssueFilters({
   projectId,
   onProjectIdChange,
   projects = [],
+  milestoneId,
+  onMilestoneIdChange,
   onClearFilters,
   className,
 }: IssueFiltersProps) {
   const hasActiveFilters =
-    onlyMyIssues || priority || status || type || projectId;
+    onlyMyIssues || priority || status || type || projectId || milestoneId;
 
   return (
     <div className={cn("flex items-center gap-3", className)}>
@@ -147,6 +152,18 @@ export function IssueFilters({
             ))}
           </SelectContent>
         </Select>
+      )}
+
+      {/* Milestone Filter */}
+      {onMilestoneIdChange && projectId && (
+        <div className="w-[200px]">
+          <MilestoneSelector
+            projectId={projectId}
+            value={milestoneId || undefined}
+            onChange={(value) => onMilestoneIdChange(value || undefined)}
+            placeholder="모든 마일스톤"
+          />
+        </div>
       )}
 
       {/* Clear Filters */}

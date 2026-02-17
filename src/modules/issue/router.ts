@@ -310,6 +310,19 @@ export const issueRouter = router({
       }),
   }),
 
+  // Milestone progress
+  getMilestoneProgress: publicProcedure
+    .input(z.object({ milestoneId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      return service.calculateMilestoneProgress(input.milestoneId);
+    }),
+
+  getProjectMilestonesProgress: publicProcedure
+    .input(z.object({ projectId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      return service.getMilestonesProgress(input.projectId);
+    }),
+
   // Attachments
   attachment: router({
     upload: publicProcedure

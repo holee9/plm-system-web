@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Tag, X } from "lucide-react";
+import { Plus, Tag, X, Pencil } from "lucide-react";
+import { api } from "@/lib/trpc";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,13 +18,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Label {
   id: string;
   name: string;
   color: string;
-  description?: string;
-  usageCount?: number;
+  description?: string | null;
+  _count?: {
+    issueLabels?: number;
+  };
 }
 
 interface LabelListProps {
@@ -43,16 +56,65 @@ const PREDEFINED_COLORS = [
 ];
 
 export function LabelList({ projectId }: LabelListProps) {
+  // Fetch labels
+  const { data: labels = [], isLoading, refetch } = api.issue.label.list.useQuery({ projectId });
+
+  // Create mutation
+  const createMutation = api.issue.label.create.useMutation({
+    onSuccess: () => {
+      toast.success("Label created successfully");
+      refetch();
+      setIsCreateDialogOpen(false);
+      setNewLabel({ name: "", color: PREDEFINED_COLORS[6], description: "" });
+    },
+    onError: (error) => {
+      toast.error(`Failed to create label: ${error.message}`);
+    },
+  });
+
+  // Update mutation
+  const updateMutation = api.issue.label.update.useMutation({
+    onSuccess: () => {
+      toast.success("Label updated successfully");
+      refetch();
+      setIsEditDialogOpen(false);
+      setEditingLabel(null);
+    },
+    onError: (error) => {
+      toast.error(`Failed to update label: ${error.message}`);
+    },
+  });
+
+  // Delete mutation
+  const deleteMutation = api.issue.label.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Label deleted successfully");
+      refetch();
+      setIsDeleteDialogOpen(false);
+      setLabelToDelete(null);
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete label: ${error.message}`);
+    },
+  });
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editingLabel, setEditingLabel] = useState<Label | null>(null);
+  const [labelToDelete, setLabelToDelete] = useState<Label | null>(null);
+
   const [newLabel, setNewLabel] = useState({
     name: "",
     color: PREDEFINED_COLORS[6],
     description: "",
   });
 
-  // TODO: Replace with actual tRPC call when label router is implemented
-  const labels: Label[] = [];
-  const isLoading = false;
+  const [editLabelData, setEditLabelData] = useState({
+    name: "",
+    color: PREDEFINED_COLORS[6],
+    description: "",
+  });
 
   const handleCreateLabel = () => {
     if (!newLabel.name.trim()) {
@@ -60,15 +122,53 @@ export function LabelList({ projectId }: LabelListProps) {
       return;
     }
 
-    // TODO: Implement label creation
-    toast.success("Label created");
-    setIsCreateDialogOpen(false);
-    setNewLabel({ name: "", color: PREDEFINED_COLORS[6], description: "" });
+    createMutation.mutate({
+      projectId,
+      data: {
+        name: newLabel.name.trim(),
+        color: newLabel.color,
+        description: newLabel.description || undefined,
+      },
+    });
   };
 
-  const handleDeleteLabel = (labelId: string) => {
-    // TODO: Implement label deletion
-    toast.success("Label deleted");
+  const handleEditClick = (label: Label) => {
+    setEditingLabel(label);
+    setEditLabelData({
+      name: label.name,
+      color: label.color,
+      description: label.description || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateLabel = () => {
+    if (!editLabelData.name.trim()) {
+      toast.error("Label name is required");
+      return;
+    }
+
+    if (!editingLabel) return;
+
+    updateMutation.mutate({
+      id: editingLabel.id,
+      data: {
+        name: editLabelData.name.trim(),
+        color: editLabelData.color,
+        description: editLabelData.description || undefined,
+      },
+    });
+  };
+
+  const handleDeleteClick = (label: Label) => {
+    setLabelToDelete(label);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteLabel = () => {
+    if (!labelToDelete) return;
+
+    deleteMutation.mutate({ id: labelToDelete.id });
   };
 
   return (
@@ -107,7 +207,7 @@ export function LabelList({ projectId }: LabelListProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {labels.length > 0 ? Math.max(...labels.map((l) => l.usageCount || 0)) : 0}
+              {labels.length > 0 ? Math.max(...labels.map((l) => l._count?.issueLabels || 0)) : 0}
             </div>
             <p className="text-xs text-muted-foreground">times</p>
           </CardContent>
@@ -120,7 +220,7 @@ export function LabelList({ projectId }: LabelListProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {labels.filter((l) => (l.usageCount || 0) > 0).length}
+              {labels.filter((l) => (l._count?.issueLabels || 0) > 0).length}
             </div>
           </CardContent>
         </Card>
@@ -158,14 +258,24 @@ export function LabelList({ projectId }: LabelListProps) {
                     />
                     <CardTitle className="text-lg">{label.name}</CardTitle>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => handleDeleteLabel(label.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                      onClick={() => handleEditClick(label)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleDeleteClick(label)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 {label.description && (
                   <CardDescription>{label.description}</CardDescription>
@@ -174,7 +284,7 @@ export function LabelList({ projectId }: LabelListProps) {
               <CardContent>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Usage</span>
-                  <Badge variant="secondary">{label.usageCount || 0} items</Badge>
+                  <Badge variant="secondary">{label._count?.issueLabels || 0} items</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -248,15 +358,131 @@ export function LabelList({ projectId }: LabelListProps) {
             <Button
               variant="outline"
               onClick={() => setIsCreateDialogOpen(false)}
+              disabled={createMutation.isPending}
             >
               Cancel
             </Button>
-            <Button onClick={handleCreateLabel}>
-              Create Label
+            <Button onClick={handleCreateLabel} disabled={createMutation.isPending}>
+              {createMutation.isPending ? "Creating..." : "Create Label"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Label Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Label</DialogTitle>
+            <DialogDescription>
+              Update the label details
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                placeholder="Label name"
+                value={editLabelData.name}
+                onChange={(e) => setEditLabelData({ ...editLabelData, name: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description (Optional)</Label>
+              <Input
+                id="edit-description"
+                placeholder="Describe this label..."
+                value={editLabelData.description}
+                onChange={(e) => setEditLabelData({ ...editLabelData, description: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Color</Label>
+              <div className="flex gap-2 flex-wrap">
+                {PREDEFINED_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    className={`h-10 w-10 rounded-full border-2 transition-all ${
+                      editLabelData.color === color ? "border-foreground scale-110" : "border-transparent"
+                    }`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setEditLabelData({ ...editLabelData, color })}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Preview */}
+            <div className="p-4 rounded-lg border bg-muted/50">
+              <Label className="text-xs text-muted-foreground mb-2">Preview</Label>
+              <Badge
+                style={{
+                  backgroundColor: editLabelData.color,
+                  color: "#fff",
+                }}
+              >
+                {editLabelData.name || "Label Name"}
+              </Badge>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditDialogOpen(false);
+                setEditingLabel(null);
+              }}
+              disabled={updateMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateLabel} disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? "Updating..." : "Update Label"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Label</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the label <strong>"{labelToDelete?.name}"</strong>?
+              {labelToDelete && labelToDelete._count?.issueLabels ? (
+                <>
+                  {" "}This label is currently used in {labelToDelete._count.issueLabels} issue(s).
+                  Removing it will unassign it from all issues.
+                </>
+              ) : (
+                " This action cannot be undone."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteLabel();
+              }}
+              disabled={deleteMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete Label"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

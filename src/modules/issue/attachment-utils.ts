@@ -1,5 +1,5 @@
 // File storage utilities for issue attachments
-import { mkdir, writeFile, unlink, stat } from "node:fs/promises";
+import { mkdir, writeFile, unlink, stat, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
 
@@ -63,4 +63,13 @@ export async function getFileSize(fileName: string): Promise<number> {
   const filePath = getAttachmentFilePath(fileName);
   const stats = await stat(filePath);
   return stats.size;
+}
+
+/**
+ * Read file from disk
+ * Returns file buffer for download
+ */
+export async function readUploadedFile(fileName: string): Promise<Buffer> {
+  const filePath = getAttachmentFilePath(fileName);
+  return readFile(filePath);
 }

@@ -16,6 +16,7 @@ export function IssueBoardWithList({ projectId, projectKey }: IssueBoardWithList
   const [priorityFilter, setPriorityFilter] = useState<IssuePriority | undefined>();
   const [statusFilter, setStatusFilter] = useState<IssueStatus | undefined>();
   const [typeFilter, setTypeFilter] = useState<IssueType | undefined>();
+  const [milestoneIdFilter, setMilestoneIdFilter] = useState<string | null | undefined>();
 
   // TODO: Get currentUserId from auth context
   const currentUserId = undefined;
@@ -29,6 +30,7 @@ export function IssueBoardWithList({ projectId, projectKey }: IssueBoardWithList
         priority: priorityFilter,
         status: statusFilter,
         type: typeFilter,
+        milestoneId: milestoneIdFilter,
       },
     },
     { enabled: !!projectId }
@@ -42,6 +44,7 @@ export function IssueBoardWithList({ projectId, projectKey }: IssueBoardWithList
     setPriorityFilter(undefined);
     setStatusFilter(undefined);
     setTypeFilter(undefined);
+    setMilestoneIdFilter(undefined);
   };
 
   return (
@@ -58,6 +61,8 @@ export function IssueBoardWithList({ projectId, projectKey }: IssueBoardWithList
         onTypeChange={setTypeFilter}
         projectId={projectId}
         onProjectIdChange={() => {}}
+        milestoneId={milestoneIdFilter}
+        onMilestoneIdChange={setMilestoneIdFilter}
         onClearFilters={handleClearFilters}
       />
 

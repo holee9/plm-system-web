@@ -706,3 +706,54 @@ export async function listMilestones(projectId: string): Promise<Milestone[]> {
     .where(eq(milestones.projectId, projectId))
     .orderBy(asc(milestones.dueDate));
 }
+
+/**
+ * Calculate milestone progress based on issues
+ * Progress = (completed issues / total issues) * 100
+ * Completed statuses: "done", "closed"
+ */
+export async function calculateMilestoneProgress(
+  milestoneId: string
+): Promise<number> {
+  // Get all issues for this milestone
+  const milestoneIssues = await db
+    .select()
+    .from(issues)
+    .where(eq(issues.milestoneId, milestoneId));
+
+  if (milestoneIssues.length === 0) {
+    return 0;
+  }
+
+  // Count completed issues (done or closed status)
+  const completedCount = milestoneIssues.filter(
+    (issue) => issue.status === "done" || issue.status === "closed"
+  ).length;
+
+  // Calculate progress percentage
+  const progress = Math.round((completedCount / milestoneIssues.length) * 100);
+
+  return progress;
+}
+
+/**
+ * Get milestone progress for all milestones in a project
+ */
+export async function getMilestonesProgress(
+  projectId: string
+): Promise<Record<string, number>> {
+  // Get all milestones for this project
+  const projectMilestones = await listMilestones(projectId);
+
+  // Calculate progress for each milestone
+  const progressMap: Record<string, number> = {};
+
+  await Promise.all(
+    projectMilestones.map(async (milestone) => {
+      const progress = await calculateMilestoneProgress(milestone.id);
+      progressMap[milestone.id] = progress;
+    })
+  );
+
+  return progressMap;
+}
