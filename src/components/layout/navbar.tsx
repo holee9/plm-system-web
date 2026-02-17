@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  Bell,
   Boxes,
   FolderKanban,
   LayoutDashboard,
@@ -16,6 +15,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { NotificationBell } from "@/components/notification/notification-bell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,9 +84,7 @@ export function Navbar() {
 
         <ThemeToggle />
 
-        <Button variant="ghost" size="icon" aria-label="Notifications">
-          <Bell className="h-5 w-5" />
-        </Button>
+        <NotificationBell />
 
         <Sheet>
           <SheetTrigger asChild>

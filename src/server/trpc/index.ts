@@ -31,3 +31,12 @@ const t = initTRPC.context<Context>().create({
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
+
+// Re-export procedures
+export {
+  protectedProcedure,
+  adminProcedure,
+  ownerProcedure,
+  memberProcedure,
+  viewerProcedure,
+} from "./procedures";

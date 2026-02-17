@@ -3,7 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, List } from "lucide-react";
 import { IssueBoard } from "@/components/issue/issue-board";
 import { IssueList } from "@/components/issue/issue-list";
-import { trpc } from "@/lib/trpc";
+import { db } from "~/server/db";
+import { projects } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 
 type ProjectIssuesPageProps = {
   params: Promise<{ key: string }>;
@@ -18,7 +20,7 @@ export default async function ProjectIssuesPage({
   const { view = "board" } = await searchParams;
 
   // Fetch project data
-  const project = await trpc.project.getByKey.query({ key });
+  const [project] = await db.select().from(projects).where(eq(projects.key, key)).limit(1);
 
   if (!project) {
     return (

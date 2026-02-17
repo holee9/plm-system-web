@@ -28,7 +28,7 @@ export function PartDetail({ projectId, partId }: PartDetailProps) {
   const [isAddBomItemDialogOpen, setIsAddBomItemDialogOpen] = useState(false);
 
   // Fetch part details
-  const { data: part, isLoading, refetch } = trpc.plm.part.get.useQuery({ partId });
+  const { data: part, isLoading, refetch } = trpc.plm.part.getById.useQuery({ partId });
 
   // Fetch BOM tree
   const { data: bomData, isLoading: isLoadingBom } = trpc.plm.bom.getTree.useQuery(
@@ -37,13 +37,13 @@ export function PartDetail({ projectId, partId }: PartDetailProps) {
   );
 
   // Fetch revision history
-  const { data: revisionData } = trpc.plm.part.getRevisions.useQuery(
+  const { data: revisionData } = trpc.plm.revision.list.useQuery(
     { partId },
     { enabled: activeTab === "revisions" }
   );
 
   // Fetch where-used
-  const { data: whereUsedData } = trpc.plm.bom.whereUsed.useQuery(
+  const { data: whereUsedData } = trpc.plm.part.whereUsed.useQuery(
     { partId },
     { enabled: activeTab === "where-used" }
   );
@@ -368,7 +368,7 @@ export function PartDetail({ projectId, partId }: PartDetailProps) {
         projectId={projectId}
         onSuccess={() => {
           utils.plm.bom.getTree.invalidate({ partId });
-          utils.plm.bom.whereUsed.invalidate({ partId });
+          utils.plm.part.whereUsed.invalidate({ partId });
         }}
       />
     </div>

@@ -1,32 +1,45 @@
+import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { db } from "~/server/db";
+import { projects } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
+import { ProjectDashboardClient } from "./dashboard-client";
 
 type ProjectDashboardPageProps = {
   params: Promise<{ key: string }>;
 };
 
-export default async function ProjectDashboardPage({
-  params,
-}: ProjectDashboardPageProps) {
+export default async function ProjectDashboardPage({ params }: ProjectDashboardPageProps) {
   const { key } = await params;
+
+  // Fetch project data
+  const [project] = await db.select().from(projects).where(eq(projects.key, key)).limit(1);
+
+  if (!project) {
+    notFound();
+  }
 
   return (
     <div className="space-y-6 p-2 sm:p-4">
-      <div className="flex items-center gap-2">
-        <h1 className="text-3xl font-bold">{key.toUpperCase()} Dashboard</h1>
-        <Badge variant="secondary">Scaffold</Badge>
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link href={`/projects/${key}`}>
+          <Button variant="ghost" size="sm" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            프로젝트
+          </Button>
+        </Link>
+        <div className="flex items-center gap-3 flex-1">
+          <h1 className="text-3xl font-bold">{project.name}</h1>
+          <Badge variant="secondary">대시보드</Badge>
+        </div>
       </div>
-      <p className="text-muted-foreground">
-        프로젝트별 대시보드 경로(`projects/[key]/dashboard`) 준비 완료.
-      </p>
-      <Card className="rounded-xl">
-        <CardHeader>
-          <CardTitle>대시보드 위젯(예정)</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          진행률, 활동 피드, 알림, 리포팅 위젯이 이 영역에 배치될 예정입니다.
-        </CardContent>
-      </Card>
+
+      {/* Client-side Dashboard */}
+      <ProjectDashboardClient projectId={project.id} projectKey={project.key} />
     </div>
   );
 }

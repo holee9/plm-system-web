@@ -9,6 +9,8 @@ import { teamRouter } from "./routers/team";
 import { projectRouter } from "./routers/project";
 import { plmRouter } from "~/modules/plm";
 import { notificationRouter } from "~/modules/notification";
+import { dashboardRouter } from "~/modules/dashboard";
+import { documentRouter } from "~/modules/document";
 
 export const appRouter = createTRPCRouter({
   health: healthRouter,
@@ -19,6 +21,8 @@ export const appRouter = createTRPCRouter({
   project: projectRouter,
   plm: plmRouter,
   notification: notificationRouter,
+  dashboard: dashboardRouter,
+  document: documentRouter,
 });
 
 export type AppRouter = typeof appRouter;

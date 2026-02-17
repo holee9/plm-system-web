@@ -4,8 +4,11 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-import { trpc } from "@/lib/trpc";
+import { db } from "~/server/db";
+import { projects } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
+import { trpc as api } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { ProjectSettingsForm } from "@/components/projects/ProjectSettingsForm";
 
@@ -17,7 +20,7 @@ export default function ProjectSettingsPage({ params }: ProjectSettingsPageProps
   const { key } = use(params);
   const router = useRouter();
 
-  const { data: project, isLoading, error } = trpc.project.getByKey.useQuery({ key });
+  const { data: project, isLoading, error } = api.project.getByKey.useQuery({ key });
 
   useEffect(() => {
     if (error?.message?.includes("not found") || error?.message?.includes("Access denied")) {

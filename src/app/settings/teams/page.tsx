@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2, Users, Settings, MoreHorizontal } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { trpc as api } from "@/lib/trpc";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,8 +47,8 @@ export default function TeamsPage() {
   const router = useRouter();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const { data: teamsData, isLoading: isLoadingTeams } = trpc.team.list.useQuery();
-  const { data: currentUser } = trpc.user.me.useQuery();
+  const { data: teamsData, isLoading: isLoadingTeams } = api.team.list.useQuery();
+  const { data: currentUser } = api.user.me.useQuery();
 
   const teams = teamsData?.teams || [];
 

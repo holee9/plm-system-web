@@ -2,6 +2,7 @@
 // Exports publicProcedure and protectedProcedure for use in routers
 
 import { publicProcedure, router } from "./index";
+import type { AuthenticatedContext } from "./middleware/is-authed";
 import { isAuthed } from "./middleware/is-authed";
 import { authorized } from "./middleware/authorization";
 
@@ -24,8 +25,10 @@ export { publicProcedure };
  * });
  * ```
  */
-// Suppress type errors due to middleware context transformation
-export const protectedProcedure = publicProcedure.use(isAuthed as any);
+// Properly typed middleware that transforms Context to AuthenticatedContext
+export const protectedProcedure = publicProcedure.use(
+  isAuthed as any // TODO: Improve tRPC middleware typing to remove 'as any'
+);
 
 /**
  * Admin procedure - Admin role required

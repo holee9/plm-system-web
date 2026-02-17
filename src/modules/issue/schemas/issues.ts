@@ -48,8 +48,8 @@ export const issues = pgTable("issues", {
     .notNull()
     .references(() => users.id, { onDelete: "restrict" }),
   // milestoneId references will be set up in a separate file to avoid circular dependency
-  milestoneId: uuid("milestone_id"),
-  parentId: uuid("parent_id").references(() => issues.id, { onDelete: "set null" }), // Subtasks
+  milestoneId: uuid("milestone_id"), // References will be set up in milestones.ts
+  parentId: uuid("parent_id"), // Self-reference will be added dynamically
   position: integer("position").default(0).notNull(), // Kanban ordering
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

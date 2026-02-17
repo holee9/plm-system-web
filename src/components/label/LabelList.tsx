@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Tag, X, Pencil } from "lucide-react";
-import { api } from "@/lib/trpc";
+import { trpc as api } from "@/lib/trpc";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

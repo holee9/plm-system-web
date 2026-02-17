@@ -27,6 +27,7 @@ export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
   const [priorityFilter, setPriorityFilter] = useState<"urgent" | "high" | "medium" | "low" | "none" | undefined>();
   const [statusFilter, setStatusFilter] = useState<"open" | "in_progress" | "review" | "done" | "closed" | undefined>();
   const [typeFilter, setTypeFilter] = useState<"task" | "bug" | "feature" | "improvement" | undefined>();
+  const [milestoneFilter, setMilestoneFilter] = useState<string | null | undefined>();
 
   // Fetch issues
   const { data: issuesData, isLoading } = trpc.issue.list.useQuery(
@@ -76,6 +77,7 @@ export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
     setPriorityFilter(undefined);
     setStatusFilter(undefined);
     setTypeFilter(undefined);
+    setMilestoneFilter(undefined);
   };
 
   // Convert database issues to component format
@@ -111,6 +113,8 @@ export function IssueBoard({ projectId, currentUserId }: IssueBoardProps) {
         onTypeChange={setTypeFilter}
         projectId={projectId}
         onProjectIdChange={() => {}}
+        milestoneId={milestoneFilter}
+        onMilestoneIdChange={setMilestoneFilter}
         onClearFilters={handleClearFilters}
       />
 

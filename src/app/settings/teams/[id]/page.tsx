@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2, ArrowLeft, Settings, Users, User as UserIcon } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { trpc as api } from "@/lib/trpc";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,13 +57,13 @@ export default function TeamDetailPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: currentUser } = trpc.user.me.useQuery();
-  const { data: teamDetails, isLoading: isLoadingTeam, refetch: refetchTeam } = trpc.team.getById.useQuery(
+  const { data: currentUser } = api.user.me.useQuery();
+  const { data: teamDetails, isLoading: isLoadingTeam, refetch: refetchTeam } = api.team.getById.useQuery(
     { teamId },
     { enabled: !!teamId }
   );
 
-  const updateTeamMutation = trpc.team.update.useMutation({
+  const updateTeamMutation = api.team.update.useMutation({
     onSuccess: (data) => {
       toast({ title: data.message, variant: "default" });
       setIsEditing(false);

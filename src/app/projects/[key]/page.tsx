@@ -4,9 +4,12 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-import { trpc } from "@/lib/trpc";
+import { db } from "~/server/db";
+import { projects } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { trpc as api } from "@/lib/trpc";
 
 type ProjectDetailPageProps = {
   params: Promise<{ key: string }>;
@@ -16,7 +19,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const { key } = use(params);
   const router = useRouter();
 
-  const { data: project, isLoading, error } = trpc.project.getByKey.useQuery({ key });
+  const { data: project, isLoading, error } = api.project.getByKey.useQuery({ key });
 
   useEffect(() => {
     if (error?.message?.includes("not found") || error?.message?.includes("not found")) {

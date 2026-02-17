@@ -13,10 +13,10 @@ import { getIssueById } from "~/modules/issue/service";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get attachment metadata
     const attachment = await attachmentService.getAttachmentById(id);
@@ -71,8 +71,11 @@ export async function GET(
     );
     headers.set("Content-Length", fileBuffer.byteLength.toString());
 
+    // Convert Buffer to Uint8Array for NextResponse (proper BodyInit type)
+    const uint8Array = new Uint8Array(fileBuffer);
+
     // Return file as response
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(uint8Array, {
       status: 200,
       headers,
     });

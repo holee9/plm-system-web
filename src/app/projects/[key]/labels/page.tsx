@@ -1,6 +1,8 @@
 // Labels Page
 import { LabelList } from "@/components/label/LabelList";
-import { trpc } from "@/lib/trpc";
+import { db } from "~/server/db";
+import { projects } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 
 interface PageProps {
   params: Promise<{ key: string }>;
@@ -10,7 +12,7 @@ export default async function LabelsPage({ params }: PageProps) {
   const { key } = await params;
 
   // Get project by key to obtain the project ID
-  const project = await trpc.project.getByKey.query({ key });
+  const [project] = await db.select().from(projects).where(eq(projects.key, key)).limit(1);
 
   if (!project) {
     return (

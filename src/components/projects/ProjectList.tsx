@@ -8,7 +8,6 @@ import { trpc } from "@/lib/trpc";
 export function ProjectList() {
   const { data: projects, isLoading } = trpc.project.list.useQuery({
     limit: 50,
-    cursor: null,
   });
 
   if (isLoading) {
@@ -35,7 +34,7 @@ export function ProjectList() {
         </Button>
       </div>
 
-      {!projects || projects.items.length === 0 ? (
+      {!projects || projects.projects.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground mb-4">
             You don't have any projects yet
@@ -48,7 +47,7 @@ export function ProjectList() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.items.map((project) => (
+          {projects.projects.map((project) => (
             <Link
               key={project.id}
               href={`/projects/${project.key}`}

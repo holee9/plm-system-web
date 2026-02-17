@@ -3,7 +3,7 @@
  * Exposes parts, revisions, and BOM procedures
  */
 import { z } from "zod";
-import { router as createTRPCRouter, publicProcedure } from "~/server/trpc";
+import { router as createTRPCRouter, protectedProcedure } from "~/server/trpc";
 import * as plmService from "./service";
 import {
   PlmValidationError,
@@ -11,15 +11,6 @@ import {
   BomCycleError,
 } from "./types";
 import * as manufacturerService from "./manufacturer-service";
-
-// TODO: Replace with actual auth context once implemented
-const TEST_USER_ID = "00000000-0000-0000-0000-000000000001";
-
-function getUserId(ctx: any): string {
-  // For now, use a test user ID
-  // TODO: Get from ctx.user once auth is implemented
-  return TEST_USER_ID;
-}
 
 // ============================================================================
 // Zod Schemas
@@ -90,7 +81,7 @@ export const plmRouter = createTRPCRouter({
 
   part: createTRPCRouter({
     // Create a new part
-    create: publicProcedure
+    create: protectedProcedure
       .input(createPartInput)
       .mutation(async ({ ctx, input }) => {
         try {
@@ -109,7 +100,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get part by ID
-    getById: publicProcedure
+    getById: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         const part = await plmService.getPartById(input.partId, ctx.user.id);
@@ -122,14 +113,14 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // List parts with filters
-    list: publicProcedure
+    list: protectedProcedure
       .input(partSearchParams)
       .query(async ({ ctx, input }) => {
         return plmService.listParts(input);
       }),
 
     // Update part (creates new revision)
-    update: publicProcedure
+    update: protectedProcedure
       .input(updatePartInput)
       .mutation(async ({ ctx, input }) => {
         try {
@@ -151,7 +142,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Search parts
-    search: publicProcedure
+    search: protectedProcedure
       .input(
         z.object({
           query: z.string().min(1),
@@ -163,7 +154,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get where-used
-    whereUsed: publicProcedure
+    whereUsed: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         try {
@@ -183,7 +174,7 @@ export const plmRouter = createTRPCRouter({
 
   revision: createTRPCRouter({
     // Get revision history for a part
-    list: publicProcedure
+    list: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         try {
@@ -197,7 +188,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get specific revision by ID
-    getById: publicProcedure
+    getById: protectedProcedure
       .input(z.object({ revisionId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         // TODO: Implement getRevisionById
@@ -211,7 +202,7 @@ export const plmRouter = createTRPCRouter({
 
   bom: createTRPCRouter({
     // Add item to BOM
-    addItem: publicProcedure
+    addItem: protectedProcedure
       .input(addBomItemInput)
       .mutation(async ({ ctx, input }) => {
         try {
@@ -234,7 +225,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Update BOM item
-    updateItem: publicProcedure
+    updateItem: protectedProcedure
       .input(updateBomItemInput)
       .mutation(async ({ ctx, input }) => {
         try {
@@ -253,7 +244,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Remove BOM item
-    removeItem: publicProcedure
+    removeItem: protectedProcedure
       .input(removeBomItemInput)
       .mutation(async ({ ctx, input }) => {
         try {
@@ -271,7 +262,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get BOM tree
-    getTree: publicProcedure
+    getTree: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         try {
@@ -285,7 +276,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get flat BOM list
-    getFlatList: publicProcedure
+    getFlatList: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         try {
@@ -300,7 +291,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Export BOM as CSV
-    export: publicProcedure
+    export: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         try {
@@ -341,7 +332,7 @@ export const plmRouter = createTRPCRouter({
 
   manufacturer: createTRPCRouter({
     // Create a new manufacturer
-    create: publicProcedure
+    create: protectedProcedure
       .input(
         z.object({
           code: z.string().min(1).max(20),
@@ -367,7 +358,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get manufacturer by ID
-    getById: publicProcedure
+    getById: protectedProcedure
       .input(z.object({ manufacturerId: z.string().uuid() }))
       .query(async ({ input }) => {
         const manufacturer = await manufacturerService.getManufacturerById(input.manufacturerId);
@@ -380,7 +371,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // List manufacturers with filters
-    list: publicProcedure
+    list: protectedProcedure
       .input(
         z.object({
           query: z.string().optional(),
@@ -393,7 +384,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Update manufacturer
-    update: publicProcedure
+    update: protectedProcedure
       .input(
         z.object({
           manufacturerId: z.string().uuid(),
@@ -423,7 +414,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Delete manufacturer
-    delete: publicProcedure
+    delete: protectedProcedure
       .input(z.object({ manufacturerId: z.string().uuid() }))
       .mutation(async ({ input }) => {
         try {
@@ -444,7 +435,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get parts for manufacturer
-    parts: publicProcedure
+    parts: protectedProcedure
       .input(z.object({ manufacturerId: z.string().uuid() }))
       .query(async ({ input }) => {
         try {
@@ -464,7 +455,7 @@ export const plmRouter = createTRPCRouter({
 
   supplier: createTRPCRouter({
     // Create a new supplier
-    create: publicProcedure
+    create: protectedProcedure
       .input(
         z.object({
           code: z.string().min(1).max(20),
@@ -493,7 +484,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get supplier by ID
-    getById: publicProcedure
+    getById: protectedProcedure
       .input(z.object({ supplierId: z.string().uuid() }))
       .query(async ({ input }) => {
         const supplier = await manufacturerService.getSupplierById(input.supplierId);
@@ -506,7 +497,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // List suppliers with filters
-    list: publicProcedure
+    list: protectedProcedure
       .input(
         z.object({
           query: z.string().optional(),
@@ -519,7 +510,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Update supplier
-    update: publicProcedure
+    update: protectedProcedure
       .input(
         z.object({
           supplierId: z.string().uuid(),
@@ -552,7 +543,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Delete supplier
-    delete: publicProcedure
+    delete: protectedProcedure
       .input(z.object({ supplierId: z.string().uuid() }))
       .mutation(async ({ input }) => {
         try {
@@ -573,7 +564,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get parts for supplier
-    parts: publicProcedure
+    parts: protectedProcedure
       .input(z.object({ supplierId: z.string().uuid() }))
       .query(async ({ input }) => {
         try {
@@ -593,7 +584,7 @@ export const plmRouter = createTRPCRouter({
 
   part: createTRPCRouter({
     // Link manufacturer to part
-    linkManufacturer: publicProcedure
+    linkManufacturer: protectedProcedure
       .input(
         z.object({
           partId: z.string().uuid(),
@@ -622,7 +613,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Unlink manufacturer from part
-    unlinkManufacturer: publicProcedure
+    unlinkManufacturer: protectedProcedure
       .input(
         z.object({
           partId: z.string().uuid(),
@@ -648,7 +639,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get manufacturers for part
-    manufacturers: publicProcedure
+    manufacturers: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ input }) => {
         try {
@@ -662,7 +653,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Link supplier to part
-    linkSupplier: publicProcedure
+    linkSupplier: protectedProcedure
       .input(
         z.object({
           partId: z.string().uuid(),
@@ -691,7 +682,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Unlink supplier from part
-    unlinkSupplier: publicProcedure
+    unlinkSupplier: protectedProcedure
       .input(
         z.object({
           partId: z.string().uuid(),
@@ -717,7 +708,7 @@ export const plmRouter = createTRPCRouter({
       }),
 
     // Get suppliers for part
-    suppliers: publicProcedure
+    suppliers: protectedProcedure
       .input(z.object({ partId: z.string().uuid() }))
       .query(async ({ input }) => {
         try {
@@ -728,6 +719,230 @@ export const plmRouter = createTRPCRouter({
           }
           throw new Error("Failed to get part suppliers");
         }
+      }),
+  }),
+
+  // ========================================================================
+  // Change Order Procedures (ECR/ECN)
+  // ========================================================================
+
+  changeOrder: createTRPCRouter({
+    // Create a new change order
+    create: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.string().uuid(),
+          type: z.enum(["ECR", "ECN"]),
+          title: z.string().min(5).max(500),
+          description: z.string().min(10),
+          reason: z.string().min(1),
+          approverIds: z.array(z.string().uuid()).min(1),
+          affectedPartIds: z.array(z.string().uuid()).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.createChangeOrder(input, ctx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to create change order");
+        }
+      }),
+
+    // Get change order by ID
+    getById: protectedProcedure
+      .input(z.object({ changeOrderId: z.string().uuid() }))
+      .query(async ({ ctx, input }) => {
+        const changeOrder = await import("./change-order-service").then(
+          (m) => m.getChangeOrderById(input.changeOrderId, ctx.user.id)
+        );
+
+        if (!changeOrder) {
+          throw new Error("Change order not found");
+        }
+
+        return changeOrder;
+      }),
+
+    // Update change order
+    update: protectedProcedure
+      .input(
+        z.object({
+          changeOrderId: z.string().uuid(),
+          title: z.string().min(5).max(500).optional(),
+          description: z.string().min(10).optional(),
+          reason: z.string().min(1).optional(),
+          approverIds: z.array(z.string().uuid()).optional(),
+          affectedPartIds: z.array(z.string().uuid()).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const { changeOrderId, ...updateData } = input;
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.updateChangeOrder({ changeOrderId, ...updateData }, ctx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to update change order");
+        }
+      }),
+
+    // Submit change order for review
+    submit: protectedProcedure
+      .input(z.object({ changeOrderId: z.string().uuid() }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.submitChangeOrder(input, ctx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to submit change order");
+        }
+      }),
+
+    // Accept for review
+    acceptForReview: protectedProcedure
+      .input(z.object({ changeOrderId: z.string().uuid() }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.acceptForReview(input.changeOrderId, ctx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to accept change order for review");
+        }
+      }),
+
+    // Review change order (approve/reject)
+    review: protectedProcedure
+      .input(
+        z.object({
+          changeOrderId: z.string().uuid(),
+          status: z.enum(["approved", "rejected"]),
+          comment: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.reviewChangeOrder(input, ctx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to review change order");
+        }
+      }),
+
+    // Implement change order
+    implement: protectedProcedure
+      .input(
+        z.object({
+          changeOrderId: z.string().uuid(),
+          revisionId: z.string().uuid().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.implementChangeOrder(input, ctx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to implement change order");
+        }
+      }),
+
+    // List change orders
+    list: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.string().uuid(),
+          status: z.enum(["draft", "submitted", "in_review", "approved", "rejected", "implemented"]).optional(),
+          type: z.enum(["ECR", "ECN"]).optional(),
+          requesterId: z.string().uuid().optional(),
+          limit: z.number().min(1).max(100).default(20),
+          offset: z.number().min(0).default(0),
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const { projectId, limit, offset, ...filters } = input;
+        return import("./change-order-service").then((m) =>
+          m.listChangeOrders(projectId, { ...filters, limit, offset })
+        );
+      }),
+
+    // Get audit trail
+    auditTrail: protectedProcedure
+      .input(z.object({ changeOrderId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        return import("./change-order-service").then((m) =>
+          m.getAuditTrail(input.changeOrderId)
+        );
+      }),
+
+    // Get impact analysis
+    impactAnalysis: protectedProcedure
+      .input(z.object({ changeOrderId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        return import("./change-order-service").then((m) =>
+          m.performImpactAnalysis(input.changeOrderId)
+        );
+      }),
+
+    // Get project statistics
+    statistics: protectedProcedure
+      .input(z.object({ projectId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        return import("./change-order-service").then((m) =>
+          m.getProjectStatistics(input.projectId)
+        );
       }),
   }),
 });

@@ -1,19 +1,10 @@
 // Issue tRPC Router
 import { z } from "zod";
-import { router, publicProcedure } from "~/server/trpc";
+import { router, protectedProcedure } from "~/server/trpc";
 import * as service from "./service";
 import * as labelService from "./label-service";
 import * as attachmentService from "./attachment-service";
 import type { IssueStatus } from "./types";
-
-// TODO: Replace with actual auth context once implemented
-const TEST_USER_ID = "00000000-0000-0000-0000-000000000001";
-
-function getUserId(ctx: any): string {
-  // For now, use a test user ID
-  // TODO: Get from getUserId(ctx) once auth is implemented
-  return TEST_USER_ID;
-}
 
 // Input schemas
 const createIssueSchema = z.object({
@@ -112,13 +103,13 @@ const listAttachmentsSchema = z.object({
 // Export router
 export const issueRouter = router({
   // Issue CRUD
-  create: publicProcedure
+  create: protectedProcedure
     .input(createIssueSchema)
     .mutation(async ({ ctx, input }) => {
-      return service.createIssue(input, getUserId(ctx));
+      return service.createIssue(input, ctx.user.id);
     }),
 
-  list: publicProcedure
+  list: protectedProcedure
     .input(z.object({
       projectId: z.string().uuid(),
       filters: listIssuesSchema.optional(),
@@ -127,13 +118,13 @@ export const issueRouter = router({
       return service.listIssues(input.projectId, input.filters || {});
     }),
 
-  getById: publicProcedure
+  getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       return service.getIssueById(input.id);
     }),
 
-  getByNumber: publicProcedure
+  getByNumber: protectedProcedure
     .input(z.object({
       projectKey: z.string(),
       number: z.number().int().positive(),
@@ -142,30 +133,30 @@ export const issueRouter = router({
       return service.getIssueByProjectKeyNumber(input.projectKey, input.number);
     }),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(z.object({ id: z.string().uuid(), data: updateIssueSchema }))
     .mutation(async ({ ctx, input }) => {
-      return service.updateIssue(input.id, input.data, getUserId(ctx));
+      return service.updateIssue(input.id, input.data, ctx.user.id);
     }),
 
-  updateStatus: publicProcedure
+  updateStatus: protectedProcedure
     .input(z.object({ id: z.string().uuid(), data: updateStatusSchema }))
     .mutation(async ({ ctx, input }) => {
-      return service.updateIssueStatus(input.id, input.data.status, getUserId(ctx));
+      return service.updateIssueStatus(input.id, input.data.status, ctx.user.id);
     }),
 
-  updatePosition: publicProcedure
+  updatePosition: protectedProcedure
     .input(z.object({ id: z.string().uuid(), data: updatePositionSchema }))
     .mutation(async ({ ctx, input }) => {
       return service.updateIssuePosition(
         input.id,
         input.data.status,
         input.data.position,
-        getUserId(ctx)
+        ctx.user.id
       );
     }),
 
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       // TODO: Implement delete with admin check
@@ -174,22 +165,22 @@ export const issueRouter = router({
 
   // Comments
   comment: router({
-    create: publicProcedure
+    create: protectedProcedure
       .input(z.object({
         issueId: z.string().uuid(),
         data: createCommentSchema,
       }))
       .mutation(async ({ ctx, input }) => {
-        return service.createIssueComment(input.issueId, input.data.content, getUserId(ctx));
+        return service.createIssueComment(input.issueId, input.data.content, ctx.user.id);
       }),
 
-    list: publicProcedure
+    list: protectedProcedure
       .input(z.object({ issueId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         return service.listIssueComments(input.issueId);
       }),
 
-    update: publicProcedure
+    update: protectedProcedure
       .input(z.object({
         id: z.string().uuid(),
         content: z.string().min(1),
@@ -199,7 +190,7 @@ export const issueRouter = router({
         throw new Error("Not implemented");
       }),
 
-    delete: publicProcedure
+    delete: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
         // TODO: Implement delete
@@ -209,7 +200,7 @@ export const issueRouter = router({
 
   // Labels
   label: router({
-    create: publicProcedure
+    create: protectedProcedure
       .input(z.object({
         projectId: z.string().uuid(),
         data: createLabelSchema,
@@ -220,17 +211,17 @@ export const issueRouter = router({
           input.data.name,
           input.data.color,
           input.data.description,
-          getUserId(ctx)
+          ctx.user.id
         );
       }),
 
-    list: publicProcedure
+    list: protectedProcedure
       .input(z.object({ projectId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         return service.listLabels(input.projectId);
       }),
 
-    update: publicProcedure
+    update: protectedProcedure
       .input(z.object({
         id: z.string().uuid(),
         data: updateLabelSchema,
@@ -239,39 +230,39 @@ export const issueRouter = router({
         return labelService.updateLabel(
           input.id,
           input.data,
-          getUserId(ctx)
+          ctx.user.id
         );
       }),
 
-    delete: publicProcedure
+    delete: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
-        await labelService.deleteLabel(input.id, getUserId(ctx));
+        await labelService.deleteLabel(input.id, ctx.user.id);
         return { success: true };
       }),
 
-    assign: publicProcedure
+    assign: protectedProcedure
       .input(z.object({
         issueId: z.string().uuid(),
         data: assignLabelSchema,
       }))
       .mutation(async ({ ctx, input }) => {
-        return service.assignLabelToIssue(input.issueId, input.data.labelId, getUserId(ctx));
+        return service.assignLabelToIssue(input.issueId, input.data.labelId, ctx.user.id);
       }),
 
-    unassign: publicProcedure
+    unassign: protectedProcedure
       .input(z.object({
         issueId: z.string().uuid(),
         data: assignLabelSchema,
       }))
       .mutation(async ({ ctx, input }) => {
-        return service.unassignLabelFromIssue(input.issueId, input.data.labelId, getUserId(ctx));
+        return service.unassignLabelFromIssue(input.issueId, input.data.labelId, ctx.user.id);
       }),
   }),
 
   // Milestones
   milestone: router({
-    create: publicProcedure
+    create: protectedProcedure
       .input(z.object({
         projectId: z.string().uuid(),
         data: createMilestoneSchema,
@@ -280,19 +271,19 @@ export const issueRouter = router({
         return service.createMilestone(
           input.projectId,
           input.data.title,
-          getUserId(ctx),
+          ctx.user.id,
           input.data.description,
           input.data.dueDate
         );
       }),
 
-    list: publicProcedure
+    list: protectedProcedure
       .input(z.object({ projectId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         return service.listMilestones(input.projectId);
       }),
 
-    update: publicProcedure
+    update: protectedProcedure
       .input(z.object({
         id: z.string().uuid(),
         data: updateMilestoneSchema,
@@ -302,7 +293,7 @@ export const issueRouter = router({
         throw new Error("Not implemented");
       }),
 
-    close: publicProcedure
+    close: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
         // TODO: Implement close
@@ -311,13 +302,13 @@ export const issueRouter = router({
   }),
 
   // Milestone progress
-  getMilestoneProgress: publicProcedure
+  getMilestoneProgress: protectedProcedure
     .input(z.object({ milestoneId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       return service.calculateMilestoneProgress(input.milestoneId);
     }),
 
-  getProjectMilestonesProgress: publicProcedure
+  getProjectMilestonesProgress: protectedProcedure
     .input(z.object({ projectId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       return service.getMilestonesProgress(input.projectId);
@@ -325,7 +316,7 @@ export const issueRouter = router({
 
   // Attachments
   attachment: router({
-    upload: publicProcedure
+    upload: protectedProcedure
       .input(uploadAttachmentSchema)
       .mutation(async ({ ctx, input }) => {
         return attachmentService.uploadAttachment(
@@ -333,26 +324,26 @@ export const issueRouter = router({
           input.originalFileName,
           input.fileSize,
           input.mimeType,
-          getUserId(ctx)
+          ctx.user.id
         );
       }),
 
-    list: publicProcedure
+    list: protectedProcedure
       .input(listAttachmentsSchema)
       .query(async ({ ctx, input }) => {
         return attachmentService.listAttachments(input.issueId);
       }),
 
-    getById: publicProcedure
+    getById: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         return attachmentService.getAttachmentById(input.id);
       }),
 
-    delete: publicProcedure
+    delete: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
-        await attachmentService.deleteAttachment(input.id, getUserId(ctx));
+        await attachmentService.deleteAttachment(input.id, ctx.user.id);
         return { success: true };
       }),
   }),

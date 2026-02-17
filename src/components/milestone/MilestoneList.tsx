@@ -86,7 +86,7 @@ export function MilestoneList({ projectId }: MilestoneListProps) {
       projectId,
     },
     {
-      enabled: !!projectId && milestonesData?.milestones.length > 0,
+      enabled: !!projectId && (milestonesData?.milestones?.length ?? 0) > 0,
     }
   );
 

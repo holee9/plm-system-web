@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { IssueBoard } from "@/components/issue/issue-board";
-import { trpc } from "@/lib/trpc";
+import { db } from "~/server/db";
+import { projects } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 
 type BoardPageProps = {
   params: Promise<{ key: string }>;
@@ -14,7 +16,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
   const { key } = await params;
 
   // Fetch project data
-  const project = await trpc.project.getByKey.query({ key });
+  const [project] = await db.select().from(projects).where(eq(projects.key, key)).limit(1);
 
   if (!project) {
     notFound();

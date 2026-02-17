@@ -20,7 +20,12 @@ export * from "./projects";
 export * from "./project_members";
 
 // Issue module tables (includes milestones)
-export * from "../../modules/issue/schemas";
+export * from "../../modules/issue/schemas/issues";
+export * from "../../modules/issue/schemas/issue-comments";
+export * from "../../modules/issue/schemas/labels";
+export * from "../../modules/issue/schemas/issue-labels";
+export * from "../../modules/issue/schemas/milestones";
+export * from "../../modules/issue/schemas/issue-attachments";
 
 // Notification module tables
 export * from "../../modules/notification/schemas";
@@ -30,3 +35,9 @@ export * from "./parts";
 export * from "./revisions";
 export * from "./bom_items";
 export * from "./manufacturers";
+
+// Change Order tables
+export * from "./change-orders";
+
+// Documents/Files tables
+export * from "./documents";

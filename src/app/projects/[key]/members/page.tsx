@@ -4,10 +4,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-import { trpc } from "@/lib/trpc";
+import { db } from "~/server/db";
+import { projects } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProjectMemberList } from "@/components/projects/ProjectMemberList";
+import { trpc as api } from "@/lib/trpc";
 
 type ProjectMembersPageProps = {
   params: Promise<{ key: string }>;
@@ -17,8 +20,8 @@ export default function ProjectMembersPage({ params }: ProjectMembersPageProps) 
   const { key } = use(params);
   const router = useRouter();
 
-  const { data: project, isLoading: projectLoading } = trpc.project.getByKey.useQuery({ key });
-  const { data: members = [], isLoading: membersLoading } = trpc.project.listMembers.useQuery(
+  const { data: project, isLoading: projectLoading } = api.project.getByKey.useQuery({ key });
+  const { data: members = [], isLoading: membersLoading } = api.project.listMembers.useQuery(
     { projectId: project?.id || "" },
     { enabled: !!project?.id }
   );
@@ -81,7 +84,7 @@ export default function ProjectMembersPage({ params }: ProjectMembersPageProps) 
       <ProjectMemberList
         projectId={project.id}
         projectKey={project.key}
-        initialMembers={members}
+        initialMembers={members as any}
       />
     </div>
   );

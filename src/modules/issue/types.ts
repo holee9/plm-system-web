@@ -22,6 +22,15 @@ export type IssuePriority = "urgent" | "high" | "medium" | "low" | "none";
 export type IssueType = "task" | "bug" | "feature" | "improvement";
 
 /**
+ * User entity (minimal reference)
+ */
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+/**
  * Issue entity
  */
 export interface Issue {
@@ -41,6 +50,31 @@ export interface Issue {
   position: number; // For Kanban ordering
   createdAt: Date;
   updatedAt: Date;
+}
+
+/**
+ * Issue with full details (including relations)
+ */
+export interface IssueWithDetails extends Issue {
+  assignee?: User | null;
+  reporter: User;
+  milestone?: Milestone | null;
+  parent?: Issue | null;
+  comments: IssueCommentWithAuthor[];
+  labels: Label[];
+  attachments: IssueAttachment[];
+  _count?: {
+    comments: number;
+    labels: number;
+    attachments: number;
+  };
+}
+
+/**
+ * Issue comment with author details
+ */
+export interface IssueCommentWithAuthor extends IssueComment {
+  author: User;
 }
 
 /**
@@ -108,6 +142,9 @@ export interface Label {
   name: string;
   color: string; // Hex color (e.g., "#ff0000")
   description: string | null;
+  _count?: {
+    issueLabels: number; // Matches database schema
+  };
 }
 
 /**

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
-import { Progress } from "~/components/ui/progress";
-import { Card } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Upload,
   File,
@@ -14,13 +14,13 @@ import {
   Download,
   Trash2,
 } from "lucide-react";
-import { api } from "~/trpc/react";
+import { trpc as api } from "@/lib/trpc";
 import {
   formatFileSize,
   getFileIcon,
   downloadFile,
   validateFileForUpload,
-} from "~/lib/attachment-utils";
+} from "@/lib/attachment-utils";
 
 interface Attachment {
   id: string;
@@ -47,7 +47,7 @@ export function AttachmentUpload({
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
-  const uploadMutation = api.attachment.upload.useMutation();
+  const uploadMutation = api.issue.attachment.upload.useMutation();
 
   const handleFileSelect = (file: File) => {
     setError(null);

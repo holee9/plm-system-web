@@ -185,7 +185,7 @@ export function IssueDetailDialog({
       type: issue?.type || "task",
       priority: issue?.priority || "none",
       status: issue?.status || "open",
-      assigneeId: issue?.assignee?.name || "",
+      assigneeId: issue?.assigneeId || "",
     },
   });
 
@@ -197,7 +197,7 @@ export function IssueDetailDialog({
         type: issue.type,
         priority: issue.priority,
         status: issue.status,
-        assigneeId: issue.assignee?.name || "",
+        assigneeId: issue.assigneeId || "",
       });
     }
   }, [issue, form]);
@@ -293,11 +293,11 @@ export function IssueDetailDialog({
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="comments">
               Comments{" "}
-              {issueDetail?.comments ? `(${issueDetail.comments.length})` : ""}
+              {/* Comments count will be loaded separately */}
             </TabsTrigger>
             <TabsTrigger value="activity">
               Activity{" "}
-              {issueDetail?.activities ? `(${issueDetail.activities.length})` : ""}
+              {/* Activities count will be loaded separately */}
             </TabsTrigger>
           </TabsList>
 
@@ -414,7 +414,7 @@ export function IssueDetailDialog({
                 <div className="flex items-center gap-6 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4" />
-                    <span>Assignee: {issue.assignee?.name || "Unassigned"}</span>
+                    <span>Assignee: {issue.assigneeId || "Unassigned"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />

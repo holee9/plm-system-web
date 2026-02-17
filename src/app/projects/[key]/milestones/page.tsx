@@ -1,7 +1,9 @@
 // Milestones Page
 import { Suspense } from "react";
 import { MilestoneList } from "@/components/milestone/MilestoneList";
-import { trpc } from "@/lib/trpc";
+import { db } from "~/server/db";
+import { projects } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 import { Card } from "@/components/ui/card";
 
 interface PageProps {
@@ -10,7 +12,7 @@ interface PageProps {
 
 async function MilestonesContent({ key }: { key: string }) {
   // Get project by key to retrieve projectId
-  const project = await trpc.project.getByKey({ key });
+  const [project] = await db.select().from(projects).where(eq(projects.key, key)).limit(1);
 
   if (!project) {
     return (

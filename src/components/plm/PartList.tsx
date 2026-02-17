@@ -68,7 +68,7 @@ export function PartList({ projectId }: PartListProps) {
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+      ...rows.map((row: string[]) => row.map((cell: string) => `"${cell}"`).join(",")),
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
@@ -120,8 +120,8 @@ export function PartList({ projectId }: PartListProps) {
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map((cat) => (
-              <SelectItem key={cat} value={cat!}>
-                {cat}
+              <SelectItem key={cat || "empty"} value={cat || "empty"}>
+                {cat || "Uncategorized"}
               </SelectItem>
             ))}
           </SelectContent>
