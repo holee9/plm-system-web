@@ -1,9 +1,18 @@
 /**
  * PLM (Product Lifecycle Management) type definitions
- * Shared types for parts, revisions, and BOM management
+ * Shared types for parts, revisions, BOM, manufacturers, and suppliers management
  */
 
-import type { Part, NewPart, Revision, NewRevision, BomItem, NewBomItem } from "~/server/db";
+import type {
+  Part,
+  NewPart,
+  Revision,
+  NewRevision,
+  BomItem,
+  NewBomItem,
+  Manufacturer,
+  Supplier,
+} from "~/server/db";
 
 // ============================================================================
 // Part Types
@@ -49,12 +58,16 @@ export interface PartSearchParams {
 // Revision Types
 // ============================================================================
 
+export type RevisionStatus = "draft" | "released" | "superceded";
+
 export interface RevisionWithChanges extends Revision {
   changes?: {
     field: string;
     oldValue: any;
     newValue: any;
   }[];
+  status?: RevisionStatus;
+  isCurrent?: boolean;
 }
 
 export interface CreateRevisionInput {
@@ -63,6 +76,7 @@ export interface CreateRevisionInput {
   description?: string;
   changes?: Record<string, { oldValue: any; newValue: any }>;
   createdBy: string;
+  status?: RevisionStatus;
 }
 
 // ============================================================================
@@ -202,4 +216,96 @@ export interface RevisionHistoryResponse {
   name: string;
   revisions: RevisionWithChanges[];
   total: number;
+}
+
+// ============================================================================
+// Manufacturer Types
+// ============================================================================
+
+export interface ManufacturerWithDetails extends Manufacturer {
+  partsCount?: number;
+}
+
+export interface CreateManufacturerInput {
+  code: string;
+  name: string;
+  website?: string;
+  description?: string;
+}
+
+export interface UpdateManufacturerInput {
+  manufacturerId: string;
+  code?: string;
+  name?: string;
+  website?: string;
+  description?: string;
+}
+
+export interface ManufacturerSearchParams {
+  query?: string; // Search in code, name, description
+  limit?: number;
+  offset?: number;
+}
+
+export interface ManufacturerListResponse {
+  manufacturers: ManufacturerWithDetails[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+// ============================================================================
+// Supplier Types
+// ============================================================================
+
+export interface SupplierWithDetails extends Supplier {
+  partsCount?: number;
+}
+
+export interface CreateSupplierInput {
+  code: string;
+  name: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  website?: string;
+  description?: string;
+}
+
+export interface UpdateSupplierInput {
+  supplierId: string;
+  code?: string;
+  name?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  website?: string;
+  description?: string;
+}
+
+export interface SupplierSearchParams {
+  query?: string; // Search in code, name, description
+  limit?: number;
+  offset?: number;
+}
+
+export interface SupplierListResponse {
+  suppliers: SupplierWithDetails[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+// ============================================================================
+// Part-Entity Linking Types
+// ============================================================================
+
+export interface LinkManufacturerInput {
+  partId: string;
+  manufacturerId: string;
+}
+
+export interface LinkSupplierInput {
+  partId: string;
+  supplierId: string;
 }

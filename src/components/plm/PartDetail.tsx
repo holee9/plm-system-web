@@ -322,7 +322,10 @@ export function PartDetail({ projectId, partId }: PartDetailProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <RevisionTimeline revisions={revisionData.revisions} />
+                <RevisionTimeline
+                  revisions={revisionData.revisions}
+                  currentRevisionId={part.currentRevisionId || ""}
+                />
               </CardContent>
             </Card>
           ) : (

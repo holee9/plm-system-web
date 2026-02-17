@@ -22,7 +22,11 @@ export * from "./project_members";
 // Issue module tables (includes milestones)
 export * from "../../modules/issue/schemas";
 
+// Notification module tables
+export * from "../../modules/notification/schemas";
+
 // PLM tables
 export * from "./parts";
 export * from "./revisions";
 export * from "./bom_items";
+export * from "./manufacturers";

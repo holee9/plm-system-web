@@ -10,6 +10,7 @@ import {
   PlmNotFoundError,
   BomCycleError,
 } from "./types";
+import * as manufacturerService from "./manufacturer-service";
 
 // TODO: Replace with actual auth context once implemented
 const TEST_USER_ID = "00000000-0000-0000-0000-000000000001";
@@ -330,6 +331,402 @@ export const plmRouter = createTRPCRouter({
             throw new Error(error.message);
           }
           throw new Error("Failed to export BOM");
+        }
+      }),
+  }),
+
+  // ========================================================================
+  // Manufacturer Procedures
+  // ========================================================================
+
+  manufacturer: createTRPCRouter({
+    // Create a new manufacturer
+    create: publicProcedure
+      .input(
+        z.object({
+          code: z.string().min(1).max(20),
+          name: z.string().min(2).max(255),
+          website: z.string().url().optional(),
+          description: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const manufacturer = await manufacturerService.createManufacturer(input, ctx.user.id);
+
+          return {
+            success: true,
+            data: manufacturer,
+          };
+        } catch (error) {
+          if (error instanceof PlmValidationError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to create manufacturer");
+        }
+      }),
+
+    // Get manufacturer by ID
+    getById: publicProcedure
+      .input(z.object({ manufacturerId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        const manufacturer = await manufacturerService.getManufacturerById(input.manufacturerId);
+
+        if (!manufacturer) {
+          throw new Error("Manufacturer not found");
+        }
+
+        return manufacturer;
+      }),
+
+    // List manufacturers with filters
+    list: publicProcedure
+      .input(
+        z.object({
+          query: z.string().optional(),
+          limit: z.number().min(1).max(100).default(20),
+          offset: z.number().min(0).default(0),
+        })
+      )
+      .query(async ({ input }) => {
+        return manufacturerService.listManufacturers(input);
+      }),
+
+    // Update manufacturer
+    update: publicProcedure
+      .input(
+        z.object({
+          manufacturerId: z.string().uuid(),
+          code: z.string().min(1).max(20).optional(),
+          name: z.string().min(2).max(255).optional(),
+          website: z.string().url().optional(),
+          description: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const manufacturer = await manufacturerService.updateManufacturer(input);
+
+          return {
+            success: true,
+            data: manufacturer,
+          };
+        } catch (error) {
+          if (
+            error instanceof PlmValidationError ||
+            error instanceof PlmNotFoundError
+          ) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to update manufacturer");
+        }
+      }),
+
+    // Delete manufacturer
+    delete: publicProcedure
+      .input(z.object({ manufacturerId: z.string().uuid() }))
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.deleteManufacturer(input.manufacturerId);
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (
+            error instanceof PlmValidationError ||
+            error instanceof PlmNotFoundError
+          ) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to delete manufacturer");
+        }
+      }),
+
+    // Get parts for manufacturer
+    parts: publicProcedure
+      .input(z.object({ manufacturerId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        try {
+          return await manufacturerService.getPartsForManufacturer(input.manufacturerId);
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to get manufacturer parts");
+        }
+      }),
+  }),
+
+  // ========================================================================
+  // Supplier Procedures
+  // ========================================================================
+
+  supplier: createTRPCRouter({
+    // Create a new supplier
+    create: publicProcedure
+      .input(
+        z.object({
+          code: z.string().min(1).max(20),
+          name: z.string().min(2).max(255),
+          contactEmail: z.string().email().optional(),
+          contactPhone: z.string().optional(),
+          address: z.string().optional(),
+          website: z.string().url().optional(),
+          description: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const supplier = await manufacturerService.createSupplier(input, ctx.user.id);
+
+          return {
+            success: true,
+            data: supplier,
+          };
+        } catch (error) {
+          if (error instanceof PlmValidationError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to create supplier");
+        }
+      }),
+
+    // Get supplier by ID
+    getById: publicProcedure
+      .input(z.object({ supplierId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        const supplier = await manufacturerService.getSupplierById(input.supplierId);
+
+        if (!supplier) {
+          throw new Error("Supplier not found");
+        }
+
+        return supplier;
+      }),
+
+    // List suppliers with filters
+    list: publicProcedure
+      .input(
+        z.object({
+          query: z.string().optional(),
+          limit: z.number().min(1).max(100).default(20),
+          offset: z.number().min(0).default(0),
+        })
+      )
+      .query(async ({ input }) => {
+        return manufacturerService.listSuppliers(input);
+      }),
+
+    // Update supplier
+    update: publicProcedure
+      .input(
+        z.object({
+          supplierId: z.string().uuid(),
+          code: z.string().min(1).max(20).optional(),
+          name: z.string().min(2).max(255).optional(),
+          contactEmail: z.string().email().optional(),
+          contactPhone: z.string().optional(),
+          address: z.string().optional(),
+          website: z.string().url().optional(),
+          description: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const supplier = await manufacturerService.updateSupplier(input);
+
+          return {
+            success: true,
+            data: supplier,
+          };
+        } catch (error) {
+          if (
+            error instanceof PlmValidationError ||
+            error instanceof PlmNotFoundError
+          ) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to update supplier");
+        }
+      }),
+
+    // Delete supplier
+    delete: publicProcedure
+      .input(z.object({ supplierId: z.string().uuid() }))
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.deleteSupplier(input.supplierId);
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (
+            error instanceof PlmValidationError ||
+            error instanceof PlmNotFoundError
+          ) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to delete supplier");
+        }
+      }),
+
+    // Get parts for supplier
+    parts: publicProcedure
+      .input(z.object({ supplierId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        try {
+          return await manufacturerService.getPartsForSupplier(input.supplierId);
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to get supplier parts");
+        }
+      }),
+  }),
+
+  // ========================================================================
+  // Part-Entity Linking Procedures
+  // ========================================================================
+
+  part: createTRPCRouter({
+    // Link manufacturer to part
+    linkManufacturer: publicProcedure
+      .input(
+        z.object({
+          partId: z.string().uuid(),
+          manufacturerId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.linkManufacturerToPart(
+            input.partId,
+            input.manufacturerId
+          );
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (
+            error instanceof PlmValidationError ||
+            error instanceof PlmNotFoundError
+          ) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to link manufacturer to part");
+        }
+      }),
+
+    // Unlink manufacturer from part
+    unlinkManufacturer: publicProcedure
+      .input(
+        z.object({
+          partId: z.string().uuid(),
+          manufacturerId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.unlinkManufacturerFromPart(
+            input.partId,
+            input.manufacturerId
+          );
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to unlink manufacturer from part");
+        }
+      }),
+
+    // Get manufacturers for part
+    manufacturers: publicProcedure
+      .input(z.object({ partId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        try {
+          return await manufacturerService.getManufacturersForPart(input.partId);
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to get part manufacturers");
+        }
+      }),
+
+    // Link supplier to part
+    linkSupplier: publicProcedure
+      .input(
+        z.object({
+          partId: z.string().uuid(),
+          supplierId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.linkSupplierToPart(
+            input.partId,
+            input.supplierId
+          );
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (
+            error instanceof PlmValidationError ||
+            error instanceof PlmNotFoundError
+          ) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to link supplier to part");
+        }
+      }),
+
+    // Unlink supplier from part
+    unlinkSupplier: publicProcedure
+      .input(
+        z.object({
+          partId: z.string().uuid(),
+          supplierId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          await manufacturerService.unlinkSupplierFromPart(
+            input.partId,
+            input.supplierId
+          );
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to unlink supplier from part");
+        }
+      }),
+
+    // Get suppliers for part
+    suppliers: publicProcedure
+      .input(z.object({ partId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        try {
+          return await manufacturerService.getSuppliersForPart(input.partId);
+        } catch (error) {
+          if (error instanceof PlmNotFoundError) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to get part suppliers");
         }
       }),
   }),

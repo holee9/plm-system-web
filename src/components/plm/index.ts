@@ -5,7 +5,11 @@ export { PartStatusBadge } from "./PartStatusBadge";
 export { BomTree, type BomTreeFilter } from "./BomTree";
 export { BomTreeFilters } from "./BomTreeFilters";
 export { BomFlatTable } from "./BomFlatTable";
-export { RevisionTimeline } from "./RevisionTimeline";
+export {
+  RevisionTimeline,
+  type RevisionTimelineItem,
+  type RevisionStatus,
+} from "./RevisionTimeline";
 export { WhereUsedTable } from "./WhereUsedTable";
 export { BomAddItemDialog } from "./BomAddItemDialog";
 
