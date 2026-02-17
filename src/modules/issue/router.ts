@@ -160,8 +160,8 @@ export const issueRouter = router({
   delete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      // TODO: Implement delete with admin check
-      throw new Error("Not implemented");
+      await service.deleteIssue(input.id, (ctx as AuthenticatedContext).user.id);
+      return { success: true };
     }),
 
   // Comments
@@ -187,15 +187,18 @@ export const issueRouter = router({
         content: z.string().min(1),
       }))
       .mutation(async ({ ctx, input }) => {
-        // TODO: Implement update
-        throw new Error("Not implemented");
+        return service.updateIssueComment(
+          input.id,
+          input.content,
+          (ctx as AuthenticatedContext).user.id
+        );
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
-        // TODO: Implement delete
-        throw new Error("Not implemented");
+        await service.deleteIssueComment(input.id, (ctx as AuthenticatedContext).user.id);
+        return { success: true };
       }),
   }),
 
@@ -290,15 +293,17 @@ export const issueRouter = router({
         data: updateMilestoneSchema,
       }))
       .mutation(async ({ ctx, input }) => {
-        // TODO: Implement update
-        throw new Error("Not implemented");
+        return service.updateMilestone(
+          input.id,
+          input.data,
+          (ctx as AuthenticatedContext).user.id
+        );
       }),
 
     close: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
-        // TODO: Implement close
-        throw new Error("Not implemented");
+        return service.closeMilestone(input.id, (ctx as AuthenticatedContext).user.id);
       }),
   }),
 

@@ -2,20 +2,22 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
+import { MentionInput } from "./MentionInput";
 
 interface CommentFormProps {
-  onSubmit: (content: string) => Promise<void>;
+  onSubmit: (content: string, mentionedUserIds?: string[]) => Promise<void>;
   isLoading?: boolean;
   placeholder?: string;
+  projectId?: string;
 }
 
 export function CommentForm({
   onSubmit,
   isLoading = false,
-  placeholder = "댓글을 입력하세요...",
+  placeholder = "댓글을 입력하세요... (@멘션 지원)",
+  projectId,
 }: CommentFormProps) {
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,28 +40,17 @@ export function CommentForm({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
   return (
     <div className="space-y-3">
-      <Textarea
-        placeholder={placeholder}
+      <MentionInput
         value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyDown={handleKeyDown}
-        rows={4}
+        onChange={setContent}
+        onSubmit={handleSubmit}
+        placeholder={placeholder}
         disabled={isLoading || isSubmitting}
-        className="resize-none"
+        projectId={projectId}
       />
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
-          Ctrl + Enter로 전송
-        </p>
+      <div className="flex items-center justify-end">
         <Button
           onClick={handleSubmit}
           disabled={!content.trim() || isLoading || isSubmitting}

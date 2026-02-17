@@ -757,3 +757,201 @@ export async function getMilestonesProgress(
 
   return progressMap;
 }
+
+/**
+ * Delete an issue (admin only)
+ */
+export async function deleteIssue(
+  issueId: string,
+  userId: string
+): Promise<void> {
+  const issue = await getIssueById(issueId);
+  if (!issue) {
+    throw new IssueNotFoundError(issueId);
+  }
+
+  // Check if user is project admin
+  const { projectMembers } = await import("~/server/db");
+  const [membership] = await db
+    .select({ role: projectMembers.role })
+    .from(projectMembers)
+    .where(
+      and(
+        eq(projectMembers.projectId, issue.projectId),
+        eq(projectMembers.userId, userId)
+      )
+    )
+    .limit(1);
+
+  if (!membership || membership.role !== "admin") {
+    throw new IssueAccessError("Only project admins can delete issues");
+  }
+
+  // Delete issue (cascade will handle related records)
+  await db.delete(issues).where(eq(issues.id, issueId));
+}
+
+/**
+ * Update issue comment
+ */
+export async function updateIssueComment(
+  commentId: string,
+  content: string,
+  userId: string
+): Promise<IssueComment> {
+  const [comment] = await db
+    .select()
+    .from(issueComments)
+    .where(eq(issueComments.id, commentId))
+    .limit(1);
+
+  if (!comment) {
+    throw new IssueNotFoundError(`Comment ${commentId} not found`);
+  }
+
+  // Only the author can update their own comment
+  if (comment.authorId !== userId) {
+    throw new IssueAccessError("You can only edit your own comments");
+  }
+
+  // Update comment
+  const [updated] = await db
+    .update(issueComments)
+    .set({
+      content: content.trim(),
+      updatedAt: new Date(),
+    })
+    .where(eq(issueComments.id, commentId))
+    .returning();
+
+  return updated;
+}
+
+/**
+ * Delete issue comment
+ */
+export async function deleteIssueComment(
+  commentId: string,
+  userId: string
+): Promise<void> {
+  const [comment] = await db
+    .select()
+    .from(issueComments)
+    .where(eq(issueComments.id, commentId))
+    .limit(1);
+
+  if (!comment) {
+    throw new IssueNotFoundError(`Comment ${commentId} not found`);
+  }
+
+  // Get issue to check project membership
+  const issue = await getIssueById(comment.issueId);
+  if (!issue) {
+    throw new IssueNotFoundError(comment.issueId);
+  }
+
+  // Check if user is comment author or project admin
+  const { projectMembers } = await import("~/server/db");
+  const [membership] = await db
+    .select({ role: projectMembers.role })
+    .from(projectMembers)
+    .where(
+      and(
+        eq(projectMembers.projectId, issue.projectId),
+        eq(projectMembers.userId, userId)
+      )
+    )
+    .limit(1);
+
+  const isAdmin = membership && membership.role === "admin";
+  const isAuthor = comment.authorId === userId;
+
+  if (!isAdmin && !isAuthor) {
+    throw new IssueAccessError("You must be the comment author or a project admin to delete comments");
+  }
+
+  // Delete comment
+  await db.delete(issueComments).where(eq(issueComments.id, commentId));
+}
+
+/**
+ * Update milestone
+ */
+export async function updateMilestone(
+  milestoneId: string,
+  data: {
+    title?: string;
+    description?: string | null;
+    dueDate?: Date | null;
+    status?: "open" | "closed";
+  },
+  userId: string
+): Promise<Milestone> {
+  const [milestone] = await db
+    .select()
+    .from(milestones)
+    .where(eq(milestones.id, milestoneId))
+    .limit(1);
+
+  if (!milestone) {
+    throw new IssueNotFoundError(`Milestone ${milestoneId} not found`);
+  }
+
+  // Check if user is project admin
+  const { projectMembers } = await import("~/server/db");
+  const [membership] = await db
+    .select({ role: projectMembers.role })
+    .from(projectMembers)
+    .where(
+      and(
+        eq(projectMembers.projectId, milestone.projectId),
+        eq(projectMembers.userId, userId)
+      )
+    )
+    .limit(1);
+
+  if (!membership || membership.role !== "admin") {
+    throw new IssueAccessError("Only project admins can update milestones");
+  }
+
+  // Update milestone
+  const updateData: any = {
+    updatedAt: new Date(),
+  };
+
+  if (data.title !== undefined) {
+    updateData.title = data.title.trim();
+  }
+  if (data.description !== undefined) {
+    updateData.description = data.description?.trim() || null;
+  }
+  if (data.dueDate !== undefined) {
+    updateData.dueDate = data.dueDate;
+  }
+  if (data.status !== undefined) {
+    updateData.status = data.status;
+    if (data.status === "closed") {
+      updateData.closedAt = new Date();
+    } else {
+      updateData.closedAt = null;
+    }
+  }
+
+  const [updated] = await db
+    .update(milestones)
+    .set(updateData)
+    .where(eq(milestones.id, milestoneId))
+    .returning();
+
+  return updated;
+}
+
+/**
+ * Close milestone
+ */
+export async function closeMilestone(
+  milestoneId: string,
+  userId: string
+): Promise<Milestone> {
+  return updateMilestone(milestoneId, { status: "closed" }, userId);
+}
