@@ -27,10 +27,22 @@ Product Lifecycle Management System built with modern web technologies.
 |------|--------|----------|-------------|
 | SPEC-PLM-006 | ✅ Complete | 100% | Change order workflow (full implementation with filtering, search, export) |
 | SPEC-PLM-007 | ✅ Complete | 100% | Dashboard, reporting, notifications, documents (SSE real-time, charts with data) |
+| SPEC-PLM-010 | ✅ Complete | 100% | Document advanced features (preview, version comparison) |
 
 ---
 
 ## ✅ Recently Completed (Latest Update: 2026-02-18)
+
+### SPEC-PLM-010: Document Advanced Features (Preview & Version Compare) - 100% Complete ✅ (2026-02-18)
+- ✅ 문서 미리보기 기능 (PDF.js 통합, 이미지 뷰어)
+- ✅ 줌 컨트롤 (0.5x ~ 2x, 6단계)
+- ✅ PDF 페이지 네비게이션 (이전/다음)
+- ✅ 문서 메타데이터 표시 (파일명, 크기, 날짜, 버전)
+- ✅ 버전 비교 UI (사이드바이사이드 diff)
+- ✅ 메타데이터 비교 테이블 (파일 크기, 업로더, 날짜)
+- ✅ 이미지 슬라이더 비교 (시각적 diff)
+- ✅ 변경 하이라이팅 (추가/삭제/수정 색상 구분)
+- ✅ 테스트 파일 작성 (프리뷰, 비교 컴포넌트)
 
 ### SPEC-PLM-008: Phase 1 Changes Commit and Cleanup - 100% Complete ✅ (2026-02-18)
 - ✅ SSE 실시간 알림 시스템 구현 완료 (인증, 재연결, keep-alive)
@@ -97,6 +109,8 @@ Product Lifecycle Management System built with modern web technologies.
 - ✅ 대시보드 컴포넌트 통합 (차트, 타임라인)
 - ✅ 변경 주문 컴포넌트 통합 (감사 추적, 부품 선택기)
 - ✅ 문서 컴포넌트 통합 (버전 기록 다이얼로그)
+- ✅ 문서 미리보기 (PDF, 이미지 뷰어, 줌/페이지 네비게이션)
+- ✅ 버전 비교 (사이드바이사이드 diff, 메타데이터 비교, 이미지 슬라이더)
 
 ---
 
@@ -133,6 +147,11 @@ Product Lifecycle Management System built with modern web technologies.
 - `src/components/changes/change-order-detail.tsx` - 감사 추적 통합
 - `src/components/document/document-version-history.tsx` (NEW) - 문서 버전 기록
 - `src/components/document/document-list.tsx` - 버전 기록 다이얼로그 통합
+- `src/components/document/document-preview.tsx` (NEW) - 문서 미리보기 (PDF/이미지)
+- `src/components/document/version-compare.tsx` (NEW) - 버전 비교 (사이드바이사이드 diff)
+- `src/app/projects/[key]/documents/preview/[...id]/page.tsx` (NEW) - 문서 미리보기 페이지
+- `src/app/api/documents/[id]/download/route.ts` (NEW) - 문서 다운로드 API
+- `src/components/document/document-repository.tsx` - 미리보기/비교 버튼 통합
 
 ---
 
