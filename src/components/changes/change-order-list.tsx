@@ -33,6 +33,7 @@ interface ChangeOrderListProps {
   projectKey: string;
   statusFilter?: ChangeOrderStatus | "all";
   typeFilter?: ChangeOrderType | "all";
+  priorityFilter?: "all" | "urgent" | "high" | "medium" | "low";
   onCreateNew?: () => void;
   searchQuery?: string;
   enableAutoRefresh?: boolean;
@@ -52,6 +53,7 @@ export function ChangeOrderList({
   projectKey,
   statusFilter = "all",
   typeFilter = "all",
+  priorityFilter = "all",
   onCreateNew,
   searchQuery = "",
   enableAutoRefresh = true,
@@ -104,6 +106,7 @@ export function ChangeOrderList({
     return changeOrders.filter((co: any) => {
       if (statusFilter !== "all" && co.status !== statusFilter) return false;
       if (typeFilter !== "all" && co.type !== typeFilter) return false;
+      if (priorityFilter !== "all" && co.priority !== priorityFilter) return false;
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesSearch =
@@ -114,7 +117,7 @@ export function ChangeOrderList({
       }
       return true;
     });
-  }, [changeOrders, statusFilter, typeFilter, searchQuery]);
+  }, [changeOrders, statusFilter, typeFilter, priorityFilter, searchQuery]);
 
   if (isLoading) {
     return (
