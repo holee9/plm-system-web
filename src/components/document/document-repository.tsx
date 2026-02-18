@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FileText, FolderOpen, Search, Filter, Download, Eye, Trash2, Upload } from "lucide-react";
+import { FileText, FolderOpen, Search, Filter, Download, Eye, Trash2, Upload, GitCompareArrows } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { toast } from "sonner";
