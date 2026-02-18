@@ -7,6 +7,10 @@ export * from "./sessions";
 export * from "./roles";
 export * from "./auth_events";
 
+// Auth.js v5 tables
+export * from "./accounts";
+export * from "./verification_tokens";
+
 // Token tables
 export * from "./email_verification_tokens";
 export * from "./password_reset_tokens";

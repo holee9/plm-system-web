@@ -8,13 +8,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { signIn } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { trpc } from "@/lib/trpc";
 
 const loginSchema = z.object({
   email: z.string().email("올바른 이메일 주소를 입력해주세요"),
@@ -35,32 +35,40 @@ export function LoginForm() {
     },
   });
 
-  const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: async (data) => {
-      toast({ title: "로그인되었습니다", variant: "default" });
-
-      // Store tokens
-      if (typeof window !== "undefined") {
-        localStorage.setItem("access_token", data.accessToken);
-        localStorage.setItem("refresh_token", data.refreshToken);
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      // Redirect to dashboard
-      router.push("/dashboard");
-    },
-    onError: (error) => {
-      toast({ title: error.message || "로그인에 실패했습니다", variant: "destructive" });
-      setIsLoading(false);
-    },
-  });
-
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     try {
-      await loginMutation.mutateAsync(values);
-    } catch {
-      // Error handled in mutation callback
+      // Use Auth.js v5 signIn function
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast({
+          title: "로그인에 실패했습니다",
+          description: "이메일 또는 비밀번호가 올바르지 않습니다",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        toast({ title: "로그인되었습니다", variant: "default" });
+        // Redirect to dashboard
+        router.push("/dashboard");
+        router.refresh(); // Refresh to update server components
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        title: "로그인에 실패했습니다",
+        description: "알 수 없는 오류가 발생했습니다",
+        variant: "destructive",
+      });
+      setIsLoading(false);
     }
   };
 

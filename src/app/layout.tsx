@@ -6,6 +6,7 @@ import { TRPCProvider } from "@/lib/trpc-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SkipLink } from "@/components/ui/skip-link";
+import { SessionProvider } from "@/components/auth/session-provider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,7 +24,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body className={`${inter.className} h-full bg-background text-foreground antialiased`}>
-        <TRPCProvider>
+        <SessionProvider>
+          <TRPCProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -50,6 +52,7 @@ export default function RootLayout({
             <Toaster />
           </ThemeProvider>
         </TRPCProvider>
+        </SessionProvider>
       </body>
     </html>
   );

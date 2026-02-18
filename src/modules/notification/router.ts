@@ -48,6 +48,23 @@ export const notificationRouter = router({
       return service.markAsRead(input.id, getUserId(ctx));
     }),
 
+  // Update notification (mark as read and return notification data for navigation)
+  updateNotification: protectedProcedure
+    .input(z.object({
+      recipientId: z.string().uuid(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = getUserId(ctx);
+      const result = await service.markAsRead(input.recipientId, userId);
+
+      // Return notification data with link for client-side navigation
+      return {
+        success: true,
+        notification: result.notification,
+        isRead: result.isRead,
+      };
+    }),
+
   // Mark all notifications as read
   markAllAsRead: protectedProcedure
     .mutation(async ({ ctx }) => {

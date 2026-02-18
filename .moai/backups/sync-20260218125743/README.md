@@ -120,19 +120,16 @@ Product Lifecycle Management System built with modern web technologies.
 - Docker Compose for local development
 
 ### SPEC-PLM-002: Authentication & User Management ✅
-- Auth.js v5-based authentication system
-- Credentials provider with email/password
-- OAuth providers (GitHub, Google) support
-- Session management (database strategy, 30-day expiry)
-- Password reset flow with token-based verification
+- JWT-based authentication system
+- Email/password registration and login
+- Session management (30-day expiry, max 5 sessions)
+- Password reset flow
 - User profile management
 - Team creation and management
 - Role-based access control (RBAC): owner/admin/member
-- Email verification flow
+- Email verification flow (register → verifyEmail → ACTIVE)
 - Authentication UI pages (login, register, forgot-password)
 - Team management UI (profile, teams list, member management)
-- Rate limiting (10 attempts/minute for auth endpoints)
-- Security: CSRF protection, httpOnly cookies, bcrypt hashing
 
 ### SPEC-PLM-003: Project CRUD ✅
 - Project creation with key generation

@@ -979,6 +979,15 @@ export const plmRouter = createTRPCRouter({
         );
       }),
 
+    // Get change order statistics for charts (C-005)
+    getChangeOrderStats: protectedProcedure
+      .input(z.object({ projectId: z.string().uuid() }))
+      .query(async ({ input }) => {
+        return import("./change-order-service").then((m) =>
+          m.getProjectStatistics(input.projectId)
+        );
+      }),
+
     // Export change orders as CSV
     export: protectedProcedure
       .input(

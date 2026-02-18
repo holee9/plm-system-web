@@ -27,6 +27,7 @@
     "design-tokens:types": "tsx scripts/generate-ts-types.ts"
   },
   "dependencies": {
+    "@auth/drizzle-adapter": "^1.11.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -63,6 +64,7 @@
     "jose": "^6.1.3",
     "lucide-react": "latest",
     "next": "^15.0.0",
+    "next-auth": "^5.0.0-beta.30",
     "next-themes": "^0.4.6",
     "postgres": "latest",
     "react": "^19.0.0",
