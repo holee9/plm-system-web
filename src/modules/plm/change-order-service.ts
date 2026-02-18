@@ -1218,3 +1218,154 @@ export async function removeApprover(
 
   return getChangeOrderById(changeOrderId, userId) as Promise<ChangeOrderWithDetails>;
 }
+
+// ============================================================================
+// Batch Operations
+// ============================================================================
+
+/**
+ * Batch approve multiple change orders
+ * Only change orders in 'submitted' or 'in_review' status can be approved
+ */
+export async function batchApproveChangeOrders(
+  changeOrderIds: string[],
+  userId: string
+): Promise<{
+  success: ChangeOrderWithDetails[];
+  failed: Array<{ id: string; error: string }>;
+}> {
+  const results = {
+    success: [] as ChangeOrderWithDetails[],
+    failed: [] as Array<{ id: string; error: string }>,
+  };
+
+  for (const id of changeOrderIds) {
+    try {
+      // Verify change order exists and user is an approver
+      const [existing] = await db
+        .select()
+        .from(changeOrders)
+        .where(eq(changeOrders.id, id))
+        .limit(1);
+
+      if (!existing) {
+        results.failed.push({ id, error: "Change order not found" });
+        continue;
+      }
+
+      if (existing.status !== "submitted" && existing.status !== "in_review") {
+        results.failed.push({
+          id,
+          error: `Cannot approve change order from ${existing.status} status`,
+        });
+        continue;
+      }
+
+      // Check if user is an approver
+      const [approver] = await db
+        .select()
+        .from(changeOrderApprovers)
+        .where(
+          and(
+            eq(changeOrderApprovers.changeOrderId, id),
+            eq(changeOrderApprovers.approverId, userId)
+          )
+        )
+        .limit(1);
+
+      if (!approver) {
+        results.failed.push({ id, error: "You are not an approver for this change order" });
+        continue;
+      }
+
+      // Process approval
+      const result = await reviewChangeOrder(
+        { changeOrderId: id, status: "approved", comment: "Batch approved" },
+        userId
+      );
+
+      results.success.push(result);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      results.failed.push({ id, error: errorMessage });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Batch reject multiple change orders
+ * Only change orders in 'submitted' or 'in_review' status can be rejected
+ */
+export async function batchRejectChangeOrders(
+  changeOrderIds: string[],
+  userId: string,
+  reason?: string
+): Promise<{
+  success: ChangeOrderWithDetails[];
+  failed: Array<{ id: string; error: string }>;
+}> {
+  const results = {
+    success: [] as ChangeOrderWithDetails[],
+    failed: [] as Array<{ id: string; error: string }>,
+  };
+
+  for (const id of changeOrderIds) {
+    try {
+      // Verify change order exists and user is an approver
+      const [existing] = await db
+        .select()
+        .from(changeOrders)
+        .where(eq(changeOrders.id, id))
+        .limit(1);
+
+      if (!existing) {
+        results.failed.push({ id, error: "Change order not found" });
+        continue;
+      }
+
+      if (existing.status !== "submitted" && existing.status !== "in_review") {
+        results.failed.push({
+          id,
+          error: `Cannot reject change order from ${existing.status} status`,
+        });
+        continue;
+      }
+
+      // Check if user is an approver
+      const [approver] = await db
+        .select()
+        .from(changeOrderApprovers)
+        .where(
+          and(
+            eq(changeOrderApprovers.changeOrderId, id),
+            eq(changeOrderApprovers.approverId, userId)
+          )
+        )
+        .limit(1);
+
+      if (!approver) {
+        results.failed.push({ id, error: "You are not an approver for this change order" });
+        continue;
+      }
+
+      // Process rejection
+      const result = await reviewChangeOrder(
+        {
+          changeOrderId: id,
+          status: "rejected",
+          comment: reason || "Batch rejected",
+        },
+        userId
+      );
+
+      results.success.push(result);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      results.failed.push({ id, error: errorMessage });
+    }
+  }
+
+  return results;
+}

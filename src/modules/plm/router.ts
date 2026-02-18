@@ -1081,5 +1081,58 @@ export const plmRouter = createTRPCRouter({
           throw new Error("Failed to remove approver");
         }
       }),
+
+    // Batch approve change orders
+    batchApprove: protectedProcedure
+      .input(
+        z.object({
+          changeOrderIds: z.array(z.string().uuid()).min(1),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const authCtx = ctx as AuthenticatedContext;
+          const result = await import("./change-order-service").then((m) =>
+            m.batchApproveChangeOrders(input.changeOrderIds, authCtx.user.id)
+          );
+
+          return {
+            success: true,
+            data: result,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to batch approve change orders");
+        }
+      }),
+
+    // Batch reject change orders
+    batchReject: protectedProcedure
+      .input(
+        z.object({
+          changeOrderIds: z.array(z.string().uuid()).min(1),
+          reason: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const authCtx = ctx as AuthenticatedContext;
+          const result = await import("./change-order-service").then((m) =>
+            m.batchRejectChangeOrders(input.changeOrderIds, authCtx.user.id, input.reason)
+          );
+
+          return {
+            success: true,
+            data: result,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to batch reject change orders");
+        }
+      }),
   }),
 });

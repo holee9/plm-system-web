@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { FileText, Settings, Plus, Search, Download, FileDown } from "lucide-react";
+import { FileText, Settings, Plus, Search, Download, FileDown, CheckSquare, Square } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { ChangeOrderStatusBadge } from "./change-order-status-badge";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
+import { useSelection } from "./selection-provider";
 
 export type ChangeOrderType = "ECR" | "ECN";
 export type ChangeOrderStatus = "draft" | "submitted" | "in_review" | "approved" | "rejected" | "implemented";
@@ -157,49 +158,80 @@ export function ChangeOrderList({
 
   return (
     <div className="space-y-3">
-      {filteredOrders.map((co: any) => (
-        <Card key={co.id} className="hover:bg-accent/50 transition-colors">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <Badge variant="outline" className="text-xs">
-                    {co.type}
-                  </Badge>
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {co.number}
-                  </span>
-                  <ChangeOrderStatusBadge status={co.status} />
-                  {co.priority && priorityConfig[co.priority as keyof typeof priorityConfig] && (
-                    <Badge variant="outline" className={cn("text-xs", priorityConfig[co.priority as keyof typeof priorityConfig]?.className)}>
-                      {priorityConfig[co.priority as keyof typeof priorityConfig]?.label || co.priority}
-                    </Badge>
-                  )}
-                </div>
-                <Link
-                  href={`/projects/${projectKey}/changes/${co.id}`}
-                  className="text-base font-semibold hover:text-primary transition-colors block"
-                >
-                  {co.title}
-                </Link>
-                {co.description && (
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                    {co.description}
-                  </p>
+      {filteredOrders.map((co: any) => {
+        const isSelected = selectedIds.includes(co.id);
+        const hasSelectionHandler = onSelectionChange !== undefined;
+
+        return (
+          <Card
+            key={co.id}
+            className={cn(
+              "hover:bg-accent/50 transition-colors",
+              isSelected && "ring-2 ring-primary"
+            )}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-4">
+                {/* Selection Checkbox */}
+                {hasSelectionHandler && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newSelection = isSelected
+                        ? selectedIds.filter((id) => id !== co.id)
+                        : [...selectedIds, co.id];
+                      onSelectionChange(newSelection);
+                    }}
+                    className="mt-1 p-1 hover:bg-accent rounded transition-colors"
+                  >
+                    {isSelected ? (
+                      <CheckSquare className="h-5 w-5 text-primary" />
+                    ) : (
+                      <Square className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </button>
                 )}
-                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                  <span>생성일: {new Date(co.createdAt).toLocaleDateString("ko-KR")}</span>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <Badge variant="outline" className="text-xs">
+                      {co.type}
+                    </Badge>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {co.number}
+                    </span>
+                    <ChangeOrderStatusBadge status={co.status} />
+                    {co.priority && priorityConfig[co.priority as keyof typeof priorityConfig] && (
+                      <Badge variant="outline" className={cn("text-xs", priorityConfig[co.priority as keyof typeof priorityConfig]?.className)}>
+                        {priorityConfig[co.priority as keyof typeof priorityConfig]?.label || co.priority}
+                      </Badge>
+                    )}
+                  </div>
+                  <Link
+                    href={`/projects/${projectKey}/changes/${co.id}`}
+                    className="text-base font-semibold hover:text-primary transition-colors block"
+                  >
+                    {co.title}
+                  </Link>
+                  {co.description && (
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      {co.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                    <span>생성일: {new Date(co.createdAt).toLocaleDateString("ko-KR")}</span>
+                  </div>
                 </div>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href={`/projects/${projectKey}/changes/${co.id}`}>
+                    <Settings className="h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
-              <Button variant="ghost" size="icon" asChild>
-                <Link href={`/projects/${projectKey}/changes/${co.id}`}>
-                  <Settings className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
