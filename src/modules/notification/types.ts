@@ -8,6 +8,38 @@ export type NotificationType =
 
 export type NotificationStatus = "unread" | "read";
 
+// Notification preference types
+export type NotificationChannel = "in_app" | "email" | "push";
+export type NotificationCategory = "issues" | "projects" | "plm";
+export type NotificationFrequency = "immediate" | "hourly" | "daily" | "weekly";
+
+export interface NotificationPreference {
+  userId: string;
+  channel: NotificationChannel;
+  category: NotificationCategory;
+  enabled: boolean;
+  frequency: NotificationFrequency;
+  projectId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UpdateNotificationPreferenceInput {
+  channel: NotificationChannel;
+  category: NotificationCategory;
+  enabled?: boolean;
+  frequency?: NotificationFrequency;
+  projectId?: string;
+}
+
+export interface BulkUpdatePreferencesInput {
+  preferences: UpdateNotificationPreferenceInput[];
+}
+
+export interface GetUserPreferencesInput {
+  projectId?: string;
+}
+
 export interface NotificationData {
   // Additional data specific to notification type
   issueId?: string;
