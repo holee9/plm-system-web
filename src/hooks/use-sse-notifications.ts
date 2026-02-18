@@ -19,7 +19,7 @@ export function useSSENotifications() {
 
   React.useEffect(() => {
     // Create EventSource connection
-    const eventSource = new EventSource("/api/notifications/stream");
+    const eventSource = new EventSource("/api/sse/notifications");
     eventSourceRef.current = eventSource;
 
     // Handle connection open
@@ -64,10 +64,10 @@ export function useSSENotifications() {
       // Reconnect after delay
       setTimeout(() => {
         if (eventSource.readyState === EventSource.CLOSED) {
-          const newSource = new EventSource("/api/notifications/stream");
+          const newSource = new EventSource("/api/sse/notifications");
           eventSourceRef.current = newSource;
         }
-      }, 5000);
+      }, 3000);
     };
 
     // Cleanup on unmount
@@ -104,7 +104,7 @@ export function useSSENotificationsWithOptions(options: {
   } = options;
 
   React.useEffect(() => {
-    const eventSource = new EventSource("/api/notifications/stream");
+    const eventSource = new EventSource("/api/sse/notifications");
     eventSourceRef.current = eventSource;
 
     eventSource.onopen = () => {
