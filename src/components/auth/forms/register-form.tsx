@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { signIn } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,32 +42,51 @@ export function RegisterForm() {
     },
   });
 
-  const registerMutation = trpc.auth.register.useMutation({
-    onSuccess: (data) => {
-      toast({ title: data.message, variant: "default" });
-      // In development mode, show the verification token
-      if (process.env.NODE_ENV === "development" && "verificationToken" in data) {
-        console.log("Verification token:", data.verificationToken);
-        toast({ title: "개발 모드: 콘솔에서 인증 토큰을 확인하세요", variant: "default" });
-      }
-      router.push("/login");
-    },
-    onError: (error) => {
-      toast({ title: error.message || "회원가입에 실패했습니다", variant: "destructive" });
-      setIsLoading(false);
-    },
-  });
+  const registerMutation = trpc.auth.register.useMutation();
 
   const onSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await registerMutation.mutateAsync({
+      // Step 1: Register user
+      const registerResult = await registerMutation.mutateAsync({
         name: values.name,
         email: values.email,
         password: values.password,
       });
-    } catch {
-      // Error handled in mutation callback
+
+      if (registerResult.success) {
+        toast({ title: "회원가입이 완료되었습니다. 자동 로그인합니다...", variant: "default" });
+
+        // Step 2: Auto-login with credentials
+        const signInResult = await signIn("credentials", {
+          email: values.email,
+          password: values.password,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          toast({
+            title: "자동 로그인에 실패했습니다",
+            description: "수동으로 로그인해주세요",
+            variant: "destructive",
+          });
+          router.push("/login");
+          return;
+        }
+
+        if (signInResult?.ok) {
+          toast({ title: "로그인되었습니다", variant: "default" });
+          router.push("/dashboard");
+          router.refresh();
+        }
+      }
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast({
+        title: error.message || "회원가입에 실패했습니다",
+        variant: "destructive",
+      });
+      setIsLoading(false);
     }
   };
 

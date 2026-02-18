@@ -9,6 +9,57 @@ import * as documentService from "./service";
 
 const resourceTypeEnum = z.enum(["issue", "part", "change_order", "project", "milestone"]);
 
+// Allowed MIME types for file upload
+const ALLOWED_MIME_TYPES = [
+  // PDF
+  "application/pdf",
+  // Images
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/svg+xml",
+  // Microsoft Word
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  // Microsoft Excel
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  // Microsoft PowerPoint
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  // Text
+  "text/plain",
+  "text/csv",
+  // Archives
+  "application/zip",
+  "application/x-zip-compressed",
+  "application/x-rar-compressed",
+  "application/x-7z-compressed",
+];
+
+// MIME type validation schema
+const mimeTypeSchema = z.string().refine(
+  (value) => {
+    // Check if MIME type matches allowed patterns
+    const allowedPatterns = [
+      /^application\/pdf$/,
+      /^image\/(jpeg|jpg|png|gif|webp|svg\+xml)$/,
+      /^application\/msword$/,
+      /^application\/vnd\.openxmlformats-officedocument\.(wordprocessingml|spreadsheetml|presentationml)\.document$/,
+      /^application\/vnd\.ms-(excel|powerpoint)$/,
+      /^text\/(plain|csv)$/,
+      /^application\/(zip|x-zip-compressed|x-rar-compressed|x-7z-compressed)$/,
+    ];
+
+    return allowedPatterns.some((pattern) => pattern.test(value));
+  },
+  {
+    message: "Invalid file type. Allowed types: PDF, images, Office documents, text files, and archives.",
+  }
+);
+
 export const documentRouter = createTRPCRouter({
   // Upload/attach document to resource
   upload: protectedProcedure
@@ -17,7 +68,7 @@ export const documentRouter = createTRPCRouter({
         resourceId: z.string().uuid(),
         resourceType: resourceTypeEnum,
         originalFileName: z.string().min(1).max(500),
-        mimeType: z.string().min(1),
+        mimeType: mimeTypeSchema,
         fileSize: z.number().int().positive().max(50 * 1024 * 1024), // 50MB max
         storagePath: z.string().min(1),
         description: z.string().optional(),

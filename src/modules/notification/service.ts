@@ -17,6 +17,51 @@ import type {
   NotificationData,
 } from "./types";
 
+// ============================================================================
+// Notification Link Generation
+// ============================================================================
+
+/**
+ * Generate navigation link based on notification type and data
+ * Used for client-side navigation when notification is clicked
+ */
+export function generateNotificationLink(
+  type: NotificationType,
+  data: NotificationData | null
+): string | null {
+  if (!data) return null;
+
+  switch (type) {
+    case "issue_assigned":
+    case "issue_mentioned":
+    case "issue_commented":
+    case "issue_status_changed":
+      // Navigate to issue detail page
+      if (data.projectKey && data.issueNumber) {
+        return `/projects/${data.projectKey}/issues/${data.issueNumber}`;
+      }
+      if (data.issueId) {
+        // Fallback: navigate by issue ID
+        return `/issues/${data.issueId}`;
+      }
+      return null;
+
+    case "project_member_added":
+      // Navigate to project page
+      if (data.projectKey) {
+        return `/projects/${data.projectKey}`;
+      }
+      if (data.projectId) {
+        // Fallback: navigate by project ID
+        return `/projects/${data.projectId}`;
+      }
+      return null;
+
+    default:
+      return null;
+  }
+}
+
 // Custom errors
 export class NotificationNotFoundError extends Error {
   constructor(notificationId: string) {
@@ -38,6 +83,9 @@ export class NotificationAccessError extends Error {
 export async function createNotification(
   input: CreateNotificationInput
 ): Promise<Notification> {
+  // Auto-generate link if not provided
+  const autoLink = input.link || generateNotificationLink(input.type, input.data || null);
+
   // Create notification record
   const [created] = await db
     .insert(notifications)
@@ -46,7 +94,7 @@ export async function createNotification(
       title: input.title,
       message: input.message,
       data: input.data || null,
-      link: input.link || null,
+      link: autoLink,
       createdBy: input.createdBy || null,
     })
     .returning();

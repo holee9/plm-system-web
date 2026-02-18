@@ -4,10 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FolderKanban, CheckCircle2, Clock, AlertTriangle, Package, FileText } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { ko } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { ChangeOrderChart, ChangeOrderDataPoint } from "@/components/dashboard/change-order-chart";
@@ -58,35 +61,35 @@ function StatCard({ title, value, icon: Icon, iconColor, change, changeType = "n
 export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboardClientProps) {
   const router = useRouter();
 
-  // State for filters
-  const [statusFilter, setStatusFilter] = React.useState<string | null>(null);
+  // Fetch complete dashboard data using the integrated API
+  const { data: dashboardData, isLoading } = trpc.dashboard.getData.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
 
-  // Fetch issues for stats
+  // Fallback: fetch individual queries if dashboard data is not available
   const { data: issuesData } = trpc.issue.list.useQuery(
     { projectId, filters: {} },
-    { enabled: !!projectId }
+    { enabled: !!projectId && !dashboardData }
   );
 
   // Extract items from paginated result
   const issues = issuesData?.items ?? [];
 
-  // Calculate stats from issues
-  const totalIssues = issuesData?.total ?? issues.length;
-  const openIssues = issues.filter((i: any) => i.status === "open").length;
-  const inProgressIssues = issues.filter((i: any) => i.status === "in_progress").length;
-  const reviewIssues = issues.filter((i: any) => i.status === "review").length;
-  const doneIssues = issues.filter((i: any) => i.status === "done").length;
-  const closedIssues = issues.filter((i: any) => i.status === "closed").length;
+  // Use dashboard data if available, otherwise calculate from issues
+  const stats = dashboardData?.statistics;
+  const totalIssues = stats?.totalIssues ?? issuesData?.total ?? 0;
+  const activeIssues = stats?.openIssues ?? issues.filter((i: any) => i.status === "open" || i.status === "in_progress").length;
+  const completedIssues = stats?.completedIssues ?? issues.filter((i: any) => i.status === "done" || i.status === "closed").length;
+  const completionRate = stats?.issueCompletionRate ?? (totalIssues > 0 ? Math.round((completedIssues / totalIssues) * 100) : 0);
 
-  const completedIssues = doneIssues + closedIssues;
-  const activeIssues = openIssues + inProgressIssues + reviewIssues;
+  // Use status distribution from dashboard or calculate
+  const statusDistribution = dashboardData?.statusDistribution ?? [];
+  const priorityDistribution = dashboardData?.priorityDistribution ?? [];
 
-  // Calculate completion rate
-  const completionRate = totalIssues > 0 ? Math.round((completedIssues / totalIssues) * 100) : 0;
-
-  // Priority breakdown
-  const urgentIssues = issues.filter((i: any) => i.priority === "urgent").length;
-  const highPriorityIssues = issues.filter((i: any) => i.priority === "high").length;
+  // Get urgent/high priority count
+  const urgentCount = priorityDistribution.find((p: any) => p.priority === "urgent")?.count ?? 0;
+  const highCount = priorityDistribution.find((p: any) => p.priority === "high")?.count ?? 0;
 
   // Fetch change order statistics
   const { data: changeOrderStats } = trpc.plm.changeOrder.statistics.useQuery(
@@ -127,10 +130,43 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
     ];
   }, [changeOrderStats]);
 
+  // Get recent activities from dashboard data
+  const recentActivities = dashboardData?.recentActivities ?? [];
+
+  // Get milestones from dashboard data
+  const milestones = dashboardData?.milestones ?? [];
+
   // Handle status filter click
   const handleStatusClick = (status: string) => {
-    // Navigate to changes page with status filter
     router.push(`/projects/${projectKey}/changes?status=${status}`);
+  };
+
+  // Get activity icon based on type
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case "issue":
+        return FolderKanban;
+      case "change_order":
+        return FileText;
+      case "milestone":
+        return CheckCircle2;
+      default:
+        return Clock;
+    }
+  };
+
+  // Get activity color based on type
+  const getActivityColor = (type: string) => {
+    switch (type) {
+      case "issue":
+        return "bg-blue-500";
+      case "change_order":
+        return "bg-amber-500";
+      case "milestone":
+        return "bg-emerald-500";
+      default:
+        return "bg-gray-500";
+    }
   };
 
   return (
@@ -155,12 +191,12 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
           value={completedIssues}
           icon={CheckCircle2}
           iconColor="bg-emerald-500"
-          change={totalIssues > 0 ? `${completionRate}% complete` : undefined}
+          change={`${completionRate}% 완료`}
           changeType={completionRate >= 50 ? "positive" : "neutral"}
         />
         <StatCard
           title="긴급/높음"
-          value={urgentIssues + highPriorityIssues}
+          value={urgentCount + highCount}
           icon={AlertTriangle}
           iconColor="bg-rose-500"
           changeType="negative"
@@ -178,19 +214,29 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
         <PartCategoryChart data={categoryDistribution} />
       </div>
 
-      {/* Progress Overview */}
+      {/* Progress Overview and Activities */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">이슈 상태 분포</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <StatusRow label="Open" count={openIssues} total={totalIssues} color="bg-slate-500" />
-            <StatusRow label="In Progress" count={inProgressIssues} total={totalIssues} color="bg-blue-500" />
-            <StatusRow label="Review" count={reviewIssues} total={totalIssues} color="bg-amber-500" />
-            <StatusRow label="Done" count={doneIssues} total={totalIssues} color="bg-emerald-500" />
-            <StatusRow label="Closed" count={closedIssues} total={totalIssues} color="bg-green-700" />
-            {totalIssues === 0 && (
+            {statusDistribution.length > 0 ? (
+              statusDistribution.map((item: any) => (
+                <StatusRow
+                  key={item.status}
+                  label={item.status}
+                  count={item.count}
+                  total={totalIssues}
+                  color={
+                    item.status === "done" || item.status === "closed" ? "bg-emerald-500" :
+                    item.status === "in_progress" ? "bg-blue-500" :
+                    item.status === "review" ? "bg-amber-500" :
+                    "bg-slate-500"
+                  }
+                />
+              ))
+            ) : (
               <p className="text-sm text-muted-foreground text-center py-2">이슈가 없습니다</p>
             )}
           </CardContent>
@@ -198,50 +244,106 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">프로젝트 진행률</CardTitle>
+            <CardTitle className="text-base">최근 활동</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between text-sm mb-2">
-                <span>전체 완료율</span>
-                <span className="font-medium">{completionRate}%</span>
+          <CardContent className="p-0">
+            {recentActivities.length > 0 ? (
+              <ScrollArea className="h-64">
+                <div className="p-4 space-y-3">
+                  {recentActivities.slice(0, 5).map((activity: any) => {
+                    const Icon = getActivityIcon(activity.type);
+                    return (
+                      <div key={activity.id} className="flex items-start gap-3">
+                        <div className={cn("h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0", getActivityColor(activity.type))}>
+                          <Icon className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium line-clamp-1">{activity.description}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {activity.userName} · {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true, locale: ko })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8">
+                <Clock className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                <p className="text-sm text-muted-foreground">최근 활동이 없습니다</p>
               </div>
-              <Progress value={completionRate} className="h-2" />
-            </div>
-
-            <div className="pt-4 border-t">
-              <p className="text-sm text-muted-foreground mb-3">빠른 작업</p>
-              <div className="flex flex-wrap gap-2">
-                <Link href={`/projects/${projectKey}/issues`}>
-                  <Badge variant="outline" className="cursor-pointer hover:bg-accent">
-                    이슈 보기
-                  </Badge>
-                </Link>
-                <Link href={`/projects/${projectKey}/board`}>
-                  <Badge variant="outline" className="cursor-pointer hover:bg-accent">
-                    보드
-                  </Badge>
-                </Link>
-                <Link href={`/projects/${projectKey}/parts`}>
-                  <Badge variant="outline" className="cursor-pointer hover:bg-accent">
-                    부품
-                  </Badge>
-                </Link>
-                <Link href={`/projects/${projectKey}/milestones`}>
-                  <Badge variant="outline" className="cursor-pointer hover:bg-accent">
-                    마일스톤
-                  </Badge>
-                </Link>
-                <Link href={`/projects/${projectKey}/changes`}>
-                  <Badge variant="outline" className="cursor-pointer hover:bg-accent">
-                    변경 주문
-                  </Badge>
-                </Link>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Milestones Progress */}
+      {milestones.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">마일스톤 진행률</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {milestones.map((milestone: any) => (
+              <div key={milestone.milestoneId} className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">{milestone.title}</span>
+                  <span className="text-muted-foreground">{milestone.progress}%</span>
+                </div>
+                <Progress value={milestone.progress} className="h-2" />
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{milestone.completedIssueCount}/{milestone.issueCount} 이슈 완료</span>
+                  {milestone.dueDate && (
+                    <span>마감: {new Date(milestone.dueDate).toLocaleDateString("ko-KR")}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">빠른 작업</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/projects/${projectKey}/issues`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                이슈 보기
+              </Badge>
+            </Link>
+            <Link href={`/projects/${projectKey}/board`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                보드
+              </Badge>
+            </Link>
+            <Link href={`/projects/${projectKey}/parts`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                부품
+              </Badge>
+            </Link>
+            <Link href={`/projects/${projectKey}/milestones`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                마일스톤
+              </Badge>
+            </Link>
+            <Link href={`/projects/${projectKey}/changes`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                변경 주문
+              </Badge>
+            </Link>
+            <Link href={`/projects/${projectKey}/documents`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                문서
+              </Badge>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

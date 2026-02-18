@@ -57,6 +57,14 @@ export const dashboardRouter = createTRPCRouter({
       return dashboardService.getRecentActivities(input.projectId, input.limit);
     }),
 
+  // Get dashboard statistics for widgets (D-012)
+  getDashboardStats: protectedProcedure
+    .input(z.object({ projectId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const authCtx = ctx as AuthenticatedContext;
+      return dashboardService.getDashboardData(input.projectId, authCtx.user.id);
+    }),
+
   // Get user's assigned issues
   myIssues: protectedProcedure
     .input(
