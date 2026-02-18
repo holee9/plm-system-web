@@ -20,6 +20,14 @@ import {
 } from "~/server/db/change-orders";
 import { projects } from "~/server/db/projects";
 import { users } from "~/server/db/users";
+import {
+  publishChangeOrderCreated,
+  publishChangeOrderStatusChanged,
+  publishChangeOrderSubmitted,
+  publishChangeOrderApproved,
+  publishChangeOrderRejected,
+  publishChangeOrderImplemented,
+} from "./events";
 
 // ============================================================================
 // Type Definitions
@@ -292,6 +300,18 @@ export async function createChangeOrder(
       await tx.insert(changeOrderAffectedParts).values(affectedPartEntries);
     }
 
+    // Emit change order created event
+    publishChangeOrderCreated({
+      changeOrderId: created.id,
+      projectId: created.projectId,
+      type: created.type,
+      number: created.number,
+      title: created.title,
+      requesterId: created.requesterId,
+      approverIds: input.approverIds,
+      affectedPartIds: input.affectedPartIds,
+    });
+
     // Return with details
     return getChangeOrderById(created.id, requesterId) as Promise<ChangeOrderWithDetails>;
   });
@@ -496,6 +516,26 @@ export async function submitChangeOrder(
       "Submitted for review"
     );
 
+    // Emit status changed event
+    publishChangeOrderStatusChanged({
+      changeOrderId: input.changeOrderId,
+      fromStatus: existing.status,
+      toStatus: newStatus,
+      changedBy: userId,
+      comment: "Submitted for review",
+    });
+
+    // Emit submitted event
+    publishChangeOrderSubmitted({
+      changeOrderId: existing.id,
+      type: existing.type,
+      number: existing.number,
+      title: existing.title,
+      projectId: existing.projectId,
+      submittedBy: userId,
+      submittedAt: new Date(),
+    });
+
     return getChangeOrderById(input.changeOrderId, userId) as Promise<ChangeOrderWithDetails>;
   });
 }
@@ -637,6 +677,40 @@ export async function reviewChangeOrder(
         auditComment,
         input.comment ? { approverId: userId, approverComment: input.comment } : undefined
       );
+
+      // Emit status changed event
+      publishChangeOrderStatusChanged({
+        changeOrderId: input.changeOrderId,
+        fromStatus: existing.status,
+        toStatus: newStatus,
+        changedBy: userId,
+        comment: auditComment,
+      });
+
+      // Emit approved or rejected event
+      if (newStatus === "approved") {
+        publishChangeOrderApproved({
+          changeOrderId: existing.id,
+          type: existing.type,
+          number: existing.number,
+          title: existing.title,
+          projectId: existing.projectId,
+          approverId: userId,
+          approverComment: input.comment,
+          approvedAt: new Date(),
+        });
+      } else if (newStatus === "rejected") {
+        publishChangeOrderRejected({
+          changeOrderId: existing.id,
+          type: existing.type,
+          number: existing.number,
+          title: existing.title,
+          projectId: existing.projectId,
+          rejecterId: userId,
+          rejectionReason: input.comment,
+          rejectedAt: new Date(),
+        });
+      }
     }
 
     return getChangeOrderById(input.changeOrderId, userId) as Promise<ChangeOrderWithDetails>;
@@ -683,6 +757,27 @@ export async function implementChangeOrder(
       userId,
       "Change implemented"
     );
+
+    // Emit status changed event
+    publishChangeOrderStatusChanged({
+      changeOrderId: input.changeOrderId,
+      fromStatus: existing.status,
+      toStatus: newStatus,
+      changedBy: userId,
+      comment: "Change implemented",
+    });
+
+    // Emit implemented event
+    publishChangeOrderImplemented({
+      changeOrderId: existing.id,
+      type: existing.type,
+      number: existing.number,
+      title: existing.title,
+      projectId: existing.projectId,
+      implementedBy: userId,
+      implementedRevisionId: input.revisionId,
+      implementedAt: new Date(),
+    });
 
     return getChangeOrderById(input.changeOrderId, userId) as Promise<ChangeOrderWithDetails>;
   });
@@ -794,16 +889,49 @@ export async function listChangeOrders(
 }
 
 /**
- * Get audit trail for change order
+ * Enriched audit trail entry type for timeline component
+ */
+export interface EnrichedAuditTrail extends Omit<AuditTrail, 'metadata'> {
+  userName?: string;
+  userEmail?: string | null;
+  eventType: string;
+  details?: JsonValue;
+  timestamp: Date;
+  metadata?: unknown;
+}
+
+/**
+ * Get audit trail for change order with user information
+ * Returns enriched audit trail entries including user name and email
  */
 export async function getAuditTrail(
   changeOrderId: string
-): Promise<AuditTrail[]> {
-  return db
-    .select()
+): Promise<EnrichedAuditTrail[]> {
+  const auditTrailData = await db
+    .select({
+      id: changeOrderAuditTrail.id,
+      changeOrderId: changeOrderAuditTrail.changeOrderId,
+      fromStatus: changeOrderAuditTrail.fromStatus,
+      toStatus: changeOrderAuditTrail.toStatus,
+      changedBy: changeOrderAuditTrail.changedBy,
+      comment: changeOrderAuditTrail.comment,
+      metadata: changeOrderAuditTrail.metadata,
+      createdAt: changeOrderAuditTrail.createdAt,
+      userName: users.name,
+      userEmail: users.email,
+    })
     .from(changeOrderAuditTrail)
+    .leftJoin(users, eq(changeOrderAuditTrail.changedBy, users.id))
     .where(eq(changeOrderAuditTrail.changeOrderId, changeOrderId))
     .orderBy(desc(changeOrderAuditTrail.createdAt));
+
+  // Enrich with derived fields for timeline component
+  return auditTrailData.map((entry) => ({
+    ...entry,
+    eventType: entry.toStatus,
+    details: entry.metadata as JsonValue,
+    timestamp: entry.createdAt,
+  })) as EnrichedAuditTrail[];
 }
 
 /**
@@ -884,4 +1012,209 @@ export async function getProjectStatistics(
     byStatus,
     byType,
   };
+}
+
+/**
+ * Export change orders as CSV
+ */
+export async function exportChangeOrdersAsCsv(
+  projectId: string,
+  filters: Omit<ChangeOrderListFilters, "limit" | "offset"> = {}
+): Promise<{
+  filename: string;
+  content: string;
+}> {
+  const { items } = await listChangeOrders(projectId, { ...filters, limit: 1000 });
+
+  // Generate CSV
+  const headers = ["ID", "Type", "Number", "Title", "Status", "Requester", "Created At", "Updated At"];
+  const rows = items.map((item) => [
+    item.id,
+    item.type,
+    item.number,
+    `"${item.title.replace(/"/g, '""')}"`, // Escape quotes
+    item.status,
+    item.requesterName || "Unknown",
+    new Date(item.createdAt).toLocaleString("ko-KR"),
+    new Date(item.updatedAt).toLocaleString("ko-KR"),
+  ]);
+
+  const csv = [
+    headers.join(","),
+    ...rows.map((row) => row.join(",")),
+  ].join("\n");
+
+  return {
+    filename: `change-orders-${new Date().toISOString().split("T")[0]}.csv`,
+    content: csv,
+  };
+}
+
+/**
+ * Delete a change order (only allowed in draft status)
+ */
+export async function deleteChangeOrder(
+  changeOrderId: string,
+  userId: string
+): Promise<ChangeOrderWithDetails> {
+  const [existing] = await db
+    .select()
+    .from(changeOrders)
+    .where(eq(changeOrders.id, changeOrderId))
+    .limit(1);
+
+  if (!existing) {
+    throw new Error("Change order not found");
+  }
+
+  if (existing.status !== "draft") {
+    throw new Error("Only draft change orders can be deleted");
+  }
+
+  if (existing.requesterId !== userId) {
+    throw new Error("Only the requester can delete the change order");
+  }
+
+  // Get the change order details before deletion for return
+  const changeOrderDetails = await getChangeOrderById(changeOrderId, userId);
+
+  await db.transaction(async (tx) => {
+    // Delete related records first (foreign key constraints)
+    await tx
+      .delete(changeOrderAffectedParts)
+      .where(eq(changeOrderAffectedParts.changeOrderId, changeOrderId));
+
+    await tx
+      .delete(changeOrderAuditTrail)
+      .where(eq(changeOrderAuditTrail.changeOrderId, changeOrderId));
+
+    await tx
+      .delete(changeOrderApprovers)
+      .where(eq(changeOrderApprovers.changeOrderId, changeOrderId));
+
+    // Delete the change order
+    await tx
+      .delete(changeOrders)
+      .where(eq(changeOrders.id, changeOrderId));
+  });
+
+  return changeOrderDetails as ChangeOrderWithDetails;
+}
+
+/**
+ * Add an approver to a change order
+ */
+export async function addApprover(
+  changeOrderId: string,
+  approverId: string,
+  userId: string
+): Promise<ChangeOrderWithDetails> {
+  const [existing] = await db
+    .select()
+    .from(changeOrders)
+    .where(eq(changeOrders.id, changeOrderId))
+    .limit(1);
+
+  if (!existing) {
+    throw new Error("Change order not found");
+  }
+
+  if (existing.status !== "draft") {
+    throw new Error("Can only add approvers to draft change orders");
+  }
+
+  if (existing.requesterId !== userId) {
+    throw new Error("Only the requester can add approvers");
+  }
+
+  // Verify approver exists
+  const [approver] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, approverId))
+    .limit(1);
+
+  if (!approver) {
+    throw new Error("Approver not found");
+  }
+
+  // Check if approver already exists
+  const [existingApprover] = await db
+    .select()
+    .from(changeOrderApprovers)
+    .where(
+      and(
+        eq(changeOrderApprovers.changeOrderId, changeOrderId),
+        eq(changeOrderApprovers.approverId, approverId)
+      )
+    )
+    .limit(1);
+
+  if (existingApprover) {
+    throw new Error("Approver already exists for this change order");
+  }
+
+  // Add the approver
+  await db.insert(changeOrderApprovers).values({
+    changeOrderId,
+    approverId,
+    status: "pending",
+  });
+
+  return getChangeOrderById(changeOrderId, userId) as Promise<ChangeOrderWithDetails>;
+}
+
+/**
+ * Remove an approver from a change order
+ */
+export async function removeApprover(
+  changeOrderId: string,
+  approverId: string,
+  userId: string
+): Promise<ChangeOrderWithDetails> {
+  const [existing] = await db
+    .select()
+    .from(changeOrders)
+    .where(eq(changeOrders.id, changeOrderId))
+    .limit(1);
+
+  if (!existing) {
+    throw new Error("Change order not found");
+  }
+
+  if (existing.status !== "draft") {
+    throw new Error("Can only remove approvers from draft change orders");
+  }
+
+  if (existing.requesterId !== userId) {
+    throw new Error("Only the requester can remove approvers");
+  }
+
+  // Check if approver exists
+  const [approverRecord] = await db
+    .select()
+    .from(changeOrderApprovers)
+    .where(
+      and(
+        eq(changeOrderApprovers.changeOrderId, changeOrderId),
+        eq(changeOrderApprovers.approverId, approverId)
+      )
+    )
+    .limit(1);
+
+  if (!approverRecord) {
+    throw new Error("Approver not found for this change order");
+  }
+
+  // Can only remove pending approvers
+  if (approverRecord.status !== "pending") {
+    throw new Error("Can only remove pending approvers");
+  }
+
+  // Remove the approver
+  await db
+    .delete(changeOrderApprovers)
+    .where(eq(changeOrderApprovers.id, approverRecord.id));
+
+  return getChangeOrderById(changeOrderId, userId) as Promise<ChangeOrderWithDetails>;
 }

@@ -978,5 +978,99 @@ export const plmRouter = createTRPCRouter({
           m.getProjectStatistics(input.projectId)
         );
       }),
+
+    // Export change orders as CSV
+    export: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.string().uuid(),
+          status: z.enum(["draft", "submitted", "in_review", "approved", "rejected", "implemented"]).optional(),
+          type: z.enum(["ECR", "ECN"]).optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return import("./change-order-service").then((m) =>
+          m.exportChangeOrdersAsCsv(input.projectId, {
+            status: input.status,
+            type: input.type,
+          })
+        );
+      }),
+
+    // Delete change order (draft only)
+    delete: protectedProcedure
+      .input(z.object({ changeOrderId: z.string().uuid() }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const authCtx = ctx as AuthenticatedContext;
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.deleteChangeOrder(input.changeOrderId, authCtx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to delete change order");
+        }
+      }),
+
+    // Add approver to change order
+    addApprover: protectedProcedure
+      .input(
+        z.object({
+          changeOrderId: z.string().uuid(),
+          approverId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const authCtx = ctx as AuthenticatedContext;
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.addApprover(input.changeOrderId, input.approverId, authCtx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to add approver");
+        }
+      }),
+
+    // Remove approver from change order
+    removeApprover: protectedProcedure
+      .input(
+        z.object({
+          changeOrderId: z.string().uuid(),
+          approverId: z.string().uuid(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const authCtx = ctx as AuthenticatedContext;
+          const changeOrder = await import("./change-order-service").then(
+            (m) => m.removeApprover(input.changeOrderId, input.approverId, authCtx.user.id)
+          );
+
+          return {
+            success: true,
+            data: changeOrder,
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("Failed to remove approver");
+        }
+      }),
   }),
 });

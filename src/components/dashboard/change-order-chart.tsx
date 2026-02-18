@@ -33,6 +33,8 @@ interface ChangeOrderChartProps {
   showPercentage?: boolean;
   /** Layout type */
   layout?: "horizontal" | "vertical";
+  /** Click handler for data points */
+  onStatusClick?: (status: string) => void;
 }
 
 /**
@@ -85,6 +87,7 @@ export function ChangeOrderChart({
   className,
   showPercentage = true,
   layout = "horizontal",
+  onStatusClick,
 }: ChangeOrderChartProps) {
   const total = propTotal ?? data.reduce((sum, d) => sum + d.count, 0);
   const maxCount = Math.max(...data.map((d) => d.count));
@@ -135,7 +138,13 @@ export function ChangeOrderChart({
                 </div>
 
                 {/* Bar */}
-                <div className="flex-1 min-w-0">
+                <div
+                  className={cn(
+                    "flex-1 min-w-0",
+                    onStatusClick && "cursor-pointer hover:opacity-80 transition-opacity"
+                  )}
+                  onClick={() => onStatusClick?.(item.status)}
+                >
                   <div
                     className={cn(
                       "h-8 rounded-md flex items-center justify-center text-xs font-medium text-white transition-all duration-500",

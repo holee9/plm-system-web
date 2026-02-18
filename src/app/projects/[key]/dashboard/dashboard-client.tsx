@@ -2,12 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FolderKanban, CheckCircle2, Clock, AlertTriangle, Package, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
+import { ChangeOrderChart, ChangeOrderDataPoint } from "@/components/dashboard/change-order-chart";
+import { PartCategoryChart } from "@/components/dashboard/part-category-chart";
 
 interface ProjectDashboardClientProps {
   projectId: string;
@@ -52,6 +56,11 @@ function StatCard({ title, value, icon: Icon, iconColor, change, changeType = "n
 }
 
 export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboardClientProps) {
+  const router = useRouter();
+
+  // State for filters
+  const [statusFilter, setStatusFilter] = React.useState<string | null>(null);
+
   // Fetch issues for stats
   const { data: issuesData } = trpc.issue.list.useQuery(
     { projectId, filters: {} },
@@ -78,6 +87,51 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
   // Priority breakdown
   const urgentIssues = issues.filter((i: any) => i.priority === "urgent").length;
   const highPriorityIssues = issues.filter((i: any) => i.priority === "high").length;
+
+  // Fetch change order statistics
+  const { data: changeOrderStats } = trpc.plm.changeOrder.statistics.useQuery(
+    { projectId },
+    { enabled: !!projectId }
+  );
+
+  // Fetch parts for category chart
+  const { data: partsData } = trpc.plm.part.list.useQuery(
+    { projectId, limit: 100 },
+    { enabled: !!projectId }
+  );
+
+  const parts = partsData?.items ?? [];
+
+  // Calculate category distribution
+  const categoryDistribution = React.useMemo(() => {
+    const categories: Record<string, number> = {};
+    parts.forEach((part: any) => {
+      const category = part.category || "미분류";
+      categories[category] = (categories[category] || 0) + 1;
+    });
+
+    return Object.entries(categories).map(([name, count]) => ({ name, count }));
+  }, [parts]);
+
+  // Transform change order stats to chart data
+  const changeOrderChartData: ChangeOrderDataPoint[] = React.useMemo(() => {
+    if (!changeOrderStats) return [];
+
+    return [
+      { status: "draft", count: changeOrderStats.byStatus.draft, label: "초안", color: "bg-slate-500" },
+      { status: "submitted", count: changeOrderStats.byStatus.submitted, label: "제출됨", color: "bg-blue-500" },
+      { status: "in_review", count: changeOrderStats.byStatus.in_review, label: "검토 중", color: "bg-amber-500" },
+      { status: "approved", count: changeOrderStats.byStatus.approved, label: "승인됨", color: "bg-emerald-500" },
+      { status: "rejected", count: changeOrderStats.byStatus.rejected, label: "거부됨", color: "bg-rose-500" },
+      { status: "implemented", count: changeOrderStats.byStatus.implemented, label: "구현됨", color: "bg-green-500" },
+    ];
+  }, [changeOrderStats]);
+
+  // Handle status filter click
+  const handleStatusClick = (status: string) => {
+    // Navigate to changes page with status filter
+    router.push(`/projects/${projectKey}/changes?status=${status}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -111,6 +165,17 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
           iconColor="bg-rose-500"
           changeType="negative"
         />
+      </div>
+
+      {/* Charts */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ChangeOrderChart
+          data={changeOrderChartData}
+          total={changeOrderStats?.total}
+          title="변경 주문 현황"
+          onStatusClick={handleStatusClick}
+        />
+        <PartCategoryChart data={categoryDistribution} />
       </div>
 
       {/* Progress Overview */}
@@ -165,6 +230,11 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
                 <Link href={`/projects/${projectKey}/milestones`}>
                   <Badge variant="outline" className="cursor-pointer hover:bg-accent">
                     마일스톤
+                  </Badge>
+                </Link>
+                <Link href={`/projects/${projectKey}/changes`}>
+                  <Badge variant="outline" className="cursor-pointer hover:bg-accent">
+                    변경 주문
                   </Badge>
                 </Link>
               </div>

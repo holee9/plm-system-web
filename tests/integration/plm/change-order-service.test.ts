@@ -29,6 +29,7 @@ import { eq } from "drizzle-orm";
 function createMockProject(overrides = {}) {
   return {
     name: "Test Project",
+    key: "TEST-" + Math.floor(Math.random() * 10000),
     description: "Test project for change orders",
     ...overrides,
   };

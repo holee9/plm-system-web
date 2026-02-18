@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Bell, X, Check } from "lucide-react";
+import { Bell, X, Check, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { trpc } from "@/lib/trpc";
@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useSSENotifications } from "@/hooks/use-sse-notifications";
 
 interface Notification {
   id: string;
@@ -95,10 +96,14 @@ function NotificationItem({ notification, onClick }: { notification: Notificatio
 
 export function NotificationBell() {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [sseEnabled, setSseEnabled] = React.useState(false);
 
-  // Fetch unread count
+  // SSE connection for real-time notifications
+  const { isConnected: sseConnected } = useSSENotifications();
+
+  // Fetch unread count (polling fallback when SSE not connected)
   const { data: unreadCount = 0 } = trpc.notification.getUnreadCount.useQuery(undefined, {
-    refetchInterval: 30000, // Poll every 30 seconds
+    refetchInterval: sseConnected ? false : 30000, // Poll every 30s when SSE not connected
   });
 
   // Fetch notifications
@@ -180,6 +185,14 @@ export function NotificationBell() {
               {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
           )}
+          {/* SSE connection indicator */}
+          <div className="absolute -bottom-1 -right-1">
+            {sseConnected ? (
+              <Wifi className="h-3 w-3 text-emerald-500" />
+            ) : (
+              <WifiOff className="h-3 w-3 text-muted-foreground/50" />
+            )}
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
