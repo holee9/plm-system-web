@@ -41,7 +41,10 @@ import {
 } from "@/components/ui/dialog";
 import { DocumentUploadZone } from "./document-upload-zone";
 import { DocumentVersionHistory } from "./document-version-history";
+import { DocumentPreview } from "./document-preview";
+import { VersionCompare } from "./version-compare";
 import { cn } from "@/lib/utils";
+import { GitCompareArrows } from "lucide-react";
 
 // File type icons
 const typeIcons: Record<string, string> = {
@@ -79,6 +82,8 @@ export function DocumentRepository({ projectId }: DocumentRepositoryProps) {
   const [resourceFilter, setResourceFilter] = React.useState<string>("all");
   const [selectedDocId, setSelectedDocId] = React.useState<string | null>(null);
   const [versionHistoryDocId, setVersionHistoryDocId] = React.useState<string | null>(null);
+  const [previewDocId, setPreviewDocId] = React.useState<string | null>(null);
+  const [compareDocName, setCompareDocName] = React.useState<string | null>(null);
 
   // Fetch all documents for the project
   const { data: documents = [], isLoading } = trpc.document.listAll.useQuery(
@@ -340,6 +345,10 @@ export function DocumentRepository({ projectId }: DocumentRepositoryProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setPreviewDocId(doc.id)}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            미리보기
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDownload(doc.id)}>
                             <Download className="h-4 w-4 mr-2" />
                             다운로드
@@ -347,6 +356,12 @@ export function DocumentRepository({ projectId }: DocumentRepositoryProps) {
                           <DropdownMenuItem onClick={() => setVersionHistoryDocId(doc.id)}>
                             <Eye className="h-4 w-4 mr-2" />
                             버전 기록
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setCompareDocName(doc.originalFileName)}
+                          >
+                            <GitCompareArrows className="h-4 w-4 mr-2" />
+                            버전 비교
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setSelectedDocId(doc.id)}>
                             <Upload className="h-4 w-4 mr-2" />
@@ -381,6 +396,26 @@ export function DocumentRepository({ projectId }: DocumentRepositoryProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Document Preview Dialog */}
+      {previewDocId && (
+        <DocumentPreview
+          documentId={previewDocId}
+          open={!!previewDocId}
+          onOpenChange={() => setPreviewDocId(null)}
+        />
+      )}
+
+      {/* Version Compare Dialog */}
+      {compareDocName && projectId && (
+        <VersionCompare
+          resourceId={projectId}
+          resourceType="project"
+          originalFileName={compareDocName}
+          open={!!compareDocName}
+          onOpenChange={() => setCompareDocName(null)}
+        />
+      )}
     </div>
   );
 }
