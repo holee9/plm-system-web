@@ -29,6 +29,13 @@
       "when": 1771286578771,
       "tag": "0003_green_baron_strucker",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1771401572023,
+      "tag": "0004_powerful_spirit",
+      "breakpoints": true
     }
   ]
 }

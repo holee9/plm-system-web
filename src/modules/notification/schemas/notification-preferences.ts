@@ -32,7 +32,7 @@ export const notificationPreferences = pgTable("notification_preferences", {
   category: notificationCategoryEnum("category").notNull(),
   enabled: boolean("enabled").notNull().default(true),
   frequency: notificationFrequencyEnum("frequency").notNull().default("immediate"),
-  projectId: text("project_id"), // Optional project-specific override
+  projectId: text("project_id").notNull().default("global"), // "global" for user-level defaults, specific project ID for overrides
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
