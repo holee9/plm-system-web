@@ -1,5 +1,5 @@
 // Notification preferences table schema
-import { pgTable, uuid, boolean, text, timestamp, primaryKey, index } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, boolean, text, timestamp, primaryKey, index } from "drizzle-orm/pg-core";
 import { users } from "../../../server/db/users";
 
 // Notification channel enum

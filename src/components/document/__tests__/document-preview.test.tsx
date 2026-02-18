@@ -19,7 +19,7 @@ vi.mock("pdfjs-dist", () => ({
         })
       ),
     }),
-  }),
+  })),
   GlobalWorkerOptions: { workerSrc: "" },
 }));
 

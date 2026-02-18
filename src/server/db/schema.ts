@@ -45,3 +45,7 @@ export * from "./change-orders";
 
 // Documents/Files tables
 export * from "./documents";
+
+// Dashboard tables
+export * from "./user-dashboards";
+export * from "./dashboard-templates";
