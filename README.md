@@ -32,6 +32,23 @@ Product Lifecycle Management System built with modern web technologies.
 
 ## ✅ Recently Completed (Latest Update: 2026-02-18)
 
+### SPEC-PLM-008: Phase 1 Changes Commit and Cleanup - 100% Complete ✅ (2026-02-18)
+- ✅ SSE 실시간 알림 시스템 구현 완료 (인증, 재연결, keep-alive)
+- ✅ 변경 주문 필터링 기능 추가 (우선순위, 검색, 고급 필터)
+- ✅ 대시보드 기간 선택 기능 추가 (전체, 7일, 30일, 3개월, 1년)
+- ✅ 프로젝트 관련 테스트 커버리지 확장 (통합/단위 테스트)
+- ✅ 정리 작업 완료 (커밋 조직화, 문서 업데이트)
+
+### P2: 중요 기능 완료 - 100% Complete ✅ (2026-02-18)
+- ✅ 변경 주문 목록 필터링 (상태, 우선순위, 유형)
+- ✅ 변경 주문 검색 (제목, 번호, 설명)
+- ✅ 필터 토글 UI (고급 필터 패널)
+- ✅ 전체 읽음 처리 (markAllAsRead 프로시저)
+- ✅ SSE 실시간 알림 (/api/sse/notifications 엔드포인트)
+- ✅ SSE 연결 상태 표시 (Wifi/WifiOff 아이콘)
+- ✅ 차트 인터랙티브 필터링 (상태별 클릭→필터 이동)
+- ✅ 기간 선택 (전체, 7일, 30일, 3개월, 1년)
+
 ### P1: Essential UI & Data Integration - 100% Complete ✅
 - ✅ NotificationCenter 컴포넌트 (알림 목록, 읽음/未읽음, 개별/전체 삭제)
 - ✅ 알림 벨/배지 UI (Header 배지, 未읽음 수 표시, 클릭 시 오픈)
@@ -84,6 +101,18 @@ Product Lifecycle Management System built with modern web technologies.
 ---
 
 ## 📦 Updated Files
+
+### SPEC-PLM-008 Implementation Files (2026-02-18)
+- `src/app/api/sse/notifications/route.ts` (NEW) - SSE 엔드포인트 구현 (Auth.js v5 인증, keep-alive, 재연결)
+- `src/hooks/use-sse-notifications.ts` - SSE React Hook (연결 관리, 토스트 알림, tRPC 무효화)
+- `src/app/projects/[key]/changes/change-order-list-client.tsx` - 우선순위 필터, 검색, 고급 필터 UI
+- `src/components/changes/change-order-list.tsx` - priorityFilter prop 추가
+- `src/app/projects/[key]/dashboard/dashboard-client.tsx` - 기간 선택 UI, 날짜 범위 쿼리
+- `tests/integration/project/` - 프로젝트 통합 테스트 (CRUD, 멤버, 마일스톤, 서비스)
+- `tests/unit/project/` - 프로젝트 단위 테스트 (서비스, 라우터, 스키마)
+- `src/modules/project/__tests__/` - 프로젝트 모듈 테스트
+
+### P2 구현 파일 (2026-02-18)
 
 ### Service Layer
 - `src/modules/issue/service.ts` - 이슈/댓글/마일스톤 CRUD 함수 추가
@@ -193,24 +222,21 @@ Product Lifecycle Management System built with modern web technologies.
 
 **P1 완료로 제거된 항목:** NotificationCenter, 알림 벨/배지, 알림 페이지 이동, DocumentRepository, 파일 업로드, 파일 검증, ChangeOrderChart 데이터 연동, 대시보드 데이터 연동
 
-### SPEC-PLM-006: Change Order Workflow (P2/P3 remaining)
+**P2 완료로 제거된 항목 (2026-02-18 완료):** 변경 주문 필터링(C-001), 검색(C-002), 우선순위 필터, 전체 읽음 처리(D-004), SSE 실시간 알림(D-005), 차트 인터랙티브 필터링(D-013), 기간 선택(D-014)
 
-**고급 기능**
+### SPEC-PLM-006: Change Order Workflow (P3 remaining)
+
+**선택적 고급 기능**
 | ID | 기능 | 우선순위 | 예상 작업량 |
 |----|------|----------|-------------|
-| C-001 | 변경 주문 목록 필터링 (상태, 우선순위, 담당자) | **P2** | 2h |
-| C-002 | 변경 주문 검색 (제목, 번호) | **P2** | 2h |
 | C-003 | 변경 주문 내보내기 (CSV, PDF) | P3 | 3h |
 | C-004 | 일괄 처리 대량 승인/거부 | P3 | 2h |
-| C-006 | 통계 데이터 자동 새로고침 | **P2** | 2h |
 
-### SPEC-PLM-007: Dashboard & Reporting (P2/P3 remaining)
+### SPEC-PLM-007: Dashboard & Reporting (P3 remaining)
 
 **알림 시스템**
 | ID | 기능 | 우선순위 | 예상 작업량 |
 |----|------|----------|-------------|
-| D-004 | 전체 읽음 처리 | **P2** | 1h |
-| D-005 | SSE 실시간 알림 | **P2** | 4h |
 | D-006 | 알림 설정 (푸시, 이메일) | P3 | 3h |
 
 **문서 관리**
@@ -219,11 +245,9 @@ Product Lifecycle Management System built with modern web technologies.
 | D-010 | 문서 미리보기 (PDF, 이미지) | P3 | 3h |
 | D-011 | 버전 간 비교 UI | P3 | 4h |
 
-**대시보드 고급 기능**
+**대시보드 선택적 기능**
 | ID | 기능 | 우선순위 | 예상 작업량 |
 |----|------|----------|-------------|
-| D-013 | 차트 인터랙티브 필터링 | **P2** | 3h |
-| D-014 | 기간 선택 (주간, 월간, 분기별) | **P2** | 2h |
 | D-015 | 사용자 지정 대시보드 (위젯 배치) | P3 | 6h |
 
 ---
@@ -236,24 +260,13 @@ Product Lifecycle Management System built with modern web technologies.
 |------|--------|------|-------------|
 | **Phase 1: Foundation** | **100%** | ✅ 완료 | SPEC-PLM-001, 002, 003 |
 | **Phase 2: Core Features** | **100%** | ✅ 완료 | SPEC-PLM-004, 005 |
-| **Phase 3: PLM Workflows** | **~90%** | 🚧 진행 중 | SPEC-PLM-006, 007 (P2/P3 남음) |
+| **Phase 3: PLM Workflows** | **~95%** | 🚧 진행 중 | SPEC-PLM-006, 007 (P3 선택사항 남음) |
 | **P1 우선순위** | **100%** | ✅ 완료 | 8개 항목 모두 완료 |
+| **P2 중요** | **100%** | ✅ 완료 | 7개 항목 모두 완료 |
 
 ### 남은 기능 상세 리스트
 
-#### P2 (중요) - 7개 항목 / 약 16시간
-
-| ID | 기능 | 영역 | 예상 시간 |
-|----|------|------|-----------|
-| C-001 | 변경 주문 목록 필터링 | 변경주문 | 2h |
-| C-002 | 변경 주문 검색 | 변경주문 | 2h |
-| C-006 | 통계 데이터 자동 새로고침 | 차트 | 2h |
-| D-004 | 전체 읽음 처리 | 알림 | 1h |
-| D-005 | SSE 실시간 알림 | 알림 | 4h |
-| D-013 | 차트 인터랙티브 필터링 | 차트 | 3h |
-| D-014 | 기간 선택 (주간/월간/분기별) | 차트 | 2h |
-
-#### P3 (선택) - 5개 항목 / 약 18시간
+#### P3 (선택사항) - 5개 항목 / 약 18시간
 
 | ID | 기능 | 영역 | 예상 시간 |
 |----|------|------|-----------|
@@ -269,34 +282,23 @@ Product Lifecycle Management System built with modern web technologies.
 | 우선순위 | 기능 수 | 총 예상 시간 |
 |----------|----------|-------------|
 | **P1 (필수)** | 8개 | ✅ 완료 |
-| **P2 (중요)** | 7개 | ~16시간 |
+| **P2 (중요)** | 7개 | ✅ 완료 |
 | **P3 (선택)** | 6개 | ~18시간 |
-| **합계 (남음)** | 13개 | ~34시간 |
-| D-013 | 차트 인터랙티브 필터링 | **P2** | 3h |
-| D-014 | 기간 선택 (주간, 월간, 분기별) | **P2** | 2h |
-| D-015 | 사용자 지정 대시보드 (위젯 배치) | P3 | 6h |
-
-### 작업량 추정
-
-| 우선순위 | 기능 수 | 총 예상 시간 |
-|----------|----------|-------------|
-| **P1 (필수)** | 8개 | ~18시간 |
-| **P2 (중요)** | 7개 | ~17시간 |
-| **P3 (선택)** | 5개 | ~20시간 |
-| **합계** | 20개 | ~55시간 |
+| **합계 (남음)** | 6개 | ~18시간 |
 
 ### 추천 구현 순서
 
-1. **Phase 3-A: 핵심 기능 완성 (P1)** - 예상 18시간
-   - 알림 센터 UI (D-001 ~ D-004): 7시간
-   - 문서 저장소 (D-007 ~ D-009): 8시간
-   - 데이터 연동 (C-005, D-012): 3시간
+1. **Phase 3-A: P2 중요 기능** - ✅ 완료 (2026-02-18)
+   - 변경 주문 필터링 (C-001, C-002): 4h
+   - 알림 전체 읽음 (D-004): 1h
+   - SSE 실시간 알림 (D-005): 4h
+   - 차트 인터랙티브 필터링 (D-013): 3h
+   - 기간 선택 (D-014): 2h
 
-2. **Phase 3-B: 고급 기능 (P2)** - 예상 17시간
-   - 실시간 알림 (D-005): 4시간
-   - 대화형 차트 (D-013, D-014): 5시간
-   - 변경 주문 고급 (C-001, C-002, C-006): 6시간
-   - 파일 업로드 개선 (D-008): 2시간
+2. **Phase 3-B: P3 선택적 기능** - 예상 18시간
+   - 변경 주문 내보내기 (C-003, C-004): 5h
+   - 문서 고급 기능 (D-010, D-011): 7h
+   - 사용자 지정 대시보드 (D-015): 6h
 
 3. **Phase 3-C: 추가 기능 (P3)** - 예상 20시간
    - 내보내기 (C-003, C-004): 5시간
