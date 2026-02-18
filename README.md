@@ -28,10 +28,23 @@ Product Lifecycle Management System built with modern web technologies.
 | SPEC-PLM-006 | ✅ Complete | 100% | Change order workflow (full implementation with filtering, search, export) |
 | SPEC-PLM-007 | ✅ Complete | 100% | Dashboard, reporting, notifications, documents (SSE real-time, charts with data) |
 | SPEC-PLM-010 | ✅ Complete | 100% | Document advanced features (preview, version comparison) |
+| SPEC-PLM-011 | ✅ Complete | 100% | Notification settings (channel, category, frequency controls) |
 
 ---
 
 ## ✅ Recently Completed (Latest Update: 2026-02-18)
+
+### SPEC-PLM-011: Notification Settings - 100% Complete ✅ (2026-02-18)
+- ✅ 알림 설정 페이지 (/settings/notifications)
+- ✅ 채널별 설정 (앱 내 알림, 이메일, 푸시 알림)
+- ✅ 카테고리별 설정 (이슈, 프로젝트, PLM)
+- ✅ 빈도 설정 (즉시, 매시, 매일, 매주)
+- ✅ 프로젝트별 재정의 (project-specific overrides)
+- ✅ 설정 매트릭스 UI (전체/채널별/카테고리별 탭)
+- ✅ 토글 스위치 및 드롭다운 컨트롤
+- ✅ 기본값으로 재설정 기능
+- ✅ 낙관적 업데이트 (TanStack Query)
+- ✅ 포괄적인 테스트 스위트
 
 ### SPEC-PLM-010: Document Advanced Features (Preview & Version Compare) - 100% Complete ✅ (2026-02-18)
 - ✅ 문서 미리보기 기능 (PDF.js 통합, 이미지 뷰어)
