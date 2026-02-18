@@ -3,14 +3,21 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FolderKanban, CheckCircle2, Clock, AlertTriangle, Package, FileText } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { FolderKanban, CheckCircle2, Clock, AlertTriangle, Package, FileText, Calendar } from "lucide-react";
+import { formatDistanceToNow, subDays, subMonths, startOfDay, endOfDay } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { ChangeOrderChart, ChangeOrderDataPoint } from "@/components/dashboard/change-order-chart";
@@ -58,18 +65,44 @@ function StatCard({ title, value, icon: Icon, iconColor, change, changeType = "n
   );
 }
 
+type DateRangePreset = "all" | "7d" | "30d" | "90d" | "1y";
+
+const dateRangePresets: Record<DateRangePreset, { label: string; startDate: Date | null; endDate: Date }> = {
+  all: { label: "전체 기간", startDate: null, endDate: endOfDay(new Date()) },
+  "7d": { label: "최근 7일", startDate: startOfDay(subDays(new Date(), 7)), endDate: endOfDay(new Date()) },
+  "30d": { label: "최근 30일", startDate: startOfDay(subDays(new Date(), 30)), endDate: endOfDay(new Date()) },
+  "90d": { label: "최근 3개월", startDate: startOfDay(subDays(new Date(), 90)), endDate: endOfDay(new Date()) },
+  "1y": { label: "최근 1년", startDate: startOfDay(subMonths(new Date(), 12)), endDate: endOfDay(new Date()) },
+};
+
 export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboardClientProps) {
   const router = useRouter();
+  const [dateRangePreset, setDateRangePreset] = React.useState<DateRangePreset>("all");
+  const dateRange = dateRangePresets[dateRangePreset];
 
   // Fetch complete dashboard data using the integrated API
   const { data: dashboardData, isLoading } = trpc.dashboard.getData.useQuery(
-    { projectId },
+    {
+      projectId,
+      ...(dateRangePreset !== "all" && {
+        startDate: dateRange.startDate?.toISOString(),
+        endDate: dateRange.endDate.toISOString(),
+      }),
+    },
     { enabled: !!projectId }
   );
 
   // Fallback: fetch individual queries if dashboard data is not available
   const { data: issuesData } = trpc.issue.list.useQuery(
-    { projectId, filters: {} },
+    {
+      projectId,
+      filters: {
+        ...(dateRangePreset !== "all" && {
+          createdAfter: dateRange.startDate?.toISOString(),
+          createdBefore: dateRange.endDate.toISOString(),
+        }),
+      },
+    },
     { enabled: !!projectId && !dashboardData }
   );
 
@@ -93,13 +126,26 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
 
   // Fetch change order statistics
   const { data: changeOrderStats } = trpc.plm.changeOrder.statistics.useQuery(
-    { projectId },
+    {
+      projectId,
+      ...(dateRangePreset !== "all" && {
+        startDate: dateRange.startDate?.toISOString(),
+        endDate: dateRange.endDate.toISOString(),
+      }),
+    },
     { enabled: !!projectId }
   );
 
   // Fetch parts for category chart
   const { data: partsData } = trpc.plm.part.list.useQuery(
-    { projectId, limit: 100 },
+    {
+      projectId,
+      limit: 100,
+      ...(dateRangePreset !== "all" && {
+        createdAfter: dateRange.startDate?.toISOString(),
+        createdBefore: dateRange.endDate.toISOString(),
+      }),
+    },
     { enabled: !!projectId }
   );
 
@@ -171,6 +217,30 @@ export function ProjectDashboardClient({ projectId, projectKey }: ProjectDashboa
 
   return (
     <div className="space-y-6">
+      {/* Date Range Selector */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">기간 선택</span>
+            </div>
+            <Select value={dateRangePreset} onValueChange={(v) => setDateRangePreset(v as DateRangePreset)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체 기간</SelectItem>
+                <SelectItem value="7d">최근 7일</SelectItem>
+                <SelectItem value="30d">최근 30일</SelectItem>
+                <SelectItem value="90d">최근 3개월</SelectItem>
+                <SelectItem value="1y">최근 1년</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
