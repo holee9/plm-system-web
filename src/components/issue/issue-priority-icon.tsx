@@ -41,7 +41,7 @@ const PRIORITY_CONFIG = {
 } as const;
 
 export function IssuePriorityIcon({ priority, className }: IssuePriorityIconProps) {
-  const config = PRIORITY_CONFIG[priority];
+  const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.none;
   const Icon = config.icon;
 
   return (

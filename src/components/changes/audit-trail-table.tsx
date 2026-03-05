@@ -255,10 +255,10 @@ export function AuditTrailTable({
                     </TableCell>
                     <TableCell>
                       <span className="text-sm text-muted-foreground">
-                        {formatDistanceToNow(new Date(entry.timestamp), {
+                        {entry.timestamp ? formatDistanceToNow(new Date(entry.timestamp), {
                           addSuffix: true,
                           locale: ko,
-                        })}
+                        }) : '방금 전'}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -329,13 +329,13 @@ function AuditTrailDetail({ entry, config }: AuditTrailDetailProps) {
           <div className="flex items-center gap-3 text-sm">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span>
-              {new Date(entry.timestamp).toLocaleString("ko-KR", {
+              {entry.timestamp ? new Date(entry.timestamp).toLocaleString("ko-KR", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
                 hour: "2-digit",
                 minute: "2-digit",
-              })}
+              }) : '알 수 없음'}
             </span>
           </div>
 
@@ -473,10 +473,10 @@ export function AuditTrailTimeline({
                   <p className="font-medium">{config.label}</p>
                   <p className="text-sm text-muted-foreground">
                     {entry.userName} •{" "}
-                    {formatDistanceToNow(new Date(entry.timestamp), {
+                    {entry.timestamp ? formatDistanceToNow(new Date(entry.timestamp), {
                       addSuffix: true,
                       locale: ko,
-                    })}
+                    }) : '방금 전'}
                   </p>
                 </div>
               </div>

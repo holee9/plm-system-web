@@ -366,7 +366,7 @@ function TimelineDetail({ entry, config }: TimelineDetailProps) {
           <div className="flex items-center gap-3 text-sm">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span>
-              {new Date(entry.timestamp).toLocaleString("ko-KR", {
+              {entry.timestamp ? new Date(entry.timestamp).toLocaleString("ko-KR", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -457,10 +457,10 @@ export function ChangeOrderTimelineCompact({
               {entry.userName}
             </span>
             <span className="text-muted-foreground ml-auto text-xs">
-              {formatDistanceToNow(new Date(entry.timestamp), {
+              {entry.timestamp ? formatDistanceToNow(new Date(entry.timestamp), {
                 addSuffix: true,
                 locale: ko,
-              })}
+              }) : '방금 전'}
             </span>
           </div>
         );

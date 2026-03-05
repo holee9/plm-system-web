@@ -210,7 +210,7 @@ export function ActivityTimeline({
             <div className="p-6">
               <div className="space-y-6">
                 {displayActivities.map((entry, index) => {
-                  const config = eventTypeConfig[entry.type];
+                  const config = eventTypeConfig[entry.type] || eventTypeConfig.system_alert;
                   const Icon = config.icon;
                   const isLast = index === displayActivities.length - 1;
 
@@ -222,9 +222,9 @@ export function ActivityTimeline({
                           className={cn(
                             "flex h-10 w-10 items-center justify-center rounded-full border-2",
                             config.bgColor,
-                            entry.type.includes("alert") ||
-                              entry.type.includes("rejected") ||
-                              entry.type.includes("deleted")
+                            entry.type?.includes("alert") ||
+                              entry.type?.includes("rejected") ||
+                              entry.type?.includes("deleted")
                               ? "border-destructive"
                               : "border-primary"
                           )}
@@ -262,10 +262,10 @@ export function ActivityTimeline({
                                 </div>
                               )}
                               <span className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(entry.timestamp), {
+                                {entry.timestamp ? formatDistanceToNow(new Date(entry.timestamp), {
                                   addSuffix: true,
                                   locale: ko,
-                                })}
+                                }) : '방금 전'}
                               </span>
                             </div>
 
@@ -343,7 +343,7 @@ export function ActivityFeed({
   return (
     <div className={cn("space-y-3", className)}>
       {displayActivities.map((entry) => {
-        const config = eventTypeConfig[entry.type];
+        const config = eventTypeConfig[entry.type] || eventTypeConfig.system_alert;
         const Icon = config.icon;
 
         return (
@@ -365,10 +365,10 @@ export function ActivityFeed({
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium line-clamp-1">{entry.title}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {formatDistanceToNow(new Date(entry.timestamp), {
+                {entry.timestamp ? formatDistanceToNow(new Date(entry.timestamp), {
                   addSuffix: true,
                   locale: ko,
-                })}
+                }) : '방금 전'}
               </p>
             </div>
           </div>
@@ -417,7 +417,7 @@ export function ActivitySummary({
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
       {summary.map(({ type, count }) => {
-        const config = eventTypeConfig[type];
+        const config = eventTypeConfig[type] || eventTypeConfig.system_alert;
         const Icon = config.icon;
 
         return (

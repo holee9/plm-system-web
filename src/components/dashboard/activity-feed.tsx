@@ -9,7 +9,7 @@ interface ActivityItem {
   avatar: string;
   text: string;
   time: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
 }
 
 interface ActivityFeedProps {
@@ -38,7 +38,9 @@ export function ActivityFeed({ title, activities }: ActivityFeedProps) {
               <p className="text-sm leading-tight">{activity.text}</p>
               <p className="text-xs text-muted-foreground">{activity.time}</p>
             </div>
-            <activity.icon className="h-4 w-4 shrink-0 text-muted-foreground/70" />
+            {activity.icon && (
+              <activity.icon className="h-4 w-4 shrink-0 text-muted-foreground/70" />
+            )}
           </div>
         ))}
       </CardContent>

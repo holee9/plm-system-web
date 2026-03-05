@@ -115,21 +115,31 @@ export function KanbanBoard({
             { value: "board" as ViewMode, icon: LayoutGrid, label: "Board" },
             { value: "list" as ViewMode, icon: List, label: "List" },
             { value: "timeline" as ViewMode, icon: Clock, label: "Timeline" },
-          ].map((view) => (
-            <button
-              key={view.value}
-              onClick={() => onViewChange?.(view.value)}
-              className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                currentView === view.value
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <view.icon className="h-4 w-4" />
-              {view.label}
-            </button>
-          ))}
+          ].map((view) => {
+            // DEBUG: Log view object
+            console.log('[DEBUG KanbanBoard] view:', view);
+            console.log('[DEBUG KanbanBoard] view.icon:', view?.icon);
+
+            return (
+              <button
+                key={view.value}
+                onClick={() => onViewChange?.(view.value)}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                  currentView === view.value
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {view.icon ? (
+                  <view.icon className="h-4 w-4" />
+                ) : (
+                  console.error('[ERROR KanbanBoard] view.icon is undefined for view:', view)
+                )}
+                {view.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Create Issue Button */}
